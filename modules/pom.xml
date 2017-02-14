@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.opengamma</groupId>
+    <artifactId>corporate-parent</artifactId>
+    <version>2.1.0</version>
+    <relativePath></relativePath>
+  </parent>
+  <groupId>com.opengamma.sdk</groupId>
+  <artifactId>sdk-parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>SDK-Parent</name>
+  <description>OpenGamma SDK - Parent project</description>
+
+  <!-- ==================================================================== -->
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <!-- ==================================================================== -->
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/OpenGamma/JavaSDK/issues</url>
+  </issueManagement>
+  <inceptionYear>2016</inceptionYear>
+  <scm>
+    <connection>scm:git:https://github.com/OpenGamma/JavaSDK.git</connection>
+    <developerConnection>scm:git:https://github.com/OpenGamma/JavaSDK.git</developerConnection>
+    <url>https://github.com/OpenGamma/JavaSDK</url>
+  </scm>
+
+  <!-- ==================================================================== -->
+  <modules>
+    <module>common</module>
+    <module>margin</module>
+  </modules>
+
+  <!-- ==================================================================== -->
+  <!-- standard build setup -->
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory></directory>
+        <includes>
+          <include>LICENSE.txt</include>
+        </includes>
+        <targetPath>META-INF</targetPath>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+    </testResources>
+    <plugins>
+      <!-- checkstyle -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>7.4</version>
+          </dependency>
+          <dependency>
+            <groupId>com.opengamma</groupId>
+            <artifactId>build-config</artifactId>
+            <version>2.0.0</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>run-checkstyle</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>checkstyle</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <includeResources>false</includeResources>
+          <includeTestResources>false</includeTestResources>
+          <includeTestSourceDirectory>false</includeTestSourceDirectory>
+          <consoleOutput>true</consoleOutput>
+          <failsOnError>true</failsOnError>
+        </configuration>
+      </plugin>
+      <!-- obtain git commit -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>buildnumber</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>create</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- create and publish test jar files -->
+      <!-- include build number in jar files -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-jar</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <skipIfEmpty>true</skipIfEmpty>
+          <archive>
+            <manifestEntries>
+              <Implementation-Build>${buildNumber}</Implementation-Build>
+              <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
+              <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+      <!-- Enforce maven version -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-maven-version</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <dependencyConvergence />
+                <requireMavenVersion>
+                  <version>[3.2.0,)</version>
+                </requireMavenVersion>
+                <requireNoRepositories />
+                <requirePluginVersions />
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Block bad APIs -->
+      <plugin>
+        <groupId>de.thetaphi</groupId>
+        <artifactId>forbiddenapis</artifactId>
+        <configuration>
+          <internalRuntimeForbidden>true</internalRuntimeForbidden>
+          <failOnUnsupportedJava>false</failOnUnsupportedJava>
+          <bundledSignatures>
+            <bundledSignature>jdk-unsafe</bundledSignature>
+            <bundledSignature>jdk-deprecated</bundledSignature>
+          </bundledSignatures>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+              <goal>testCheck</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- ==================================================================== -->
+  <dependencyManagement>
+    <dependencies>
+      <!-- OpenGamma -->
+      <dependency>
+        <groupId>com.opengamma.sdk</groupId>
+        <artifactId>sdk-common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.sdk</groupId>
+        <artifactId>sdk-auth</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.sdk</groupId>
+        <artifactId>sdk-margin</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- Third party -->
+      <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>${okhttp.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup.okio</groupId>
+        <artifactId>okio</artifactId>
+        <version>${okio.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.joda</groupId>
+        <artifactId>joda-beans</artifactId>
+        <version>${joda-beans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.joda</groupId>
+        <artifactId>joda-convert</artifactId>
+        <version>${joda-convert.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-nop</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>${jcommander.version}</version>
+      </dependency>
+
+      <!-- Testing -->
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>mockwebserver</artifactId>
+        <version>${okhttp.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- ==================================================================== -->
+  <profiles>
+    <!-- build source and javadoc jars -->
+    <profile>
+      <id>dist</id>
+      <activation>
+        <property>
+          <name>dist</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <!-- generate source jar file when packaging -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+                <configuration>
+                  <skipIfEmpty>true</skipIfEmpty>
+                  <archive>
+                    <manifest>
+                      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                    </manifest>
+                    <manifestEntries>
+                      <Implementation-Build>${buildNumber}</Implementation-Build>
+                      <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
+                      <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
+                    </manifestEntries>
+                  </archive>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- generate javadoc jar file when packaging -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <configuration>
+                  <skipIfEmpty>true</skipIfEmpty>
+                  <archive>
+                    <manifest>
+                      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                    </manifest>
+                    <manifestEntries>
+                      <Implementation-Build>${buildNumber}</Implementation-Build>
+                      <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
+                      <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
+                    </manifestEntries>
+                  </archive>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- apply strict build rules, activated with -Dstrict -->
+    <profile>
+      <id>strict</id>
+      <activation>
+        <property>
+          <name>strict</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>enforce</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <!-- no commons-logging or good/evil licensed json, junit only in test/provided -->
+                    <bannedDependencies>
+                      <excludes>
+                        <exclude>commons-logging:*</exclude>
+                        <exclude>org.json:json</exclude>
+                        <exclude>junit:*</exclude>
+                      </excludes>
+                      <includes>
+                        <include>junit:*:*:*:test</include>
+                        <include>junit:*:*:*:provided</include>
+                      </includes>
+                    </bannedDependencies>
+                    <banDuplicateClasses>
+                      <ignoreClasses>
+                        <ignoreClass>org.apache.commons.collections.ArrayStack</ignoreClass>
+                        <ignoreClass>org.apache.commons.collections.Buffer</ignoreClass>
+                        <ignoreClass>org.apache.commons.collections.BufferUnderflowException</ignoreClass>
+                        <ignoreClass>org.apache.commons.collections.FastHashMap*</ignoreClass>
+                        <ignoreClass>org.apache.tools.ant.ExitException</ignoreClass>
+                      </ignoreClasses>
+                      <findAllDuplicates>true</findAllDuplicates>
+                    </banDuplicateClasses>
+                    <!-- ensure dependencies resolve to latest version (removed as randomly fails MENFORCER-134) -->
+                    <!--requireUpperBoundDeps / -->
+                    <!-- need Java SE 8 or greater -->
+                    <requireJavaVersion>
+                      <version>[1.8,)</version>
+                    </requireJavaVersion>
+                    <requirePluginVersions>
+                    </requirePluginVersions>
+                  </rules>
+                  <fail>true</fail>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>extra-enforcer-rules</artifactId>
+                <version>1.0-alpha-5</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+          <!-- validate Joda-Beans -->
+          <plugin>
+            <groupId>org.joda</groupId>
+            <artifactId>joda-beans-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <goals>
+                  <goal>validate</goal>
+                </goals>
+                <configuration>
+                  <stopOnError>true</stopOnError>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <!-- ==================================================================== -->
+  <properties>
+    <!-- Versions -->
+    <assertj.version>3.6.1</assertj.version>
+    <joda-convert.version>1.8.1</joda-convert.version>
+    <joda-beans.version>1.10</joda-beans.version>
+    <slf4j.version>1.7.22</slf4j.version>
+    <jcommander.version>1.58</jcommander.version>
+    <okhttp.version>3.6.0</okhttp.version>
+    <okio.version>1.11.0</okio.version>
+    <testng.version>6.10</testng.version>
+    <mockito.version>2.4.0</mockito.version>
+    <!-- Properties for joda-beans-maven-plugin -->
+    <joda-beans-maven-plugin.version>1.1</joda-beans-maven-plugin.version>
+    <joda.beans.config>jdk6</joda.beans.config>
+    <!-- Properties for maven-javadoc-plugin -->
+    <windowtitle>OpenGamma SDK</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma SDK</h1>]]></doctitle>
+    <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
+    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>See <a href="http://www.opengamma.com">www.opengamma.com</a> for more info.</i>]]></bottom>
+    <javadoc.footer.license>Apache v2 licensed</javadoc.footer.license>
+  </properties>
+
+</project>

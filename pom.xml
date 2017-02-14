@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.opengamma</groupId>
+    <artifactId>corporate-parent</artifactId>
+    <version>2.1.0</version>
+    <relativePath></relativePath>
+  </parent>
+  <groupId>com.opengamma.sdk</groupId>
+  <artifactId>sdk-root</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>SDK-Root</name>
+  <description>OpenGamma SDK - Root project</description>
+
+  <!-- ==================================================================== -->
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <!-- ==================================================================== -->
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/OpenGamma/JavaSDK/issues</url>
+  </issueManagement>
+  <inceptionYear>2016</inceptionYear>
+  <scm>
+    <connection>scm:git:https://github.com/OpenGamma/JavaSDK.git</connection>
+    <developerConnection>scm:git:https://github.com/OpenGamma/JavaSDK.git</developerConnection>
+    <url>https://github.com/OpenGamma/JavaSDK</url>
+  </scm>
+
+  <!-- ==================================================================== -->
+  <modules>
+    <module>modules</module>
+    <module>examples</module>
+  </modules>
+
+  <!-- ==================================================================== -->
+  <!-- standard build setup -->
+  <build>
+    <plugins>
+      <!-- Enforce maven version -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-maven-version</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>[3.2.0,)</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- ==================================================================== -->
+  <properties>
+    <!-- Properties for joda-beans-maven-plugin -->
+    <joda-beans-maven-plugin.version>1.1</joda-beans-maven-plugin.version>
+    <joda.beans.config>jdk6</joda.beans.config>
+    <!-- Not installed/deployed -->
+    <maven.install.skip>true</maven.install.skip>
+    <maven.deploy.skip>true</maven.deploy.skip>
+  </properties>
+
+</project>
