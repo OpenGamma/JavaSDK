@@ -1,0 +1,24 @@
+sudo: required
+language: java
+jdk:
+  - oraclejdk8
+cache:
+  directories:
+    - "$HOME/.m2/repository"
+before_cache:
+  - rm -rf $HOME/.m2/repository/com/opengamma/margining
+# install
+before_install:
+  - echo "MAVEN_OPTS='-Xms512m -Xmx2g'" > ~/.mavenrc
+install:
+  - mvn --version
+script:
+  - mvn install -e -B --settings .github/maven-settings.xml
+# deploy
+after_success:
+  - if [[ $TRAVIS_TAG =~ ^v.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -Ddist -DaltDeploymentRepository="og-public-release::default::https://api.bintray.com/maven/opengamma/releases/ServiceClient/" --settings .github/maven-settings.xml; fi
+# secure keys for DEPLOY_USER and DEPLOY_PASSWORD
+env:
+  global:
+  - secure: VGI5Ee0gvq0O5ZluRT2Biq+MLnrXpGqiZZ1YTVOCIJVi58pb6tDGL8jylEyM5uqm5Vnn+nAqelZfnJZUpdAdI5k3+hi/H9zsI86cZ6LkLfA/AzWsNFNjKb971Jnq50s3Sqgs/n1ln+bHjYiLNWWJ+vFgjEGmmMKeM+gR++8o7MNuOyhI+95iVrtgWvytV5bJxYOQlu23qlKqylrz5dr+IhxcsG/m0K6HdB4qESCBPG+zuV0hJ9NtKu7N0wnaLgagcfJvq7aSt+ZaCasebOWaVPXDjbW6Zj8zvHb9uEtIXSZuZzhLAPadqnOn1dPg6SV4d8rDhhwr7w4JlzxT3mqX8jJNJZ1oBTnij27IfEkFN51HDiQ3OjnhFMuzxF7iS2mAbWWzawFGQhYlfeXurMJXWKVFmtPE0ed/SpA0q/Bfcy1fyTIbfv27+j7469jNiOzfI2ntZtC6THU83HZ9DXrI+blE6U5vh4QQF9ryCEV7QAVcmAMkbEAIwUkH2LLDeXiQYWmZv/sXTsHW5MJiQUyxexgsV8r/ZcdbAHsPJyRPR6Qq3/tbxi+6i8buUMEM3PaiL04OVY+t+9agOZvaVH40UlLErxLsTSOa7ibCDnDfrfKxlnZTBQIttrcBE+a1xjX1M5bOyysyqnwJwZtDqZn5Gx3EjDNlZIxBKf+174FntHo=
+  - secure: OTRbHmfcODn5l9sSOulDgif9VjJiIz+p+nUPwpYA1WBoQJBOq/j7nL0mKtc6JHxqIRWdrrdH/0DfG0bz6VWu+WQf9VMxddleODJjjYI+HQAyiGB0Q8QT29pHEGJGH6pIrRQk1jL5S7RLsGonCNNr3X2s6DNjpbFYoPRh+Yoweku0IgZXAiIjj3Wd168sg6pwE20Yue3lyaHo9jET+uzJ4RT8vJD/XyKcwcr9klfKvYIXv/Y01HZi5IfsnnYnEjXlqpyve5kA9CKaPaQTNtJozwSiLY2Y59p8niZhKU8f9au/iZJCbOl6Ua+5SMFS2TKi6t4FYRVkeUSM/ECcxbzLYFgUCsAod1e4bAPWrBlnodZQJWwKimx7dCzbLcshwN8VxGF1RzDaC3OkSFfF/g5m4ep2rnFZv9VoWqngBQ7UfYlm/VLr9/pzHVCadICOp4x82gj+xLtZXDhaTU5jLpWYNclEiTsJyz75/hwRdhD79gtFra9HuE2Bl6/A7j+XW4O6BLY20Ojdb8ItYiWGJ6vl+nOUxTUYLPQYfDwaOqYPNNwm00FmjrNV6dyCA1dQrCcFCai7lQUvWwHMPaWgZMMx6o+Xs4VA3GibSlYZ81fhHkcTvws5YZVpA4KDz2HPVCCRVuMrlVnKmwGP1AyQKqTBUsVLBGQjvdNpTrrVcjBToNs=
