@@ -13,12 +13,12 @@ before_install:
 install:
   - mvn --version
 script:
-  - mvn install -e -B
+# build
+  - mvn install -e -B -Ddist
 # deploy
-after_success:
-  - if [[ $TRAVIS_TAG =~ ^v.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -Ddist -DaltDeploymentRepository="og-public-release::default::https://api.bintray.com/maven/opengamma/releases/ServiceClient/" --settings .github/deploy-settings.xml; fi
+  - if [[ $TRAVIS_TAG =~ ^v.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -Ddist -DaltDeploymentRepository="og-public-release::default::https://api.bintray.com/maven/opengamma/releases/JavaSDK/" --settings .github/deploy-settings.xml; fi
 # secure keys for DEPLOY_USER and DEPLOY_PASSWORD
 env:
   global:
-  - secure: l7++24UUySPCyybxxH1rC2W3Mew4TcwAOZkTwh3KCio1r8weiXYjRc/q5Isf7SVABIVS05DfpGFqx2h3yee11aRy1zROBz0meKgY7sRfipwN4h3xtrSiZEx86gTz7kjaxHXzX+DMfFY3p7oex16ZHN7fTNw55POmLroRFFHF9HuXnfOZE/vX8JlbOX8yiOADGIiVEH+u4Rt6tbNzrdHdeKLBszqvxvZShys7h9Hwhl5J00/DYYoFYa7oj6rVl6tejbQJIO+UeWZh/osngDTURQ4zD0uG2vPES9lXeVc61JTkxUvvuwg32wR7sHi81Gvh4DVuDhbLZx9C5SrloPNAW2JzUx7rVwvR4K4TvMH0H30VNEwQC9KGwODzedIglQZkm9sW2ytiZTRjeiJphV35n+TKXER+X80QGzuLBDsDS2ywummQvO5OVFqxw9hJmHQdCGQtLVgvfwLyv9ABtNNs+19JY9NyQix9Gl5LRGUYe3oo9UALLeqXfDNFpMEVjlVCAEMQ3gX44+FRAbZzHGNpcHBDowx5rYnkVfufl28c13Lr7yXwJdqg6kqaB97ez5RgYbYevuQ+rzX5waYTPrOsyyeijjlZEhIOilsnh8rzTdEJ/Mc5D87KbznGpxX74MeZ1Dd175+kfu72kaaPJh7gm/ISIvWJVEuy0EWieid5xX0=
-  - secure: UyY+hXUK0Pd9Asy3mMysu4jd1YT7rV/vPoLE28Mtqx/ONYvczvApTnFwcoTrvprcHZRLFswCHerqyVEnOY0+MnEDO8XUkDKjIjxSH7uQHjuyZRiwjbvFwAAfZpkYbq6OyN5L5knGKAVnqlBDx3RBJAod4QSzam5MofAkHf9Rahg16vwWiQIb2vKjWJSClc3ZTsWlBhi7y2Mih5kjdg1gD80w42hc+PFpL5OfVkB+fRQCu2rVuw59miRAoypzgIUaCWT3QJxit6u9AnYzR+AB5YIYnOkJKVR4UehLlhbYB+8pFv9iNVgUaigp8fPrMWNKmgD1JFG01Gg1kVrBFW0VVeSa4mtrbu1ar1kl0zrS/62tek7QMlZsE5vLCqfdJqaz6U8jMVTgoVeV3G7tFSgidSbtWzyIWyi4H0AcQAFs3n9BhzxBcHDasm9Q5WU1QNAlqWbWXOSa2V5Hw1CdJt2hgo8tsWZ/MyQ4hHLEH79hG7AD3z/8Pulh/QGyzu3qD6Nri8G0xfq/dDYNn2rtDZ+HrZ+KhQGPHJxgmVO8P8frZDLwXlB1fHps2Lz+7tQlMiwPf6W3VjMiiJUDT9LBKXptZdBrdLHCI36YKEneRMzr0M2K5juxKhVcd7/15zb6KWA0Xhsqtw3S6rv8LON+CRRkNWu2haAIHOs/6+gNOswhkbk=
+  - secure: IQ+YQIdIyDXASYXAiKzxr7dPIpbmFJ8bsnSYj7zHRjSsu5sY3Cs7q3LFGlCnCEySEa+iqBtpbeqiiC0I4xW2sMuBEjoz/vQo9xNFGLdE5k3QYM9ykTzRln+DVB9T+Oq3E+jM7msvQfHJSrT3wq9zQZ/EjIO/A6/QdEwA2p7qe+S1MXpK10D19vri6+JnH38UorN1IPTTzxVgH2gU6qhxmc1ZF5F4EbCblES1fhYOLcMjncZlcxLzDWWDczlbLLR+VuxeXlnkk5Er2H0xjPp2TRa4y9OaQ89upfKVHefWCkJx0AnkFqJFYsNF2hUtA1KIz7+MgEGCXa6rtHYwlWnhTQuh9bXlWZg68abPw9YalgKFck2QZYIxZQz+gglCpEoc+J6qSIzJyMAopWCE1vRr25aTfFaWnngEkHh23GXmjUdD+SDZroDfWEy+8SFJbYIIF/HDnX+nzrJ4021g6i7VnrsEQSAIG9Ea7LBOVSF+6fl5o2wpJHf24TnPN1xSvKD/Mh+X6lUgqro0wxTmHD49RVIyBky0GRj3Zq0SF4/Rr7pBXeWdzEoWcjydbPVxYSkxFlWKcAl6jYycd1Gkn1RL/+Kq45LsL/s0rzSoIFVYJlqYJaJkDG6oC1DzDZ5TGvvF4UlI4qIbmIrrfTsTrT04SNklXxiwFt6SvGwTYM7aNiY=
+  - secure: Hr6hIbFnzALCRxcXDb+LUBePJFBTcsyTt/Aab2/WQfdSeMOSmQ6OPMqnU//0jH3R907Icp+znQTy2TEseWYg9b3ZmCYebMDTgg0B/HYetguGZPaBmaHE2BKixG/P4pb4p/LcpDt5C58zM1+doLH5lUxfyscCughxQ20OzdlJHFsOowt1RTGNU/7RBiWiQP08rwJkdlReLiIJP6ghu8mvIyPCvw0UYFRGZeQUUJe0TyGhsfKTIjkuV4iItf9vdBW7ziqDp4hwAhYaw+vtMYwGkSjg1VGLqsEeWeRe1EVqxhAsLdEeXrPH00lHaq9FwjAWcXXwOWxvNANTMS0LfVxBtd3qKFgYAe5MaRRSGso/Zv4Y+7mpyr58T+oTsX8RtGTXF0U+m5qzQvSM2i63ig6RgvffH8hCUuL55MXyySZ1ypPcV6pRdZfHBRqEQeOOE/1f1nnrOsf55VsQjMlxJyD5U0xcPp+Lypoj6nvioBe1/7J9eedoaQVDXdn4SNVZcrlmY1TgJlXcNxpeQZFvHaQTLaPcwct5VPwPbvdoigdmy8bNl8V8bA9I089JOCoFgfz9FE9CFUv+5T3//dN84krp1/g4/G/25NfLKpoO/FPYMK04T7dT28B9PXSG5/jw4z9Qk0ioSbk+RbmKoR/1O58haJYRu3uOwAUhceosveqs8A0=
