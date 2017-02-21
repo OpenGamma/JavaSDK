@@ -8,8 +8,7 @@ package com.opengamma.sdk.example;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.sdk.common.ServiceInvoker;
@@ -44,12 +43,12 @@ public class MarginClientExample {
       CcpsResult ccps = client.listCcps();
 
       // extract the information about the CCP to call
-      CcpInfo lch = ccps.getCcps().stream().filter(i -> i.getName() == Ccp.LCH).findFirst().get();
-      LocalDate valuationDate = lch.getValuationDates().get(0);
+      CcpInfo lch = ccps.getCcp(Ccp.LCH);
+      LocalDate valuationDate = lch.getLatestValuationDate();
       String currency = lch.getDefaultCurrency();
 
       // choose the file to upload
-      List<PortfolioDataFile> files = new ArrayList<>(Arrays.asList(PortfolioDataFile.of(LCH_FILE)));
+      List<PortfolioDataFile> files = Collections.singletonList(PortfolioDataFile.of(LCH_FILE));
 
       // create the request
       MarginCalcRequest request = MarginCalcRequest.of(valuationDate, currency, files);
