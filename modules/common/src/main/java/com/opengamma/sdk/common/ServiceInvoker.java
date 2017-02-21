@@ -43,6 +43,10 @@ import okhttp3.Response;
  * such as via the try-with-resources statement.
  */
 public final class ServiceInvoker implements AutoCloseable {
+  /**
+   * The User Agent header to attach to all outgoing HTTP requests.
+   */
+  public static final String USER_AGENT = "OG-JAVA-SDK";
 
   /**
    * The URL of the service.
