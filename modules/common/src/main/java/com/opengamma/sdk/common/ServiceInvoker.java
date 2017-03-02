@@ -261,7 +261,7 @@ public final class ServiceInvoker implements AutoCloseable {
         systemProperties.getProperty("os.version") +
         "; " +
         systemProperties.getProperty("os.arch") +
-        ") Java " +
+        ") Java/" +
         systemProperties.getProperty("java.version") +
         " (" +
         systemProperties.getProperty("java.vendor") +
