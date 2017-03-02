@@ -7,6 +7,7 @@ package com.opengamma.sdk.common;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -44,10 +45,9 @@ import okhttp3.Response;
  */
 public final class ServiceInvoker implements AutoCloseable {
   /**
-   * The User Agent header to attach to all outgoing HTTP requests.
+   * The current version of the SDK. To be updated before every release.
    */
-  public static final String USER_AGENT = "OG-JAVA-SDK";
-
+  private static final String SDK_VERSION = "1.1.0";
   /**
    * The URL of the service.
    */
@@ -82,7 +82,7 @@ public final class ServiceInvoker implements AutoCloseable {
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance for the specified credentials.
-   * 
+   *
    * @param credentials  the credentials to use for authentication
    * @return the invoker
    */
@@ -92,7 +92,7 @@ public final class ServiceInvoker implements AutoCloseable {
 
   /**
    * Obtains an instance for the specified credentials and URL.
-   * 
+   *
    * @param credentials  the credentials to use for authentication
    * @param serviceUrl  the URL of the service
    * @return the invoker
@@ -105,7 +105,7 @@ public final class ServiceInvoker implements AutoCloseable {
    * Obtains an instance for the specified credentials, URL and auth client.
    * <p>
    * This is primarily intended for testing scenarios, where a fake auth client is required.
-   * 
+   *
    * @param credentials  the credentials to use for authentication
    * @param serviceUrl  the URL of the service
    * @param authClient  the auth client
@@ -210,7 +210,7 @@ public final class ServiceInvoker implements AutoCloseable {
   //-------------------------------------------------------------------------
   /**
    * Gets the server URL.
-   * 
+   *
    * @return the executor
    */
   public HttpUrl getServiceUrl() {
@@ -219,7 +219,7 @@ public final class ServiceInvoker implements AutoCloseable {
 
   /**
    * Gets the HTTP client.
-   * 
+   *
    * @return the HTTP client
    */
   public OkHttpClient getHttpClient() {
@@ -228,7 +228,7 @@ public final class ServiceInvoker implements AutoCloseable {
 
   /**
    * Gets the executor that can be used to poll.
-   * 
+   *
    * @return the executor
    */
   public ScheduledExecutorService getExecutor() {
@@ -246,4 +246,26 @@ public final class ServiceInvoker implements AutoCloseable {
     executor.shutdown();
   }
 
+  /**
+   * Constructs the user agent to be added as a header to all HTTP requests, based on the application version.
+   *
+   * @return The user agent.
+   */
+  public static String generateUserAgent() {
+    Properties systemProperties = System.getProperties();
+    return "opengamma-sdk-java/" +
+        SDK_VERSION +
+        " (" +
+        systemProperties.getProperty("os.name") +
+        " " +
+        systemProperties.getProperty("os.version") +
+        " " +
+        systemProperties.getProperty("os.arch") +
+        ")" +
+        " (" +
+        systemProperties.getProperty("java.vendor") +
+        " " +
+        systemProperties.getProperty("java.version") +
+        ")";
+  }
 }

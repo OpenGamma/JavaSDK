@@ -6,7 +6,7 @@
 package com.opengamma.sdk.margin;
 
 import static com.opengamma.sdk.common.ServiceInvoker.MEDIA_JSON;
-import static com.opengamma.sdk.common.ServiceInvoker.USER_AGENT;
+import static com.opengamma.sdk.common.ServiceInvoker.generateUserAgent;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -72,7 +72,7 @@ final class InvokerMarginClient implements MarginClient {
         .url(invoker.getServiceUrl().resolve("/margin/v1/ccps"))
         .get()
         .header("Accept", MEDIA_JSON.toString())
-        .header("User-Agent", USER_AGENT)
+        .header("User-Agent", generateUserAgent())
         .build();
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
@@ -97,7 +97,7 @@ final class InvokerMarginClient implements MarginClient {
         .post(body)
         .header("Content-Type", MEDIA_JSON.toString())
         .header("Accept", MEDIA_JSON.toString())
-        .header("User-Agent", USER_AGENT)
+        .header("User-Agent", generateUserAgent())
         .build();
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
@@ -121,7 +121,7 @@ final class InvokerMarginClient implements MarginClient {
             .resolve("/margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
         .get()
         .header("Accept", MEDIA_JSON.toString())
-        .header("User-Agent", USER_AGENT)
+        .header("User-Agent", generateUserAgent())
         .build();
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
@@ -144,7 +144,7 @@ final class InvokerMarginClient implements MarginClient {
             .resolve("/margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
         .delete()
         .header("Accept", MEDIA_JSON.toString())
-        .header("User-Agent", USER_AGENT)
+        .header("User-Agent", generateUserAgent())
         .build();
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
