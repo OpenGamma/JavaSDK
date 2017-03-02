@@ -11,7 +11,7 @@ import static org.testng.Assert.assertThrows;
 import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 import org.joda.beans.ser.JodaBeanSer;
@@ -34,17 +34,17 @@ public class MarginClientTest {
   private static final Credentials CREDENTIALS = Credentials.ofUsernamePassword("user", "password");
   private static final LocalDate VAL_DATE = LocalDate.of(2017, 6, 1);
   private static final MarginCalcRequest REQUEST =
-      MarginCalcRequest.of(VAL_DATE, "GBP", Arrays.asList(), MarginCalcRequestType.STANDARD, false);
+      MarginCalcRequest.of(VAL_DATE, "GBP", Collections.emptyList(), MarginCalcRequestType.STANDARD, false);
 
   private static final String RESPONSE_LIST_CCPS = JodaBeanSer.PRETTY.simpleJsonWriter().write(
-      CcpsResult.of(Arrays.asList(
+      CcpsResult.of(Collections.singletonList(
           CcpInfo.of(
               Ccp.LCH,
               URI.create("/ccps/lch"),
-              Arrays.asList(VAL_DATE),
+              Collections.singletonList(VAL_DATE),
               "GBP",
-              Arrays.asList("GBP"),
-              Arrays.asList("GBP")))));
+              Collections.singletonList("GBP"),
+              Collections.singletonList("GBP")))));
   private static final String RESPONSE_CALC_POST = "";
   private static final String RESPONSE_CALC_GET_PENDING = JodaBeanSer.PRETTY.simpleJsonWriter().write(
       MarginCalcResult.of(
@@ -52,18 +52,18 @@ public class MarginClientTest {
           MarginCalcRequestType.STANDARD,
           VAL_DATE,
           "GBP",
-          Arrays.asList(),
+          Collections.emptyList(),
           null,
-          Arrays.asList()));
+          Collections.emptyList()));
   private static final String RESPONSE_CALC_GET_COMPLETE = JodaBeanSer.PRETTY.simpleJsonWriter().write(
       MarginCalcResult.of(
           MarginCalcResultStatus.COMPLETED,
           MarginCalcRequestType.STANDARD,
           VAL_DATE,
           "GBP",
-          Arrays.asList(PortfolioItemSummary.of("1", "SWAP", "MySwap")),
-          MarginSummary.of(125d, Arrays.asList()),
-          Arrays.asList()));
+          Collections.singletonList(PortfolioItemSummary.of("1", "SWAP", "MySwap")),
+          MarginSummary.of(125d, Collections.emptyList()),
+          Collections.emptyList()));
   private static final String RESPONSE_DELETE = "";
   private static final String RESPONSE_ERROR = JodaBeanSer.PRETTY.simpleJsonWriter().write(
       ErrorMessage.of(500, "Error", "Error"));
@@ -95,6 +95,9 @@ public class MarginClientTest {
     CcpsResult ccps = client.listCcps();
     assertEquals(ccps.getCcps().size(), 1);
     assertEquals(ccps.getCcps().get(0).getName(), Ccp.LCH);
+    assertEquals(ccps.findCcp(Ccp.LCH).get().getName(), Ccp.LCH);
+    assertEquals(ccps.getCcp(Ccp.LCH).getName(), Ccp.LCH);
+    assertEquals(ccps.getCcp(Ccp.LCH).getLatestValuationDate(), VAL_DATE);
   }
 
   public void test_listCcps_fail() throws Exception {
