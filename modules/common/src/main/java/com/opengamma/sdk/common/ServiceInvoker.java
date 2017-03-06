@@ -45,10 +45,6 @@ import okhttp3.Response;
  */
 public final class ServiceInvoker implements AutoCloseable {
   /**
-   * The current version of the SDK. To be updated before every release.
-   */
-  private static final String SDK_VERSION = "1.1.0";
-  /**
    * The URL of the service.
    */
   public static final HttpUrl SERVICE_URL = HttpUrl.parse("https://api.opengamma.com");
@@ -141,6 +137,7 @@ public final class ServiceInvoker implements AutoCloseable {
     this.httpClient = new OkHttpClient.Builder()
         .addInterceptor(new LoggingInterceptor())
         .addInterceptor(new TokenInterceptor())
+        .addInterceptor(new UserAgentHeaderInterceptor())
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(10, TimeUnit.SECONDS)
         .build();
@@ -158,6 +155,33 @@ public final class ServiceInvoker implements AutoCloseable {
       Response response = chain.proceed(request);
       log.debug("Service responded: {}", response.code());
       return response;
+    }
+  }
+
+  //An interceptor that adds the User-Agent header and exposes useful information about the SDK and runtime.
+  private class UserAgentHeaderInterceptor implements Interceptor {
+
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+      Properties systemProperties = System.getProperties();
+      String userAgentHeader = "opengamma-sdk-java/" +
+          Version.getVersionString() +
+          " (" +
+          systemProperties.getProperty("os.name") +
+          "; " +
+          systemProperties.getProperty("os.version") +
+          "; " +
+          systemProperties.getProperty("os.arch") +
+          ") Java " +
+          systemProperties.getProperty("java.version") +
+          " (" +
+          systemProperties.getProperty("java.vendor") +
+          ")";
+      Request initialRequest = chain.request();
+      Request modifiedRequest = initialRequest.newBuilder()
+          .header("User-Agent", userAgentHeader)
+          .build();
+      return chain.proceed(modifiedRequest);
     }
   }
 
@@ -244,27 +268,5 @@ public final class ServiceInvoker implements AutoCloseable {
   @Override
   public void close() {
     executor.shutdown();
-  }
-
-  /**
-   * Constructs the user agent to be added as a header to all HTTP requests, based on the application version.
-   *
-   * @return The user agent.
-   */
-  public static String generateUserAgent() {
-    Properties systemProperties = System.getProperties();
-    return "opengamma-sdk-java/" +
-        SDK_VERSION +
-        " (" +
-        systemProperties.getProperty("os.name") +
-        "; " +
-        systemProperties.getProperty("os.version") +
-        "; " +
-        systemProperties.getProperty("os.arch") +
-        ") Java " +
-        systemProperties.getProperty("java.version") +
-        " (" +
-        systemProperties.getProperty("java.vendor") +
-        ")";
   }
 }

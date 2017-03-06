@@ -7,7 +7,6 @@ package com.opengamma.sdk.common.auth;
 
 import static com.opengamma.sdk.common.ServiceInvoker.MEDIA_FORM;
 import static com.opengamma.sdk.common.ServiceInvoker.MEDIA_JSON;
-import static com.opengamma.sdk.common.ServiceInvoker.generateUserAgent;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -83,7 +82,6 @@ final class InvokerAuthClient implements AuthClient {
         .post(formBody)
         .header("Content-Type", MEDIA_FORM.toString())
         .header("Accept", MEDIA_JSON.toString())
-        .header("User-Agent", generateUserAgent())
         .build();
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
