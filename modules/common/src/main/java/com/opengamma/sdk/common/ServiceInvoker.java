@@ -44,6 +44,32 @@ import okhttp3.Response;
  * such as via the try-with-resources statement.
  */
 public final class ServiceInvoker implements AutoCloseable {
+
+  /**
+   *
+   */
+  private static final String USER_AGENT;
+
+  static {
+    String userAgentHeader = "opengamma-sdk-java/" + Version.getVersionString();
+    try {
+      Properties systemProperties = System.getProperties();
+      userAgentHeader += " (" +
+          systemProperties.getProperty("os.name") +
+          "; " +
+          systemProperties.getProperty("os.version") +
+          "; " +
+          systemProperties.getProperty("os.arch") +
+          ") Java " +
+          systemProperties.getProperty("java.version") +
+          " (" +
+          systemProperties.getProperty("java.vendor") +
+          ")";
+    } catch (SecurityException e) {
+      //ignored
+    }
+    USER_AGENT = userAgentHeader;
+  }
   /**
    * The URL of the service.
    */
@@ -160,26 +186,11 @@ public final class ServiceInvoker implements AutoCloseable {
 
   //An interceptor that adds the User-Agent header and exposes useful information about the SDK and runtime.
   private class UserAgentHeaderInterceptor implements Interceptor {
-
     @Override
     public Response intercept(Chain chain) throws IOException {
-      Properties systemProperties = System.getProperties();
-      String userAgentHeader = "opengamma-sdk-java/" +
-          Version.getVersionString() +
-          " (" +
-          systemProperties.getProperty("os.name") +
-          "; " +
-          systemProperties.getProperty("os.version") +
-          "; " +
-          systemProperties.getProperty("os.arch") +
-          ") Java " +
-          systemProperties.getProperty("java.version") +
-          " (" +
-          systemProperties.getProperty("java.vendor") +
-          ")";
       Request initialRequest = chain.request();
       Request modifiedRequest = initialRequest.newBuilder()
-          .header("User-Agent", userAgentHeader)
+          .header("User-Agent", USER_AGENT)
           .build();
       return chain.proceed(modifiedRequest);
     }

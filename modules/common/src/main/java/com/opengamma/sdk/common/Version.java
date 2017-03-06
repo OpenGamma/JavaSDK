@@ -5,13 +5,12 @@
  */
 package com.opengamma.sdk.common;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 /**
-* Provides access to the version of the SDK.
-*/
+ * Provides access to the version of the SDK.
+ */
 public class Version {
 
   /**
@@ -24,13 +23,15 @@ public class Version {
    */
   static {
     Properties properties = new Properties();
+    String version;
     try {
       InputStream resourceAsStream = Version.class.getResourceAsStream("version.properties");
       properties.load(resourceAsStream);
-    } catch (IOException e) {
-      throw new RuntimeException("Could not read version from 'version.properties'.", e);
+      version = properties.getProperty("version");
+    } catch (Exception e) {
+      version = "";
     }
-    VERSION = properties.getProperty("version");
+    VERSION = version;
   }
 
   /**

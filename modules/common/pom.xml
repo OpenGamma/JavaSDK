@@ -64,7 +64,6 @@
 
   <!-- ==================================================================== -->
   <properties>
-    <templating-maven-plugin.version>1.0.0</templating-maven-plugin.version>
     <!-- Properties for joda-beans-maven-plugin -->
     <joda-beans-maven-plugin.version>1.1</joda-beans-maven-plugin.version>
     <joda.beans.config>jdk6</joda.beans.config>
