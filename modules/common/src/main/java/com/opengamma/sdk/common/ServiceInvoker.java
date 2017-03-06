@@ -7,6 +7,7 @@ package com.opengamma.sdk.common;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -45,6 +46,31 @@ import okhttp3.Response;
 public final class ServiceInvoker implements AutoCloseable {
 
   /**
+   *
+   */
+  private static final String USER_AGENT;
+
+  static {
+    String userAgentHeader = "opengamma-sdk-java/" + Version.getVersionString();
+    try {
+      Properties systemProperties = System.getProperties();
+      userAgentHeader += " (" +
+          systemProperties.getProperty("os.name") +
+          "; " +
+          systemProperties.getProperty("os.version") +
+          "; " +
+          systemProperties.getProperty("os.arch") +
+          ") Java " +
+          systemProperties.getProperty("java.version") +
+          " (" +
+          systemProperties.getProperty("java.vendor") +
+          ")";
+    } catch (SecurityException e) {
+      //ignored
+    }
+    USER_AGENT = userAgentHeader;
+  }
+  /**
    * The URL of the service.
    */
   public static final HttpUrl SERVICE_URL = HttpUrl.parse("https://api.opengamma.com");
@@ -78,7 +104,7 @@ public final class ServiceInvoker implements AutoCloseable {
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance for the specified credentials.
-   * 
+   *
    * @param credentials  the credentials to use for authentication
    * @return the invoker
    */
@@ -88,7 +114,7 @@ public final class ServiceInvoker implements AutoCloseable {
 
   /**
    * Obtains an instance for the specified credentials and URL.
-   * 
+   *
    * @param credentials  the credentials to use for authentication
    * @param serviceUrl  the URL of the service
    * @return the invoker
@@ -101,7 +127,7 @@ public final class ServiceInvoker implements AutoCloseable {
    * Obtains an instance for the specified credentials, URL and auth client.
    * <p>
    * This is primarily intended for testing scenarios, where a fake auth client is required.
-   * 
+   *
    * @param credentials  the credentials to use for authentication
    * @param serviceUrl  the URL of the service
    * @param authClient  the auth client
@@ -137,6 +163,7 @@ public final class ServiceInvoker implements AutoCloseable {
     this.httpClient = new OkHttpClient.Builder()
         .addInterceptor(new LoggingInterceptor())
         .addInterceptor(new TokenInterceptor())
+        .addInterceptor(new UserAgentHeaderInterceptor())
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(10, TimeUnit.SECONDS)
         .build();
@@ -154,6 +181,18 @@ public final class ServiceInvoker implements AutoCloseable {
       Response response = chain.proceed(request);
       log.debug("Service responded: {}", response.code());
       return response;
+    }
+  }
+
+  //An interceptor that adds the User-Agent header and exposes useful information about the SDK and runtime.
+  private class UserAgentHeaderInterceptor implements Interceptor {
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+      Request initialRequest = chain.request();
+      Request modifiedRequest = initialRequest.newBuilder()
+          .header("User-Agent", USER_AGENT)
+          .build();
+      return chain.proceed(modifiedRequest);
     }
   }
 
@@ -206,7 +245,7 @@ public final class ServiceInvoker implements AutoCloseable {
   //-------------------------------------------------------------------------
   /**
    * Gets the server URL.
-   * 
+   *
    * @return the executor
    */
   public HttpUrl getServiceUrl() {
@@ -215,7 +254,7 @@ public final class ServiceInvoker implements AutoCloseable {
 
   /**
    * Gets the HTTP client.
-   * 
+   *
    * @return the HTTP client
    */
   public OkHttpClient getHttpClient() {
@@ -224,7 +263,7 @@ public final class ServiceInvoker implements AutoCloseable {
 
   /**
    * Gets the executor that can be used to poll.
-   * 
+   *
    * @return the executor
    */
   public ScheduledExecutorService getExecutor() {
@@ -241,5 +280,4 @@ public final class ServiceInvoker implements AutoCloseable {
   public void close() {
     executor.shutdown();
   }
-
 }

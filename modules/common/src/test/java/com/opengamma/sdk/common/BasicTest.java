@@ -33,7 +33,7 @@ public class BasicTest {
     @SuppressWarnings("resource")
     ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, SERVICE_URL, mockAuth);
     assertEquals(invoker.getServiceUrl(), SERVICE_URL);
-    assertEquals(invoker.getHttpClient().interceptors().size(), 2);
+    assertEquals(invoker.getHttpClient().interceptors().size(), 3);
     assertEquals(invoker.getExecutor().isShutdown(), false);
     invoker.close();
     assertEquals(invoker.getExecutor().isShutdown(), true);
