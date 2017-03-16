@@ -39,8 +39,8 @@ public class Version {
    */
   private Version() {
   }
-  //-------------------------------------------------------------------------
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the version of Strata.
    *
@@ -49,4 +49,5 @@ public class Version {
   public static String getVersionString() {
     return VERSION;
   }
+
 }

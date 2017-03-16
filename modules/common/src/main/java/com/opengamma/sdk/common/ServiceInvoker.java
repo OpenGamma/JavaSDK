@@ -46,7 +46,7 @@ import okhttp3.Response;
 public final class ServiceInvoker implements AutoCloseable {
 
   /**
-   *
+   * The user agent to send with requests.
    */
   private static final String USER_AGENT;
 
@@ -65,7 +65,7 @@ public final class ServiceInvoker implements AutoCloseable {
           " (" +
           systemProperties.getProperty("java.vendor") +
           ")";
-    } catch (SecurityException e) {
+    } catch (SecurityException ex) {
       //ignored
     }
     USER_AGENT = userAgentHeader;
