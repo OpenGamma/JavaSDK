@@ -73,6 +73,17 @@ public interface MarginClient {
   public abstract MarginCalcResult calculate(Ccp ccp, MarginCalcRequest request);
 
   /**
+   * High-level call to submit a base portfolio together with an extra set of trades, for parsing, validation and IM calculation.
+   * This will return the difference between the 2nd portfolio IM and the first (delta).
+   *
+   * @param ccp  the CCP to use
+   * @param request  the calculation request
+   * @param deltaFile the portfolio representing the extra trades for the what-if scenario
+   * @return the detailed result of the calculation
+   */
+  public abstract MarginCalcResult calculateWhatIf(Ccp ccp, MarginCalcRequest request, PortfolioDataFile deltaFile);
+
+  /**
    * High-level call to submit a portfolio for parsing, validation and IM calculation.
    * 
    * @param ccp  the CCP to use

@@ -12,11 +12,15 @@ import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.joda.beans.ser.JodaBeanSer;
 
@@ -52,7 +56,7 @@ final class InvokerMarginClient implements MarginClient {
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance.
-   * 
+   *
    * @param invoker  the service invoker
    * @return the client
    */
@@ -174,6 +178,67 @@ final class InvokerMarginClient implements MarginClient {
       // ignore
     }
     return result;
+  }
+
+  @Override
+  public MarginCalcResult calculateWhatIf(Ccp ccp, MarginCalcRequest request, PortfolioDataFile deltaFile) {
+    String calcId = createCalculation(ccp, request);
+    List<PortfolioDataFile> newPortfolioData = new ArrayList<>(request.getPortfolioData());
+    newPortfolioData.add(deltaFile);
+    MarginCalcRequest secondRequest = MarginCalcRequest.builder()
+        .portfolioData(newPortfolioData)
+        .calculationCurrency(request.getCalculationCurrency().orElse(""))
+        .reportingCurrency(request.getReportingCurrency())
+        .valuationDate(request.getValuationDate())
+        .build();
+    String secondCalcId = createCalculation(ccp, secondRequest);
+    MarginCalcResult baseResult = getCalculation(ccp, calcId);
+    MarginCalcResult deltaResult = getCalculation(ccp, secondCalcId);
+    while (MarginCalcResultStatus.PENDING.equals(baseResult.getStatus()) || MarginCalcResultStatus.PENDING.equals(
+        deltaResult.getStatus())) {
+      try {
+        Thread.sleep(POLL_WAIT);
+      } catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
+      }
+      if (MarginCalcResultStatus.PENDING.equals(baseResult.getStatus())) {
+        baseResult = getCalculation(ccp, calcId);
+      }
+      if (MarginCalcResultStatus.PENDING.equals(deltaResult.getStatus())) {
+        deltaResult = getCalculation(ccp, secondCalcId);
+      }
+    }
+    // cleanup server state quietly
+    try {
+      deleteCalculation(ccp, calcId);
+      deleteCalculation(ccp, secondCalcId);
+    } catch (RuntimeException ex) {
+      // ignore
+    }
+
+    MarginSummary baseSummary = baseResult.getMargin().orElseThrow(IllegalStateException::new);
+    MarginSummary deltaSummary = deltaResult.getMargin().orElseThrow(IllegalStateException::new);
+
+    Map<String, Double> baseSummaryDetails = baseSummary.getMarginDetails().stream().collect(Collectors.toMap(
+        NamedValue::getKey,
+        NamedValue::getValue));
+    Map<String, Double> deltaSummaryDetails = baseSummary.getMarginDetails().stream().collect(Collectors.toMap(
+        NamedValue::getKey,
+        NamedValue::getValue));
+    List<NamedValue> deltaDetails = baseSummaryDetails.entrySet().stream()
+        .map(x -> NamedValue.of(x.getKey(), deltaSummaryDetails.get(x.getKey()) - x.getValue()))
+        .collect(Collectors.toList());
+
+    MarginSummary deltaMarginSummary = MarginSummary.of(deltaSummary.getMargin() - baseSummary.getMargin(), deltaDetails);
+
+    return MarginCalcResult.of(
+        MarginCalcResultStatus.COMPLETED,
+        MarginCalcRequestType.FULL,
+        deltaResult.getValuationDate(),
+        deltaResult.getReportingCurrency(),
+        deltaResult.getPortfolioItems(),
+        deltaMarginSummary,
+        deltaResult.getFailures());
   }
 
   @Override
