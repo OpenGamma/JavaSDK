@@ -56,6 +56,10 @@ public class MarginClientExample {
       // make the call and view the result
       MarginCalcResult result = client.calculate(Ccp.LCH, request);
       System.out.println(result);
+
+      // make the what-if call and view the result (the difference in margin numbers)
+      MarginCalcResult whatIfResult = client.calculateWhatIf(Ccp.LCH, request, PortfolioDataFile.of(LCH_FILE));
+      System.out.println(whatIfResult);
     }
 
   }
