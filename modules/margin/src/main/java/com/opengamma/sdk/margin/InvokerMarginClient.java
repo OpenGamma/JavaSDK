@@ -181,7 +181,7 @@ final class InvokerMarginClient implements MarginClient {
   }
 
   @Override
-  public MarginCalcResult calculateWhatIf(Ccp ccp, MarginCalcRequest request, PortfolioDataFile deltaFile) {
+  public MarginWhatIfCalcResult calculateWhatIf(Ccp ccp, MarginCalcRequest request, PortfolioDataFile deltaFile) {
     String calcId = createCalculation(ccp, request);
     List<PortfolioDataFile> newPortfolioData = new ArrayList<>(request.getPortfolioData());
     newPortfolioData.add(deltaFile);
@@ -229,9 +229,10 @@ final class InvokerMarginClient implements MarginClient {
         .map(x -> NamedValue.of(x.getKey(), deltaSummaryDetails.get(x.getKey()) - x.getValue()))
         .collect(Collectors.toList());
 
-    MarginSummary deltaMarginSummary = MarginSummary.of(deltaSummary.getMargin() - baseSummary.getMargin(), deltaDetails);
+    double marginDifference = deltaSummary.getMargin() - baseSummary.getMargin();
+    MarginWhatIfSummary deltaMarginSummary = MarginWhatIfSummary.of(baseSummary.getMargin(), deltaSummary.getMargin(), marginDifference, deltaDetails);
 
-    return MarginCalcResult.of(
+    return MarginWhatIfCalcResult.of(
         MarginCalcResultStatus.COMPLETED,
         MarginCalcRequestType.FULL,
         deltaResult.getValuationDate(),

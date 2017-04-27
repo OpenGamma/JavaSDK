@@ -19,6 +19,7 @@ import com.opengamma.sdk.margin.CcpsResult;
 import com.opengamma.sdk.margin.MarginCalcRequest;
 import com.opengamma.sdk.margin.MarginCalcResult;
 import com.opengamma.sdk.margin.MarginClient;
+import com.opengamma.sdk.margin.MarginWhatIfCalcResult;
 import com.opengamma.sdk.margin.PortfolioDataFile;
 
 /**
@@ -58,7 +59,7 @@ public class MarginClientExample {
       System.out.println(result);
 
       // make the what-if call and view the result (the difference in margin numbers)
-      MarginCalcResult whatIfResult = client.calculateWhatIf(Ccp.LCH, request, PortfolioDataFile.of(LCH_FILE));
+      MarginWhatIfCalcResult whatIfResult = client.calculateWhatIf(Ccp.LCH, request, PortfolioDataFile.of(LCH_FILE));
       System.out.println(whatIfResult);
     }
 

@@ -81,7 +81,7 @@ public interface MarginClient {
    * @param deltaFile the portfolio representing the extra trades for the what-if scenario
    * @return the detailed result of the calculation
    */
-  public abstract MarginCalcResult calculateWhatIf(Ccp ccp, MarginCalcRequest request, PortfolioDataFile deltaFile);
+  public abstract MarginWhatIfCalcResult calculateWhatIf(Ccp ccp, MarginCalcRequest request, PortfolioDataFile deltaFile);
 
   /**
    * High-level call to submit a portfolio for parsing, validation and IM calculation.
