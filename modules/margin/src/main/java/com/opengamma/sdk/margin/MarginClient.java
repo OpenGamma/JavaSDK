@@ -5,6 +5,7 @@
  */
 package com.opengamma.sdk.margin;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import com.opengamma.sdk.common.ServiceInvoker;
@@ -78,10 +79,10 @@ public interface MarginClient {
    *
    * @param ccp  the CCP to use
    * @param request  the calculation request
-   * @param deltaFile the portfolio representing the extra trades for the what-if scenario
+   * @param deltaFiles the portfolios representing the extra trades for the what-if scenario
    * @return the detailed result of the calculation
    */
-  public abstract MarginWhatIfCalcResult calculateWhatIf(Ccp ccp, MarginCalcRequest request, PortfolioDataFile deltaFile);
+  public abstract MarginWhatIfCalcResult calculateWhatIf(Ccp ccp, MarginCalcRequest request, List<PortfolioDataFile> deltaFiles);
 
   /**
    * High-level call to submit a portfolio for parsing, validation and IM calculation.

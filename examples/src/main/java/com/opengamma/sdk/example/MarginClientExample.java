@@ -59,7 +59,7 @@ public class MarginClientExample {
       System.out.println(result);
 
       // make the what-if call and view the result (the difference in margin numbers)
-      MarginWhatIfCalcResult whatIfResult = client.calculateWhatIf(Ccp.LCH, request, PortfolioDataFile.of(LCH_FILE));
+      MarginWhatIfCalcResult whatIfResult = client.calculateWhatIf(Ccp.LCH, request, Collections.singletonList(PortfolioDataFile.of(LCH_FILE)));
       System.out.println(whatIfResult);
     }
 
