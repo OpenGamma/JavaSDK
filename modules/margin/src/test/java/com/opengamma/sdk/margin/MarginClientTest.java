@@ -123,7 +123,7 @@ public class MarginClientTest {
     ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
     MarginClient client = MarginClient.of(invoker);
 
-    assertThrows(IllegalStateException.class, client::listCcps);
+    assertThrows(IllegalStateException.class, () -> client.listCcps());
   }
 
   //-------------------------------------------------------------------------
