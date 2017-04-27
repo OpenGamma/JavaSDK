@@ -7,7 +7,6 @@ package com.opengamma.sdk.margin;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertThrows;
-import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URI;
@@ -227,10 +226,9 @@ public class MarginClientTest {
     assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
     assertEquals(result.getValuationDate(), VAL_DATE);
 
-    assertTrue(result.getMargin().isPresent());
-    assertEquals(result.getMargin().get().getBaseMargin(), 125.0); //Hard coded result, not relevant for portfolio
-    assertEquals(result.getMargin().get().getTotalMargin(), 260.0); //Hard coded result, not relevant for portfolio
-    assertEquals(result.getMargin().get().getMarginDifference(), 135.0);
+    assertEquals(result.getBaseSummary().getMargin(), 125.0); //Hard coded result, not relevant for portfolio
+    assertEquals(result.getCombinedSummary().getMargin(), 135.0); //Hard coded result, not relevant for portfolio
+    assertEquals(result.getDeltaSummary().getMargin(), 260.0);
   }
 
   public void test_calculate_postFail() throws Exception {
