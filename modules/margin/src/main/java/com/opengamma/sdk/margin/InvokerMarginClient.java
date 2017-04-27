@@ -189,7 +189,7 @@ final class InvokerMarginClient implements MarginClient {
         .valuationDate(request.getValuationDate())
         .build();
     String deltaCalcId = createCalculation(ccp, secondRequest);
-    
+
     MarginCalcResult baseResult = getCalculation(ccp, baseCalcId);
     MarginCalcResult deltaResult = getCalculation(ccp, deltaCalcId);
     while (MarginCalcResultStatus.PENDING.equals(baseResult.getStatus()) || MarginCalcResultStatus.PENDING.equals(
@@ -224,7 +224,7 @@ final class InvokerMarginClient implements MarginClient {
         NamedValue::getKey,
         NamedValue::getValue));
     List<NamedValue> deltaDetails = baseSummaryDetails.entrySet().stream()
-        .map(x -> NamedValue.of(x.getKey(), deltaSummaryDetails.get(x.getKey()) - x.getValue()))
+        .map(namedValue -> NamedValue.of(namedValue.getKey(), deltaSummaryDetails.get(namedValue.getKey()) - namedValue.getValue()))
         .collect(Collectors.toList());
 
     double marginDifference = deltaSummary.getMargin() - baseSummary.getMargin();
