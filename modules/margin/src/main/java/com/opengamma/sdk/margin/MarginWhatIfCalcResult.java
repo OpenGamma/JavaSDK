@@ -61,19 +61,19 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
   private final List<PortfolioItemSummary> portfolioItems;
 
   /**
-   * The result of the margin calculation for the base portfolio
+   * The result of the margin calculation for the base portfolio.
    */
   @PropertyDefinition
   private final MarginSummary baseSummary;
 
   /**
-   * The result of the margin calculation for the combined portfolio (base + delta)
+   * The result of the margin calculation for the combined portfolio (base + delta).
    */
   @PropertyDefinition
   private final MarginSummary combinedSummary;
 
   /**
-   * The result of the margin calculation for the delta portfolio
+   * The result of the margin calculation for the delta portfolio.
    */
   @PropertyDefinition
   private final MarginSummary deltaSummary;
@@ -87,15 +87,15 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
   /**
    * Creates a new instance of {@link MarginWhatIfCalcResult} with the given details.
    *
-   * @param status The request status, as an instance of {@link MarginCalcResultStatus}.
-   * @param type The type of request, as an instance of {@link MarginCalcRequestType}.
-   * @param valuationDate The valuation date for which the portfolio will be processed.
-   * @param reportingCurrency The reporting currency, as an ISO 4217 three letter currency code.
-   * @param portfolioItems The summary of the portfolio items, may be empty.
-   * @param baseSummary The details of the base portfolio margin calculation, as an instance of {@link MarginSummary}
-   * @param combinedSummary The details of the combined (base + delta) portfolios margin calculation, as an instance of {@link MarginSummary}
-   * @param failures The list of failures that occurred, may be empty.
-   * @return
+   * @param status the request status, as an instance of {@link MarginCalcResultStatus}
+   * @param type the type of request, as an instance of {@link MarginCalcRequestType}
+   * @param valuationDate the valuation date for which the portfolio will be processed
+   * @param reportingCurrency the reporting currency, as an ISO 4217 three letter currency code
+   * @param portfolioItems the summary of the portfolio items, may be empty
+   * @param baseSummary the details of the base portfolio margin calculation, as an instance of {@link MarginSummary}
+   * @param combinedSummary the details of the combined (base + delta) portfolios margin calculation, as an instance of {@link MarginSummary}
+   * @param failures the list of failures that occurred, may be empty
+   * @return a new instance of {@link MarginWhatIfCalcResult}
    */
   static MarginWhatIfCalcResult of(
       MarginCalcResultStatus status,

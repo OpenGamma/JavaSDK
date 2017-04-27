@@ -197,8 +197,7 @@ final class InvokerMarginClient implements MarginClient {
     MarginCalcResult baseResult = getCalculation(ccp, baseCalcId);
     MarginCalcResult deltaResult = getCalculation(ccp, deltaCalcId);
     while (MarginCalcResultStatus.PENDING.equals(baseResult.getStatus()) ||
-        MarginCalcResultStatus.PENDING.equals(
-            deltaResult.getStatus())) {
+        MarginCalcResultStatus.PENDING.equals(deltaResult.getStatus())) {
       try {
         Thread.sleep(POLL_WAIT);
       } catch (InterruptedException ex) {
