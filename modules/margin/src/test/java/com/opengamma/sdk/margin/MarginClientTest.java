@@ -10,6 +10,7 @@ import static org.testng.Assert.assertThrows;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
@@ -22,8 +23,10 @@ import org.testng.annotations.Test;
 import com.opengamma.sdk.common.ServiceInvoker;
 import com.opengamma.sdk.common.auth.Credentials;
 
+import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 
 /**
  * Test.
@@ -63,6 +66,15 @@ public class MarginClientTest {
           "GBP",
           Collections.singletonList(PortfolioItemSummary.of("1", "SWAP", "MySwap")),
           MarginSummary.of(125d, Collections.emptyList()),
+          Collections.emptyList()));
+  private static final String RESPONSE_CALC_WHATIF_GET_COMPLETE = JodaBeanSer.PRETTY.simpleJsonWriter().write(
+      MarginCalcResult.of(
+          MarginCalcResultStatus.COMPLETED,
+          MarginCalcRequestType.STANDARD,
+          VAL_DATE,
+          "GBP",
+          Collections.singletonList(PortfolioItemSummary.of("1", "SWAP", "MySwap")),
+          MarginSummary.of(260d, Collections.emptyList()),
           Collections.emptyList()));
   private static final String RESPONSE_DELETE = "";
   private static final String RESPONSE_ERROR = JodaBeanSer.PRETTY.simpleJsonWriter().write(
@@ -136,6 +148,87 @@ public class MarginClientTest {
     assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
     assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
     assertEquals(result.getValuationDate(), VAL_DATE);
+  }
+
+  /**
+   * This method handles two concurrent HTTP requests, and has to define the {@link MockWebServer} instance in a different way.
+   * For any what-if scenario request, the sequence of HTTP requests should look like this:
+   * * POST - /margin/v1/ccps/lch/calculations - base portfolios
+   * * POST - /margin/v1/ccps/lch/calculations - delta portfolios
+   * * (for each portfolio) GET - /margin/v1/ccps/lch/calculations/[calcID] - until the status is COMPLETED.
+   * * (for each portfolio) DELETE - /margin/v1/ccps/lch/calculations/[calcID]
+   */
+  public void test_calculate_whatif() throws Exception {
+    Dispatcher webServerDispatcher = new Dispatcher() {
+      boolean firstRequestSubmitted = false;
+      boolean firstCalcRequested = false;
+      boolean secondCalcRequested = false;
+
+      @Override
+      public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        String requestPath = request.getPath();
+        if (request.getMethod().equals("POST") && requestPath.equals("/margin/v1/ccps/lch/calculations")) {
+          if (!firstRequestSubmitted) {
+            firstRequestSubmitted = true;
+            return new MockResponse()
+                .setResponseCode(202)
+                .setHeader("Location", server.url("/ccps/lch/calculations/789"))
+                .setBody(RESPONSE_CALC_POST);
+          } else {
+            return new MockResponse()
+                .setResponseCode(202)
+                .setHeader("Location", server.url("/ccps/lch/calculations/790"))
+                .setBody(RESPONSE_CALC_POST);
+          }
+        } else if (request.getMethod().equals("GET") && requestPath.equals("/margin/v1/ccps/lch/calculations/789")) {
+          if (!firstCalcRequested) {
+            firstCalcRequested = true;
+            return new MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(RESPONSE_CALC_GET_PENDING);
+          } else {
+            return new MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(RESPONSE_CALC_GET_COMPLETE);
+          }
+        } else if (request.getMethod().equals("GET") && requestPath.equals("/margin/v1/ccps/lch/calculations/790")) {
+          if (!secondCalcRequested) {
+            secondCalcRequested = true;
+            return new MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(RESPONSE_CALC_GET_PENDING);
+          } else {
+            return new MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(RESPONSE_CALC_WHATIF_GET_COMPLETE);
+          }
+        } else if (request.getMethod().equals("DELETE")) {
+          return new MockResponse()
+              .setBody(RESPONSE_DELETE);
+        } else {
+
+          return new MockResponse().setResponseCode(404);
+        }
+      }
+    };
+    server.setDispatcher(webServerDispatcher);
+
+    // call server
+    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    MarginClient client = MarginClient.of(invoker);
+
+    PortfolioDataFile lchPortfolioFile = PortfolioDataFile.of(Paths.get(
+        "src/test/resources/lch-trades.txt"));
+    MarginCalcRequest.of(VAL_DATE, "GBP", Collections.singletonList(lchPortfolioFile));
+
+    MarginWhatIfCalcResult result = client.calculateWhatIf(Ccp.LCH, REQUEST, Collections.singletonList(lchPortfolioFile)); //Using the same portfolio for delta as well
+    assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
+    assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
+    assertEquals(result.getValuationDate(), VAL_DATE);
+
+    assertEquals(result.getBaseSummary().getMargin(), 125.0); //Hard coded result, not relevant for portfolio
+    assertEquals(result.getCombinedSummary().getMargin(), 135.0); //Hard coded result, not relevant for portfolio
+    assertEquals(result.getDeltaSummary().getMargin(), 260.0);
   }
 
   public void test_calculate_postFail() throws Exception {

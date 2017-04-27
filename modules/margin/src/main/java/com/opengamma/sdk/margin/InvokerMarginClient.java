@@ -12,6 +12,8 @@ import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -52,8 +54,8 @@ final class InvokerMarginClient implements MarginClient {
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance.
-   * 
-   * @param invoker  the service invoker
+   *
+   * @param invoker the service invoker
    * @return the client
    */
   static InvokerMarginClient of(ServiceInvoker invoker) {
@@ -174,6 +176,57 @@ final class InvokerMarginClient implements MarginClient {
       // ignore
     }
     return result;
+  }
+
+  @Override
+  public MarginWhatIfCalcResult calculateWhatIf(
+      Ccp ccp,
+      MarginCalcRequest request,
+      List<PortfolioDataFile> deltaFiles) {
+
+    String baseCalcId = createCalculation(ccp, request);
+    ArrayList<PortfolioDataFile> combinedPortfolioData = new ArrayList<>();
+    combinedPortfolioData.addAll(request.getPortfolioData());
+    combinedPortfolioData.addAll(deltaFiles);
+
+    MarginCalcRequest secondRequest = request.toBuilder()
+        .portfolioData(combinedPortfolioData)
+        .build();
+
+    String deltaCalcId = createCalculation(ccp, secondRequest);
+    MarginCalcResult baseResult = getCalculation(ccp, baseCalcId);
+    MarginCalcResult deltaResult = getCalculation(ccp, deltaCalcId);
+    while (MarginCalcResultStatus.PENDING.equals(baseResult.getStatus()) ||
+        MarginCalcResultStatus.PENDING.equals(deltaResult.getStatus())) {
+      try {
+        Thread.sleep(POLL_WAIT);
+      } catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
+      }
+      if (MarginCalcResultStatus.PENDING.equals(baseResult.getStatus())) {
+        baseResult = getCalculation(ccp, baseCalcId);
+      }
+      if (MarginCalcResultStatus.PENDING.equals(deltaResult.getStatus())) {
+        deltaResult = getCalculation(ccp, deltaCalcId);
+      }
+    }
+    // cleanup server state quietly
+    try {
+      deleteCalculation(ccp, baseCalcId);
+      deleteCalculation(ccp, deltaCalcId);
+    } catch (RuntimeException ex) {
+      // ignore
+    }
+
+    return MarginWhatIfCalcResult.of(
+        MarginCalcResultStatus.COMPLETED,
+        request.getType(),
+        deltaResult.getValuationDate(),
+        deltaResult.getReportingCurrency(),
+        deltaResult.getPortfolioItems(),
+        baseResult.getMargin().orElseThrow(IllegalStateException::new),
+        deltaResult.getMargin().orElseThrow(IllegalStateException::new),
+        deltaResult.getFailures());
   }
 
   @Override
