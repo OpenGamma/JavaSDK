@@ -5,15 +5,22 @@
  */
 package com.opengamma.sdk.margin;
 
-import static java.util.stream.Collectors.joining;
-
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -53,24 +60,103 @@ public final class PortfolioDataFile implements ImmutableBean {
    * @param name  the name, not empty
    * @param data  the data, not empty
    * @return the instance
+   * @throws UncheckedIOException if an IO error occurs
    */
   public static PortfolioDataFile of(String name, String data) {
+    if (data.length() > 1_000_000) {
+      String base64Data = zipBase64(data);
+      return new PortfolioDataFile(name + ".gz.base64", base64Data);
+    }
     return new PortfolioDataFile(name, data);
+  }
+
+  // convert input to bytes using UTF-8, gzip it, then base-64 it
+  private static String zipBase64(String data) {
+    try {
+      try (ByteArrayOutputStream baos = new ByteArrayOutputStream(data.length() / 4 + 1)) {
+        try (OutputStream baseos = Base64.getEncoder().wrap(baos)) {
+          try (GZIPOutputStream zos = new GZIPOutputStream(baseos)) {
+            try (OutputStreamWriter writer = new OutputStreamWriter(zos, StandardCharsets.UTF_8)) {
+              writer.write(data);
+            }
+          }
+        }
+        return baos.toString("ISO-8859-1");  // base-64 bytes are ASCII, so this is optimal
+      }
+    } catch (IOException ex) {
+      throw new UncheckedIOException("Failed to zip base-64 content", ex);
+    }
   }
 
   /**
    * Obtains an instance from a file.
+   * <p>
+   * The file is compressed using GZIP, and sent to the server using Base-64.
    * 
    * @param path  the file
    * @return the instance
+   * @throws UncheckedIOException if an IO error occurs
    */
   public static PortfolioDataFile of(Path path) {
+    String filename = path.getFileName().toString();
+    String base64Data = gzipBase64(path);
+    return new PortfolioDataFile(filename + ".gz.base64", base64Data);
+  }
+
+  // zip input, then base-64
+  private static String gzipBase64(Path path) {
     try {
-      String data = Files.lines(path, StandardCharsets.UTF_8).collect(joining("\n"));
-      return new PortfolioDataFile(path.getFileName().toString(), data);
+      long size = Files.size(path) / 4 + 1;
+      int initialSize = size > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) size;
+      try (ByteArrayOutputStream baos = new ByteArrayOutputStream(initialSize)) {
+        try (OutputStream baseos = Base64.getEncoder().wrap(baos)) {
+          try (GZIPOutputStream zos = new GZIPOutputStream(baseos)) {
+            Files.copy(path, zos);
+          }
+        }
+        return baos.toString("ISO-8859-1");  // base-64 bytes are ASCII, so this is optimal
+      }
     } catch (IOException ex) {
-      throw new IllegalStateException(
-          "IOException processing file: " + path.getFileName().toString() + ": " + ex.getMessage(), ex);
+      throw new UncheckedIOException("Failed to gzip base-64 content", ex);
+    }
+  }
+
+  /**
+   * Obtains an instance by combining a list of files.
+   * <p>
+   * The files are combined using ZIP, and sent to the server using Base-64.
+   * 
+   * @param paths  the files, at least one
+   * @return the instance
+   * @throws IllegalArgumentException if no files were passed in
+   * @throws UncheckedIOException if an IO error occurs
+   */
+  public static PortfolioDataFile ofCombined(List<Path> paths) {
+    String base64Data = zipBase64(paths);
+    return new PortfolioDataFile("JavaSDK.zip.base64", base64Data);
+  }
+
+  // combine inputs into one zip, then base-64
+  private static String zipBase64(List<Path> paths) {
+    if (paths.isEmpty()) {
+      throw new IllegalArgumentException("PortfolioDataFile requires at least one file");
+    }
+    try {
+      try (ByteArrayOutputStream baos = new ByteArrayOutputStream(1024 * 8)) {
+        try (OutputStream baseos = Base64.getEncoder().wrap(baos)) {
+          try (ZipOutputStream zos = new ZipOutputStream(baseos)) {
+            for (Path path : paths) {
+              ZipEntry entry = new ZipEntry(path.getFileName().toString());
+              zos.putNextEntry(entry);
+              Files.copy(path, zos);
+              zos.closeEntry();
+            }
+          }
+        }
+        return baos.toString("ISO-8859-1");  // base-64 bytes are ASCII, so this is optimal
+      }
+    } catch (IOException ex) {
+      throw new UncheckedIOException("Failed to zip base-64 content", ex);
     }
   }
 
