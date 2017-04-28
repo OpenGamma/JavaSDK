@@ -66,7 +66,7 @@ public interface MarginClient {
   //-------------------------------------------------------------------------
   /**
    * High-level call to submit a portfolio for parsing, validation and IM calculation.
-   * 
+   *
    * @param ccp  the CCP to use
    * @param request  the calculation request
    * @return the detailed result of the calculation
@@ -74,23 +74,27 @@ public interface MarginClient {
   public abstract MarginCalcResult calculate(Ccp ccp, MarginCalcRequest request);
 
   /**
-   * High-level call to submit a base portfolio together with an extra set of trades, for parsing, validation and IM calculation.
-   * This will return the difference between the 2nd portfolio IM and the first (delta).
-   *
-   * @param ccp  the CCP to use
-   * @param request  the calculation request
-   * @param deltaFiles the portfolios representing the extra trades for the what-if scenario
-   * @return the detailed result of the calculation
-   */
-  public abstract MarginWhatIfCalcResult calculateWhatIf(Ccp ccp, MarginCalcRequest request, List<PortfolioDataFile> deltaFiles);
-
-  /**
    * High-level call to submit a portfolio for parsing, validation and IM calculation.
-   * 
+   *
    * @param ccp  the CCP to use
    * @param request  the calculation request
    * @return the detailed result of the calculation, expressed via a future
    */
   public abstract CompletableFuture<MarginCalcResult> calculateAsync(Ccp ccp, MarginCalcRequest request);
+
+  //-------------------------------------------------------------------------
+  /**
+   * High-level call to submit a base portfolio together with an extra set of trades,
+   * for parsing, validation and IM calculation.
+   * <p>
+   * This will return the margin summary for the base request, the combined request (base portfolio + delta portfolio),
+   * and the difference between the two.
+   *
+   * @param ccp  the CCP to use
+   * @param request  the calculation request
+   * @param deltaFiles  the portfolios representing the extra trades for the what-if scenario
+   * @return the detailed result of the calculation
+   */
+  public abstract MarginWhatIfCalcResult calculateWhatIf(Ccp ccp, MarginCalcRequest request, List<PortfolioDataFile> deltaFiles);
 
 }

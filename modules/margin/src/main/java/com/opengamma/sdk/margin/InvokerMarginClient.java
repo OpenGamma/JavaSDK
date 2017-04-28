@@ -55,7 +55,7 @@ final class InvokerMarginClient implements MarginClient {
   /**
    * Obtains an instance.
    *
-   * @param invoker the service invoker
+   * @param invoker  the service invoker
    * @return the client
    */
   static InvokerMarginClient of(ServiceInvoker invoker) {
@@ -156,6 +156,15 @@ final class InvokerMarginClient implements MarginClient {
     }
   }
 
+  // avoid errors when processing errors
+  private ErrorMessage parseError(Response response) throws IOException {
+    try {
+      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), ErrorMessage.class);
+    } catch (RuntimeException ex) {
+      return ErrorMessage.of(response.code(), "Unexpected JSON error", ex.getMessage());
+    }
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public MarginCalcResult calculate(Ccp ccp, MarginCalcRequest request) {
@@ -178,6 +187,43 @@ final class InvokerMarginClient implements MarginClient {
     return result;
   }
 
+  @Override
+  public CompletableFuture<MarginCalcResult> calculateAsync(Ccp ccp, MarginCalcRequest request) {
+    CompletableFuture<MarginCalcResult> resultPromise = new CompletableFuture<>();
+
+    Runnable r = () -> {
+      String calcId = createCalculation(ccp, request);
+      Instant timeout = Instant.now().plus(POLL_TIMEOUT);
+      Runnable pollTask = () -> {
+        MarginCalcResult calcResult = getCalculation(ccp, calcId);
+        if (calcResult.getStatus() == MarginCalcResultStatus.COMPLETED) {
+          resultPromise.complete(calcResult);
+          return;
+        }
+        if (Instant.now().isAfter(timeout)) {
+          resultPromise.completeExceptionally(new IllegalStateException("Timed out while polling margin service"));
+          return;
+        }
+      };
+      ScheduledFuture<?> scheduledTask =
+          invoker.getExecutor().scheduleWithFixedDelay(pollTask, POLL_WAIT, POLL_WAIT, TimeUnit.MILLISECONDS);
+      resultPromise.whenComplete((res, ex) -> {
+        scheduledTask.cancel(true);
+        // cleanup server state quietly
+        try {
+          deleteCalculation(ccp, calcId);
+        } catch (RuntimeException ex2) {
+          // ignore
+        }
+
+      });
+    };
+    invoker.getExecutor().execute(r);
+
+    return resultPromise;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public MarginWhatIfCalcResult calculateWhatIf(
       Ccp ccp,
@@ -227,51 +273,6 @@ final class InvokerMarginClient implements MarginClient {
         baseResult.getMargin().orElseThrow(IllegalStateException::new),
         deltaResult.getMargin().orElseThrow(IllegalStateException::new),
         deltaResult.getFailures());
-  }
-
-  @Override
-  public CompletableFuture<MarginCalcResult> calculateAsync(Ccp ccp, MarginCalcRequest request) {
-    CompletableFuture<MarginCalcResult> resultPromise = new CompletableFuture<>();
-
-    Runnable r = () -> {
-      String calcId = createCalculation(ccp, request);
-      Instant timeout = Instant.now().plus(POLL_TIMEOUT);
-      Runnable pollTask = () -> {
-        MarginCalcResult calcResult = getCalculation(ccp, calcId);
-        if (calcResult.getStatus() == MarginCalcResultStatus.COMPLETED) {
-          resultPromise.complete(calcResult);
-          return;
-        }
-        if (Instant.now().isAfter(timeout)) {
-          resultPromise.completeExceptionally(new IllegalStateException("Timed out while polling margin service"));
-          return;
-        }
-      };
-      ScheduledFuture<?> scheduledTask =
-          invoker.getExecutor().scheduleWithFixedDelay(pollTask, POLL_WAIT, POLL_WAIT, TimeUnit.MILLISECONDS);
-      resultPromise.whenComplete((res, ex) -> {
-        scheduledTask.cancel(true);
-        // cleanup server state quietly
-        try {
-          deleteCalculation(ccp, calcId);
-        } catch (RuntimeException ex2) {
-          // ignore
-        }
-
-      });
-    };
-    invoker.getExecutor().execute(r);
-
-    return resultPromise;
-  }
-
-  // avoid errors when processing errors
-  private ErrorMessage parseError(Response response) throws IOException {
-    try {
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), ErrorMessage.class);
-    } catch (RuntimeException ex) {
-      return ErrorMessage.of(response.code(), "Unexpected JSON error", ex.getMessage());
-    }
   }
 
 }

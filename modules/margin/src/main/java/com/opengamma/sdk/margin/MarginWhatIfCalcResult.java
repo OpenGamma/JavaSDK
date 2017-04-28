@@ -59,42 +59,40 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final List<PortfolioItemSummary> portfolioItems;
-
   /**
    * The result of the margin calculation for the base portfolio.
    */
   @PropertyDefinition
   private final MarginSummary baseSummary;
-
   /**
    * The result of the margin calculation for the combined portfolio (base + delta).
    */
   @PropertyDefinition
   private final MarginSummary combinedSummary;
-
   /**
-   * The result of the margin calculation for the delta portfolio.
+   * The difference between the base and combined portfolio.
+   * This is the change of margin that would occur if the delta portfolio was addded.
    */
   @PropertyDefinition
   private final MarginSummary deltaSummary;
-
   /**
    * The list of failures that occurred, may be empty.
    */
   @PropertyDefinition(validate = "notNull")
   private final List<MarginError> failures;
 
+  //-------------------------------------------------------------------------
   /**
    * Creates a new instance of {@link MarginWhatIfCalcResult} with the given details.
    *
-   * @param status the request status, as an instance of {@link MarginCalcResultStatus}
-   * @param type the type of request, as an instance of {@link MarginCalcRequestType}
-   * @param valuationDate the valuation date for which the portfolio will be processed
-   * @param reportingCurrency the reporting currency, as an ISO 4217 three letter currency code
-   * @param portfolioItems the summary of the portfolio items, may be empty
-   * @param baseSummary the details of the base portfolio margin calculation, as an instance of {@link MarginSummary}
-   * @param combinedSummary the details of the combined (base + delta) portfolios margin calculation, as an instance of {@link MarginSummary}
-   * @param failures the list of failures that occurred, may be empty
+   * @param status  the request status, as an instance of {@link MarginCalcResultStatus}
+   * @param type  the type of request, as an instance of {@link MarginCalcRequestType}
+   * @param valuationDate  the valuation date for which the portfolio will be processed
+   * @param reportingCurrency  the reporting currency, as an ISO 4217 three letter currency code
+   * @param portfolioItems  the summary of the portfolio items, may be empty
+   * @param baseSummary  the details of the base portfolio margin calculation
+   * @param combinedSummary  the details of the combined (base + delta) portfolios margin calculation
+   * @param failures  the list of failures that occurred, may be empty
    * @return a new instance of {@link MarginWhatIfCalcResult}
    */
   static MarginWhatIfCalcResult of(
@@ -107,14 +105,13 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
       MarginSummary combinedSummary,
       List<MarginError> failures) {
 
-    Map<String, Double> baseSummaryDetails = baseSummary.getMarginDetails().stream().collect(Collectors.toMap(
-        NamedValue::getKey,
-        NamedValue::getValue));
-    Map<String, Double> combinedSummaryDetails = combinedSummary.getMarginDetails().stream().collect(Collectors.toMap(
-        NamedValue::getKey,
-        NamedValue::getValue));
+    Map<String, Double> baseSummaryDetails = baseSummary.getMarginDetails().stream()
+        .collect(Collectors.toMap(NamedValue::getKey, NamedValue::getValue));
+    Map<String, Double> combinedSummaryDetails = combinedSummary.getMarginDetails().stream()
+        .collect(Collectors.toMap(NamedValue::getKey, NamedValue::getValue));
     List<NamedValue> deltaDetails = baseSummaryDetails.entrySet().stream()
-        .map(namedValue -> NamedValue.of(namedValue.getKey(), combinedSummaryDetails.get(namedValue.getKey()) - namedValue.getValue()))
+        .map(namedValue -> NamedValue.of(
+            namedValue.getKey(), combinedSummaryDetails.get(namedValue.getKey()) - namedValue.getValue()))
         .collect(Collectors.toList());
 
     double marginDifference = combinedSummary.getMargin() - baseSummary.getMargin();
@@ -201,11 +198,11 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
     this.type = type;
     this.valuationDate = valuationDate;
     this.reportingCurrency = reportingCurrency;
-    this.portfolioItems = Collections.unmodifiableList(new ArrayList<>(portfolioItems));
+    this.portfolioItems = Collections.unmodifiableList(new ArrayList<PortfolioItemSummary>(portfolioItems));
     this.baseSummary = baseSummary;
     this.combinedSummary = combinedSummary;
     this.deltaSummary = deltaSummary;
-    this.failures = Collections.unmodifiableList(new ArrayList<>(failures));
+    this.failures = Collections.unmodifiableList(new ArrayList<MarginError>(failures));
   }
 
   @Override
@@ -270,7 +267,7 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the result of the margin calculation for the base portfolio
+   * Gets the result of the margin calculation for the base portfolio.
    * @return the value of the property
    */
   public MarginSummary getBaseSummary() {
@@ -279,7 +276,7 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the result of the margin calculation for the combined portfolio (base + delta)
+   * Gets the result of the margin calculation for the combined portfolio (base + delta).
    * @return the value of the property
    */
   public MarginSummary getCombinedSummary() {
@@ -288,7 +285,8 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the result of the margin calculation for the delta portfolio
+   * Gets the difference between the base and combined portfolio.
+   * This is the change of margin that would occur if the delta portfolio was addded.
    * @return the value of the property
    */
   public MarginSummary getDeltaSummary() {
