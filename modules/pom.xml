@@ -437,7 +437,6 @@
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma SDK</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma SDK</h1>]]></doctitle>
-    <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
     <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>See <a href="http://www.opengamma.com">www.opengamma.com</a> for more info.</i>]]></bottom>
     <javadoc.footer.license>Apache v2 licensed</javadoc.footer.license>
   </properties>
