@@ -70,7 +70,7 @@ final class InvokerMarginClient implements MarginClient {
   @Override
   public CcpsResult listCcps() {
     Request request = new Request.Builder()
-        .url(invoker.getServiceUrl().resolve("/margin/v1/ccps"))
+        .url(invoker.getServiceUrl().resolve("margin/v1/ccps"))
         .get()
         .header("Accept", MEDIA_JSON.toString())
         .build();
@@ -93,7 +93,7 @@ final class InvokerMarginClient implements MarginClient {
     String text = JodaBeanSer.COMPACT.jsonWriter().write(calcRequest, false);
     RequestBody body = RequestBody.create(MEDIA_JSON, text);
     Request request = new Request.Builder()
-        .url(invoker.getServiceUrl().resolve("/margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations"))
+        .url(invoker.getServiceUrl().resolve("margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations"))
         .post(body)
         .header("Content-Type", MEDIA_JSON.toString())
         .header("Accept", MEDIA_JSON.toString())
@@ -117,7 +117,7 @@ final class InvokerMarginClient implements MarginClient {
   public MarginCalcResult getCalculation(Ccp ccp, String calcId) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl()
-            .resolve("/margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
+            .resolve("margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
         .get()
         .header("Accept", MEDIA_JSON.toString())
         .build();
@@ -139,7 +139,7 @@ final class InvokerMarginClient implements MarginClient {
   public void deleteCalculation(Ccp ccp, String calcId) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl()
-            .resolve("/margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
+            .resolve("margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
         .delete()
         .header("Accept", MEDIA_JSON.toString())
         .build();
