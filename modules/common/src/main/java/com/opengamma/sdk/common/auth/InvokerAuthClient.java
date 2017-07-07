@@ -54,7 +54,7 @@ final class InvokerAuthClient implements AuthClient {
         .add("client_id", apiKey)
         .add("client_secret", secret)
         .build();
-    return authenticate("/auth/v1/tokenClientCredentials", "API key: " + apiKey, formBody);
+    return authenticate("auth/v1/tokenClientCredentials", "API key: " + apiKey, formBody);
   }
 
   @Override
@@ -64,7 +64,7 @@ final class InvokerAuthClient implements AuthClient {
         .add("username", username)
         .add("password", password)
         .build();
-    return authenticate("/auth/v1/tokenPassword", "username: " + username, formBody);
+    return authenticate("auth/v1/tokenPassword", "username: " + username, formBody);
   }
 
   @Override
@@ -73,7 +73,7 @@ final class InvokerAuthClient implements AuthClient {
         .add("grant_type", "refresh_token")
         .add("refresh_token", refreshToken)
         .build();
-    return authenticate("/auth/v1/tokenRefresh", "refresh token", formBody);
+    return authenticate("auth/v1/tokenRefresh", "refresh token", formBody);
   }
 
   private AccessTokenResult authenticate(String url, String message, RequestBody formBody) {
