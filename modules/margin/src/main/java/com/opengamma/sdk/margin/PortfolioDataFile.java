@@ -54,24 +54,59 @@ public final class PortfolioDataFile implements ImmutableBean {
   private final String data;
 
   //-------------------------------------------------------------------------
+
   /**
-   * Obtains an instance.
-   * 
-   * @param name  the name, not empty
-   * @param data  the data, not empty
+   * Obtains an instance from the String representation of the data.
+   * <p>
+   * The data is compressed using GZIP, and sent to the server using Base-64.
+   *
+   * @param name the name, not empty
+   * @param data the data, not empty
    * @return the instance
    * @throws UncheckedIOException if an IO error occurs
    */
   public static PortfolioDataFile of(String name, String data) {
-    if (data.length() > 1_000_000) {
-      String base64Data = zipBase64(data);
-      return new PortfolioDataFile(name + ".gz.base64", base64Data);
-    }
-    return new PortfolioDataFile(name, data);
+    String base64Data = gzipBase64(data);
+    return new PortfolioDataFile(name + ".gz.base64", base64Data);
   }
 
-  // convert input to bytes using UTF-8, gzip it, then base-64 it
-  private static String zipBase64(String data) {
+  /**
+   * Obtains an instance from a file.
+   * <p>
+   * The file is compressed using GZIP, and sent to the server using Base-64.
+   *
+   * @param path the file
+   * @return the instance
+   * @throws UncheckedIOException if an IO error occurs
+   */
+  public static PortfolioDataFile of(Path path) {
+    String filename = path.getFileName().toString();
+    String base64Data = gzipBase64(path);
+    return new PortfolioDataFile(filename + ".gz.base64", base64Data);
+  }
+
+  /**
+   * Obtains an instance by combining a list of files.
+   * <p>
+   * The files are combined using ZIP, and sent to the server using Base-64.
+   *
+   * @param paths the files, at least one
+   * @return the instance
+   * @throws IllegalArgumentException if no files were passed in
+   * @throws UncheckedIOException if an IO error occurs
+   */
+  public static PortfolioDataFile ofCombined(List<Path> paths) {
+    String base64Data = zipBase64(paths);
+    return new PortfolioDataFile("JavaSDK.zip.base64", base64Data);
+  }
+
+  /**
+   * Convert input to bytes using UTF-8, gzip it, then base-64 it.
+   *
+   * @param data the input data, as a String
+   * @return the compressed output, as a String
+   */
+  private static String gzipBase64(String data) {
     try {
       try (ByteArrayOutputStream baos = new ByteArrayOutputStream(data.length() / 4 + 1)) {
         try (OutputStream baseos = Base64.getEncoder().wrap(baos)) {
@@ -84,26 +119,16 @@ public final class PortfolioDataFile implements ImmutableBean {
         return baos.toString("ISO-8859-1");  // base-64 bytes are ASCII, so this is optimal
       }
     } catch (IOException ex) {
-      throw new UncheckedIOException("Failed to zip base-64 content", ex);
+      throw new UncheckedIOException("Failed to gzip base-64 content", ex);
     }
   }
 
   /**
-   * Obtains an instance from a file.
-   * <p>
-   * The file is compressed using GZIP, and sent to the server using Base-64.
-   * 
-   * @param path  the file
-   * @return the instance
-   * @throws UncheckedIOException if an IO error occurs
+   * Gzips the input then base-64 it.
+   *
+   * @param path the input data file, as an instance of {@link Path}
+   * @return the compressed output, as a String
    */
-  public static PortfolioDataFile of(Path path) {
-    String filename = path.getFileName().toString();
-    String base64Data = gzipBase64(path);
-    return new PortfolioDataFile(filename + ".gz.base64", base64Data);
-  }
-
-  // zip input, then base-64
   private static String gzipBase64(Path path) {
     try {
       long size = Files.size(path) / 4 + 1;
@@ -122,21 +147,11 @@ public final class PortfolioDataFile implements ImmutableBean {
   }
 
   /**
-   * Obtains an instance by combining a list of files.
-   * <p>
-   * The files are combined using ZIP, and sent to the server using Base-64.
-   * 
-   * @param paths  the files, at least one
-   * @return the instance
-   * @throws IllegalArgumentException if no files were passed in
-   * @throws UncheckedIOException if an IO error occurs
+   * Combines multiple files into a ZIP archive, then base-64 the ZIP archive.
+   *
+   * @param paths a list of one or more input files, that are to be compressed together
+   * @return the compressed output, as a String
    */
-  public static PortfolioDataFile ofCombined(List<Path> paths) {
-    String base64Data = zipBase64(paths);
-    return new PortfolioDataFile("JavaSDK.zip.base64", base64Data);
-  }
-
-  // combine inputs into one zip, then base-64
   private static String zipBase64(List<Path> paths) {
     if (paths.isEmpty()) {
       throw new IllegalArgumentException("PortfolioDataFile requires at least one file");
