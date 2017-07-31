@@ -54,7 +54,6 @@ public final class PortfolioDataFile implements ImmutableBean {
   private final String data;
 
   //-------------------------------------------------------------------------
-
   /**
    * Obtains an instance from the String representation of the data.
    * <p>
