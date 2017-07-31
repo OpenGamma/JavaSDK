@@ -30,8 +30,8 @@ public class PortfolioDataFileTest {
 
   public void test_ofString_small() {
     PortfolioDataFile test = PortfolioDataFile.of("name.txt", "a=b");
-    assertEquals(test.getName(), "name.txt");
-    assertEquals(test.getData(), "a=b");
+    assertEquals(test.getName(), "name.txt.gz.base64");
+    assertEquals(test.getData(), "H4sIAAAAAAAAAEu0TQIAzzAAfwMAAAA=");
   }
 
   public void test_ofString_large() {
