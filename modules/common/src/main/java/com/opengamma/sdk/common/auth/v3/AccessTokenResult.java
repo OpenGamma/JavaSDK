@@ -93,13 +93,8 @@ public final class AccessTokenResult implements ImmutableBean {
       String tokenType,
       long expiresIn,
       ApiKeyCredentials credentials) {
-<<<<<<< HEAD
-    JodaBeanUtils.notNull(accessToken, "accessToken");
-    JodaBeanUtils.notNull(tokenType, "tokenType");
-=======
     JodaBeanUtils.notBlank(accessToken, "accessToken");
     JodaBeanUtils.notBlank(tokenType, "tokenType");
->>>>>>> master
     this.accessToken = accessToken;
     this.tokenType = tokenType;
     this.expiresIn = expiresIn;
@@ -124,11 +119,7 @@ public final class AccessTokenResult implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the access token.
-<<<<<<< HEAD
-   * @return the value of the property, not null
-=======
    * @return the value of the property, not blank
->>>>>>> master
    */
   public String getAccessToken() {
     return accessToken;
@@ -137,11 +128,7 @@ public final class AccessTokenResult implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the token type.
-<<<<<<< HEAD
-   * @return the value of the property, not null
-=======
    * @return the value of the property, not blank
->>>>>>> master
    */
   public String getTokenType() {
     return tokenType;

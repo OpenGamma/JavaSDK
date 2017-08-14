@@ -528,29 +528,21 @@ public final class MarginCalcRequest implements ImmutableBean {
       return this;
     }
 
-<<<<<<< HEAD
-    @Override
-=======
     /**
      * @deprecated Use Joda-Convert in application code
      */
     @Override
     @Deprecated
->>>>>>> master
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
-<<<<<<< HEAD
-    @Override
-=======
     /**
      * @deprecated Loop in application code
      */
     @Override
     @Deprecated
->>>>>>> master
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
