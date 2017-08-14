@@ -3,20 +3,17 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sdk.common.auth;
+package com.opengamma.sdk.common.auth.v3;
 
-import com.opengamma.sdk.common.ServiceInvoker;
+
+import com.opengamma.sdk.common.v3.ServiceInvoker;
 
 /**
  * Client providing access to the auth service.
  * <p>
  * Applications should not need to use this service directly.
  * The {@link ServiceInvoker} invokes authentication when required.
- *
- * @deprecated Since 1.3.0. Replaced by {@link com.opengamma.sdk.common.auth.v3.AuthClient} with an updated implementation.
- *   The current interface will be removed in future versions.
  */
-@Deprecated
 public interface AuthClient {
 
   /**
@@ -29,16 +26,6 @@ public interface AuthClient {
     return InvokerAuthClient.of(invoker);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Authenticates the user based on a username and password.
-   * 
-   * @param username  the username
-   * @param password  the password
-   * @return the result containing the access token
-   */
-  public abstract AccessTokenResult authenticatePassword(String username, String password);
-
   /**
    * Authenticates the user based on an API key.
    * 
@@ -49,11 +36,10 @@ public interface AuthClient {
   public abstract AccessTokenResult authenticateApiKey(String apiKey, String apiKeySecret);
 
   /**
-   * Refreshes the main token based on the refresh token.
-   * 
-   * @param refreshToken  the refresh token
+   * Authenticates the use rbased on an API key.
+   * @param credentials the API key and secret, encapsulated in an instance of {@link ApiKeyCredentials}
    * @return the result containing the access token
    */
-  public abstract AccessTokenResult refreshToken(String refreshToken);
+  public abstract AccessTokenResult authenticateApiKey(ApiKeyCredentials credentials);
 
 }

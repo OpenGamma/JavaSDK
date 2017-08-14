@@ -25,7 +25,11 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 /**
  * A name-value pair for returning results.
+ *
+ * @deprecated Since 1.3.0. Replaced by an exact copy: {@link com.opengamma.sdk.margin.v3.NamedValue}.
+ *   The current class will be removed in future versions.
  */
+@Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
 public final class NamedValue implements ImmutableBean {
 

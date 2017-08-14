@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sdk.common;
+package com.opengamma.sdk.common.v3;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -18,9 +18,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.sdk.common.auth.AccessTokenResult;
-import com.opengamma.sdk.common.auth.AuthClient;
-import com.opengamma.sdk.common.auth.Credentials;
+import com.opengamma.sdk.common.Version;
+import com.opengamma.sdk.common.auth.v3.AccessTokenResult;
+import com.opengamma.sdk.common.auth.v3.AuthClient;
+import com.opengamma.sdk.common.auth.v3.Credentials;
 
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
@@ -42,11 +43,7 @@ import okhttp3.Response;
  * <p>
  * This class implements {@link AutoCloseable} and should be closed when no longer needed,
  * such as via the try-with-resources statement.
- *
- * @deprecated Since 1.3.0. Replaced by {@link com.opengamma.sdk.common.v3.ServiceInvoker} with an updated implementation.
- *   The current class will be removed in future versions.
  */
-@Deprecated
 public final class ServiceInvoker implements AutoCloseable {
 
   /**
@@ -231,10 +228,7 @@ public final class ServiceInvoker implements AutoCloseable {
         if (token == null) {
           throw new IllegalStateException("Authentication failed: Unable to retry");
         }
-        String refreshToken = token.getRefreshToken();
-        log.debug("Refresh token: {}", refreshToken);
-        token = null;
-        token = authClient.refreshToken(refreshToken);
+        token = authClient.authenticateApiKey(token.getCredentials());
         Request modifiedRequest2 = initialRequest.newBuilder()
             .header(AUTHORIZATION, "Bearer " + token.getAccessToken())
             .build();

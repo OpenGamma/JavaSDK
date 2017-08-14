@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sdk.margin;
+package com.opengamma.sdk.margin.v3;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -26,11 +26,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 /**
  * General-purpose error message object.
- *
- * @deprecated Since 1.3.0. Replaced by an exact copy: {@link com.opengamma.sdk.margin.v3.ErrorMessage}.
- *   The current class will be removed in future versions.
  */
-@Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private")
 public final class ErrorMessage implements ImmutableBean {
 

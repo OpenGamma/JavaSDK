@@ -3,15 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sdk.common.auth;
+package com.opengamma.sdk.common.auth.v3;
 
 /**
  * Credentials used to authenticate with the service.
- *
- * @deprecated Since 1.3.0. Replaced by an exact copy: {@link com.opengamma.sdk.common.auth.v3.Credentials}.
- *   The current interface will be removed in future versions.
  */
-@Deprecated
 public interface Credentials {
 
   /**
@@ -25,17 +21,6 @@ public interface Credentials {
    */
   public static Credentials ofApiKey(String apiKey, String secret) {
     return ApiKeyCredentials.of(apiKey, secret);
-  }
-
-  /**
-   * Obtains credentials using username and password.
-   * 
-   * @param username  the username
-   * @param password  the password
-   * @return the credentials
-   */
-  public static Credentials ofUsernamePassword(String username, String password) {
-    return UserPasswordCredentials.of(username, password);
   }
 
   //-------------------------------------------------------------------------

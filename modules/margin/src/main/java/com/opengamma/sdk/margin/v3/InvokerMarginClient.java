@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sdk.margin;
+package com.opengamma.sdk.margin.v3;
 
 import static com.opengamma.sdk.common.ServiceInvoker.MEDIA_JSON;
 
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.joda.beans.ser.JodaBeanSer;
 
-import com.opengamma.sdk.common.ServiceInvoker;
+import com.opengamma.sdk.common.v3.ServiceInvoker;
 
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -30,12 +30,8 @@ import okhttp3.Response;
 
 /**
  * Implementation of the margin client.
- *
- * @deprecated Since 1.3.0. Replaced by {@link com.opengamma.sdk.margin.v3.InvokerMarginClient} with an updated implementation.
- *   The current class will be removed in future versions.
  */
-@Deprecated
-final class InvokerMarginClient implements MarginClient {
+public final class InvokerMarginClient implements MarginClient {
 
   /**
    * Sleep for 500ms between polls.
@@ -62,7 +58,7 @@ final class InvokerMarginClient implements MarginClient {
    * @param invoker  the service invoker
    * @return the client
    */
-  static InvokerMarginClient of(ServiceInvoker invoker) {
+  public static InvokerMarginClient of(ServiceInvoker invoker) {
     return new InvokerMarginClient(invoker);
   }
 
@@ -74,7 +70,7 @@ final class InvokerMarginClient implements MarginClient {
   @Override
   public CcpsResult listCcps() {
     Request request = new Request.Builder()
-        .url(invoker.getServiceUrl().resolve("margin/v1/ccps"))
+        .url(invoker.getServiceUrl().resolve("margin/v3/ccps"))
         .get()
         .header("Accept", MEDIA_JSON.toString())
         .build();
@@ -87,6 +83,26 @@ final class InvokerMarginClient implements MarginClient {
       }
       return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), CcpsResult.class);
 
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+  }
+
+  @Override
+  public CcpInfo getCcpInfo(Ccp ccp) {
+    Request request = new Request.Builder()
+        .url(invoker.getServiceUrl().resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH)))
+        .get()
+        .header("Accept", MEDIA_JSON.toString())
+        .build();
+
+    try (Response response = invoker.getHttpClient().newCall(request).execute()) {
+      if (!response.isSuccessful()) {
+        ErrorMessage errorMessage = parseError(response);
+        throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
+        response.code() + ", message: " + errorMessage.getMessage());
+      }
+      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), CcpInfo.class);
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }
@@ -121,7 +137,7 @@ final class InvokerMarginClient implements MarginClient {
   public MarginCalcResult getCalculation(Ccp ccp, String calcId) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl()
-            .resolve("margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
+            .resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
         .get()
         .header("Accept", MEDIA_JSON.toString())
         .build();

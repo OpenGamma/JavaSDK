@@ -3,20 +3,16 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sdk.margin;
+package com.opengamma.sdk.margin.v3;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import com.opengamma.sdk.common.ServiceInvoker;
+import com.opengamma.sdk.common.v3.ServiceInvoker;
 
 /**
  * Client providing access to the margin service.
- *
- * @deprecated Since 1.3.0. Replaed by {@link com.opengamma.sdk.margin.v3.MarginClient} with updated signatures.
- *   The current interface will be removed in future versions.
  */
-@Deprecated
 public interface MarginClient {
 
   /**
@@ -34,14 +30,16 @@ public interface MarginClient {
   //-------------------------------------------------------------------------
   /**
    * Lists the available CCPs.
-   * 
+   *
    * @return the list of available CCPs
    */
   public abstract CcpsResult listCcps();
 
+  public CcpInfo getCcpInfo(Ccp ccp);
+
   /**
    * Creates a margin calculation task.
-   * 
+   *
    * @param ccp  the CCP to use
    * @param request  the calculation request
    * @return the calculation identifier
@@ -99,6 +97,9 @@ public interface MarginClient {
    * @param deltaFiles  the portfolios representing the extra trades for the what-if scenario
    * @return the detailed result of the calculation
    */
-  public abstract MarginWhatIfCalcResult calculateWhatIf(Ccp ccp, MarginCalcRequest request, List<PortfolioDataFile> deltaFiles);
+  public abstract MarginWhatIfCalcResult calculateWhatIf(
+      Ccp ccp,
+      MarginCalcRequest request,
+      List<PortfolioDataFile> deltaFiles);
 
 }

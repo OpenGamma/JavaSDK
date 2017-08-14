@@ -3,9 +3,8 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sdk.common.auth;
+package com.opengamma.sdk.common.auth.v3;
 
-import static com.opengamma.sdk.common.ServiceInvoker.MEDIA_FORM;
 import static com.opengamma.sdk.common.ServiceInvoker.MEDIA_JSON;
 
 import java.io.IOException;
@@ -14,21 +13,16 @@ import java.util.Objects;
 
 import org.joda.beans.ser.JodaBeanSer;
 
-import com.opengamma.sdk.common.ServiceInvoker;
+import com.opengamma.sdk.common.v3.ServiceInvoker;
 
-import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
  * Implementation of the auth client.
- *
- * @deprecated Since 1.3.0. Replaced by {@link com.opengamma.sdk.common.auth.v3.InvokerAuthClient} with an updated implementation.
- *   This class will be removed in future versions.
  */
-@Deprecated
-final class InvokerAuthClient implements AuthClient {
+public final class InvokerAuthClient implements AuthClient {
 
   /**
    * The service invoker.
@@ -53,38 +47,23 @@ final class InvokerAuthClient implements AuthClient {
   //-------------------------------------------------------------------------
   @Override
   public AccessTokenResult authenticateApiKey(String apiKey, String secret) {
-    RequestBody formBody = new FormBody.Builder()
-        .add("grant_type", "client_credentials")
-        .add("client_id", apiKey)
-        .add("client_secret", secret)
-        .build();
-    return authenticate("auth/v1/tokenClientCredentials", "API key: " + apiKey, formBody);
+    RequestBody requestBody = RequestBody.create(MEDIA_JSON, "{ \"grant_type\": \"client_credentials\","
+        + "\"client_id\": \"" + apiKey + "\","
+        + "\"client_secret\": \"" + secret + "\""
+        + "}");
+    return authenticate("auth/v3/token", "API key: " + apiKey, requestBody);
   }
 
   @Override
-  public AccessTokenResult authenticatePassword(String username, String password) {
-    RequestBody formBody = new FormBody.Builder()
-        .add("grant_type", "password")
-        .add("username", username)
-        .add("password", password)
-        .build();
-    return authenticate("auth/v1/tokenPassword", "username: " + username, formBody);
-  }
-
-  @Override
-  public AccessTokenResult refreshToken(String refreshToken) {
-    RequestBody formBody = new FormBody.Builder()
-        .add("grant_type", "refresh_token")
-        .add("refresh_token", refreshToken)
-        .build();
-    return authenticate("auth/v1/tokenRefresh", "refresh token", formBody);
+  public AccessTokenResult authenticateApiKey(ApiKeyCredentials credentials) {
+    return credentials.authenticate(this);
   }
 
   private AccessTokenResult authenticate(String url, String message, RequestBody formBody) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl().resolve(url))
         .post(formBody)
-        .header("Content-Type", MEDIA_FORM.toString())
+        .header("Content-Type", MEDIA_JSON.toString())
         .header("Accept", MEDIA_JSON.toString())
         .build();
 

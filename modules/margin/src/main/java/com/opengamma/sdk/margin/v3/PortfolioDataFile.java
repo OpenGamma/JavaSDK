@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sdk.margin;
+package com.opengamma.sdk.margin.v3;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,11 +38,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 /**
  * Portfolio data to pass to the service.
- *
- * @deprecated Since 1.3.0. Replaced by an exact copy: {@link com.opengamma.sdk.margin.v3.PortfolioDataFile}
- *   The current class will be removed in future versions.
  */
-@Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private")
 public final class PortfolioDataFile implements ImmutableBean {
 
