@@ -28,7 +28,8 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
  * <p>
  * OAuth2 Access Token Response per https://tools.ietf.org/html/rfc6749#section-4.4
  *
- * @deprecated A new version of this class exists in the v3 package. This class will be removed in future versions
+ * @deprecated Since 1.3.0. Replaced by {@link com.opengamma.sdk.common.auth.v3.AccessTokenResult} with an updated implementation.
+ *   The current class will be removed in future versions.
  */
 @Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private")

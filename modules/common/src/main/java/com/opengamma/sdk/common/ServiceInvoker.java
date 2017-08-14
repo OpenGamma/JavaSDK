@@ -43,7 +43,8 @@ import okhttp3.Response;
  * This class implements {@link AutoCloseable} and should be closed when no longer needed,
  * such as via the try-with-resources statement.
  *
- * @deprecated A new version of this class exists in the v3 package. This class will be removed in future versions
+ * @deprecated Since 1.3.0. Replaced by {@link com.opengamma.sdk.common.v3.ServiceInvoker} with an updated implementation.
+ *   The current class will be removed in future versions.
  */
 @Deprecated
 public final class ServiceInvoker implements AutoCloseable {

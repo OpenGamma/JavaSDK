@@ -24,7 +24,8 @@ import okhttp3.Response;
 /**
  * Implementation of the auth client.
  *
- * @deprecated A new version of this class exists in the v3 package. This class will be removed in future versions
+ * @deprecated Since 1.3.0. Replaced by {@link com.opengamma.sdk.common.auth.v3.InvokerAuthClient} with an updated implementation.
+ *   This class will be removed in future versions.
  */
 @Deprecated
 final class InvokerAuthClient implements AuthClient {

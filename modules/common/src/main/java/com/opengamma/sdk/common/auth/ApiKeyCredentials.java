@@ -28,7 +28,8 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
  * <p>
  * This is the OAuth2 "client credentials" concept.
  *
- * @deprecated Moved an exact copy of this class to the v3 package. This class will be removed in future versions
+ * @deprecated Since 1.3.0. Replaced by an exact copy: {@link com.opengamma.sdk.common.auth.v3.ApiKeyCredentials}.
+ *   The current class will be removed in future versions.
  */
 @Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")

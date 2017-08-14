@@ -13,7 +13,8 @@ import com.opengamma.sdk.common.ServiceInvoker;
 /**
  * Client providing access to the margin service.
  *
- * @deprecated A new version of this interface exists in the v3 package. This interface will be removed in future versions
+ * @deprecated Since 1.3.0. Replaed by {@link com.opengamma.sdk.margin.v3.MarginClient} with updated signatures.
+ *   The current interface will be removed in future versions.
  */
 @Deprecated
 public interface MarginClient {

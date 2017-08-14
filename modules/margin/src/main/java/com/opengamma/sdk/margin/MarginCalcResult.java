@@ -31,7 +31,8 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 /**
  * Result from the service.
  *
- * @deprecated A new version of this class exists in the v3 package. This class will be removed in future versions
+ * @deprecated Since 1.3.0. Replaced by {@link com.opengamma.sdk.margin.v3.MarginCalcResult} with an updated implementation (one extra field).
+ *   The current class will be removed in future versions.
  */
 @Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")

@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 /**
  * Username and password credentials, used to authenticate with the service.
  *
- * @deprecated ToDo
+ * @deprecated Since 1.3.0. Will be removed in future versions of the SDK, since the new V3 API does not support username/passwords for authentication purposes.
  */
 @Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")

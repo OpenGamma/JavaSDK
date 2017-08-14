@@ -32,7 +32,8 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 /**
  * CCP information from the service.
  *
- * @deprecated since version
+ * @deprecated Since 1.3.0. Replaced by {@link com.opengamma.sdk.margin.v3.CcpInfo} with an updated implementation.
+ *   The current class will be removed in future versions.
  */
 @Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
