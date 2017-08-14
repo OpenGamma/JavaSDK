@@ -80,7 +80,7 @@ public final class PortfolioDataFile implements ImmutableBean {
    */
   public static PortfolioDataFile of(Path path) {
     String filename = path.toAbsolutePath().toString();
-    if(Files.notExists(path)) {
+    if (Files.notExists(path)) {
       throw new IllegalArgumentException("Could not find portfolio file: " + filename);
     }
     String base64Data = gzipBase64(path);
@@ -98,7 +98,7 @@ public final class PortfolioDataFile implements ImmutableBean {
    * @throws UncheckedIOException if an IO error occurs
    */
   public static PortfolioDataFile ofCombined(List<Path> paths) {
-    if(paths.stream().anyMatch(Files::notExists)) {
+    if (paths.stream().anyMatch(Files::notExists)) {
       String firstFileNotFound = paths.stream().filter(Files::notExists).findFirst().get().toAbsolutePath().toString();
       throw new IllegalArgumentException("Could not find one of the input files in the list." + firstFileNotFound);
     }
