@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -98,9 +99,10 @@ public final class PortfolioDataFile implements ImmutableBean {
    * @throws UncheckedIOException if an IO error occurs
    */
   public static PortfolioDataFile ofCombined(List<Path> paths) {
-    if (paths.stream().anyMatch(Files::notExists)) {
-      String firstFileNotFound = paths.stream().filter(Files::notExists).findFirst().get().toAbsolutePath().toString();
-      throw new IllegalArgumentException("Could not find one of the input files in the list." + firstFileNotFound);
+    List<Path> missingFiles = paths.stream().filter(Files::notExists).collect(Collectors.toList());
+    if (!missingFiles.isEmpty()) {
+      String missingFilesAsString = missingFiles.stream().map(Path::toString).collect(Collectors.joining(","));
+      throw new IllegalArgumentException("Could not find one or more of the input files in the list." + missingFilesAsString);
     }
     String base64Data = zipBase64(paths);
     return new PortfolioDataFile("JavaSDK.zip.base64", base64Data);

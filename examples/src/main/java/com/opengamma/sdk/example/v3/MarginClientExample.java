@@ -49,7 +49,7 @@ public class MarginClientExample {
       // Optional step: Checking if we are permissioned to the specific CCP calculation engine
       Ccp chosenCCP = Ccp.LCH;
       if(!ccps.isCcpAvailable(chosenCCP)) {
-        throw new IllegalStateException(chosenCCP.name() + "Margin Calculator not available");
+        throw new IllegalStateException("Margin Calculator not available for " + chosenCCP.name());
       }
 
       //Retrieve specific information about the CCP calculation engine: valuation dates and available currencies
