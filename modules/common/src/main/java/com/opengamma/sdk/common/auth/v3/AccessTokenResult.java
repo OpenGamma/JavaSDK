@@ -52,8 +52,12 @@ public final class AccessTokenResult implements ImmutableBean {
   @PropertyDefinition(alias = "expires_in")
   private final long expiresIn;
 
+  /**
+   * The API Credentials used to get the current {@link AccessTokenResult}.
+   *  This is needed by the {@link com.opengamma.sdk.common.v3.ServiceInvoker.TokenInterceptor} class, to handle expired or missing tokens.
+   */
   @PropertyDefinition
-  private transient final ApiKeyCredentials credentials;
+  private final transient ApiKeyCredentials credentials;
 
   //-------------------------------------------------------------------------
   /**
@@ -62,6 +66,7 @@ public final class AccessTokenResult implements ImmutableBean {
    * @param accessToken  the access token
    * @param tokenType  the token type
    * @param expiresIn  the expires in
+   * @param credentials the API credentials associated to the current {@link AccessTokenResult} object
    * @return the instance
    */
   public static AccessTokenResult of(String accessToken, String tokenType, long expiresIn, ApiKeyCredentials credentials) {
@@ -139,7 +144,8 @@ public final class AccessTokenResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the credentials.
+   * Gets the API Credentials used to get the current {@link AccessTokenResult}.
+   * This is needed by the {@link com.opengamma.sdk.common.v3.ServiceInvoker.TokenInterceptor} class, to handle expired or missing tokens.
    * @return the value of the property
    */
   public ApiKeyCredentials getCredentials() {
