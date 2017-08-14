@@ -41,7 +41,7 @@ public final class CcpInfo implements ImmutableBean {
   /**
    * The default currency of the CCP.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notBlank")
   private final String defaultCurrency;
   /**
    * The list of currencies that the report may be reported in, not empty.
@@ -86,7 +86,11 @@ public final class CcpInfo implements ImmutableBean {
   /**
    * Obtains an instance.
    * @param valuationDates  the value of the property, not null
+<<<<<<< HEAD
    * @param defaultCurrency  the value of the property, not null
+=======
+   * @param defaultCurrency  the value of the property, not blank
+>>>>>>> master
    * @param reportingCurrencies  the value of the property, not null
    * @param calculationCurrencies  the value of the property, not null
    * @return the instance
@@ -109,6 +113,7 @@ public final class CcpInfo implements ImmutableBean {
       List<String> reportingCurrencies,
       List<String> calculationCurrencies) {
     JodaBeanUtils.notNull(valuationDates, "valuationDates");
+<<<<<<< HEAD
     JodaBeanUtils.notNull(defaultCurrency, "defaultCurrency");
     JodaBeanUtils.notNull(reportingCurrencies, "reportingCurrencies");
     JodaBeanUtils.notNull(calculationCurrencies, "calculationCurrencies");
@@ -116,6 +121,15 @@ public final class CcpInfo implements ImmutableBean {
     this.defaultCurrency = defaultCurrency;
     this.reportingCurrencies = Collections.unmodifiableList(new ArrayList<>(reportingCurrencies));
     this.calculationCurrencies = Collections.unmodifiableList(new ArrayList<>(calculationCurrencies));
+=======
+    JodaBeanUtils.notBlank(defaultCurrency, "defaultCurrency");
+    JodaBeanUtils.notNull(reportingCurrencies, "reportingCurrencies");
+    JodaBeanUtils.notNull(calculationCurrencies, "calculationCurrencies");
+    this.valuationDates = Collections.unmodifiableList(new ArrayList<LocalDate>(valuationDates));
+    this.defaultCurrency = defaultCurrency;
+    this.reportingCurrencies = Collections.unmodifiableList(new ArrayList<String>(reportingCurrencies));
+    this.calculationCurrencies = Collections.unmodifiableList(new ArrayList<String>(calculationCurrencies));
+>>>>>>> master
   }
 
   @Override
@@ -145,7 +159,11 @@ public final class CcpInfo implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the default currency of the CCP.
+<<<<<<< HEAD
    * @return the value of the property, not null
+=======
+   * @return the value of the property, not blank
+>>>>>>> master
    */
   public String getDefaultCurrency() {
     return defaultCurrency;

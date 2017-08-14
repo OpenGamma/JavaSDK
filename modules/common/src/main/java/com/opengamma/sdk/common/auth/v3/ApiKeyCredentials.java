@@ -34,13 +34,13 @@ final class ApiKeyCredentials implements Credentials, ImmutableBean {
   /**
    * The API Key ID with which to authenticate
    */
-  @PropertyDefinition(validate = "notEmpty", get = "")
+  @PropertyDefinition(validate = "notBlank", get = "")
   private final String apiKey;
 
   /**
    * The secret corresponding to the id with which to authenticate
    */
-  @PropertyDefinition(validate = "notEmpty", get = "")
+  @PropertyDefinition(validate = "notBlank", get = "")
   private final String secret;
 
   //-------------------------------------------------------------------------
@@ -65,8 +65,13 @@ final class ApiKeyCredentials implements Credentials, ImmutableBean {
 
   /**
    * Obtains an instance.
+<<<<<<< HEAD
    * @param apiKey  the value of the property, not empty
    * @param secret  the value of the property, not empty
+=======
+   * @param apiKey  the value of the property, not blank
+   * @param secret  the value of the property, not blank
+>>>>>>> master
    * @return the instance
    */
   public static ApiKeyCredentials of(
@@ -80,8 +85,13 @@ final class ApiKeyCredentials implements Credentials, ImmutableBean {
   private ApiKeyCredentials(
       String apiKey,
       String secret) {
+<<<<<<< HEAD
     JodaBeanUtils.notEmpty(apiKey, "apiKey");
     JodaBeanUtils.notEmpty(secret, "secret");
+=======
+    JodaBeanUtils.notBlank(apiKey, "apiKey");
+    JodaBeanUtils.notBlank(secret, "secret");
+>>>>>>> master
     this.apiKey = apiKey;
     this.secret = secret;
   }

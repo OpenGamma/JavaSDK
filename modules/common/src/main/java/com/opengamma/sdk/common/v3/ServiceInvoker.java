@@ -74,7 +74,7 @@ public final class ServiceInvoker implements AutoCloseable {
   /**
    * The URL of the service.
    */
-  public static final HttpUrl SERVICE_URL = HttpUrl.parse("https://margin-api.dev.opengamma.com");
+  public static final HttpUrl SERVICE_URL = HttpUrl.parse("https://api.opengamma.com");
   /**
    * JSON media type.
    */
@@ -178,9 +178,9 @@ public final class ServiceInvoker implements AutoCloseable {
     @Override
     public Response intercept(Chain chain) throws IOException {
       Request request = chain.request();
-      //log.debug("Call service: {} {}", request.method(), request.url());
+      log.debug("Call service: {} {}", request.method(), request.url());
       Response response = chain.proceed(request);
-      //log.debug("Service responded: {}", response.code());
+      log.debug("Service responded: {}", response.code());
       return response;
     }
   }

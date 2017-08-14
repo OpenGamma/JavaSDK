@@ -36,7 +36,7 @@ public final class InvokerMarginClient implements MarginClient {
   /**
    * Sleep for 500ms between polls.
    */
-  private static final long POLL_WAIT = 100;
+  private static final long POLL_WAIT = 500;
   /**
    * Timeout for polling the result.
    */

@@ -422,15 +422,15 @@
   <!-- ==================================================================== -->
   <properties>
     <!-- Versions -->
-    <assertj.version>3.6.1</assertj.version>
-    <joda-convert.version>1.8.1</joda-convert.version>
-    <joda-beans.version>1.10</joda-beans.version>
-    <slf4j.version>1.7.22</slf4j.version>
-    <jcommander.version>1.58</jcommander.version>
-    <okhttp.version>3.6.0</okhttp.version>
-    <okio.version>1.11.0</okio.version>
-    <testng.version>6.10</testng.version>
-    <mockito.version>2.4.0</mockito.version>
+    <assertj.version>3.8.0</assertj.version>
+    <joda-convert.version>1.8.2</joda-convert.version>
+    <joda-beans.version>1.13</joda-beans.version>
+    <slf4j.version>1.7.25</slf4j.version>
+    <jcommander.version>1.72</jcommander.version>
+    <okhttp.version>3.8.1</okhttp.version>
+    <okio.version>1.13.0</okio.version>
+    <testng.version>6.11</testng.version>
+    <mockito.version>2.8.47</mockito.version>
     <!-- Properties for joda-beans-maven-plugin -->
     <joda-beans-maven-plugin.version>1.1</joda-beans-maven-plugin.version>
     <joda.beans.config>jdk6</joda.beans.config>

@@ -140,9 +140,9 @@ public final class MarginCalcResult implements ImmutableBean {
     this.valuationDate = valuationDate;
     this.reportingCurrency = reportingCurrency;
     this.applyClientMultiplier = applyClientMultiplier;
-    this.portfolioItems = Collections.unmodifiableList(new ArrayList<>(portfolioItems));
+    this.portfolioItems = Collections.unmodifiableList(new ArrayList<PortfolioItemSummary>(portfolioItems));
     this.margin = margin;
-    this.failures = Collections.unmodifiableList(new ArrayList<>(failures));
+    this.failures = Collections.unmodifiableList(new ArrayList<MarginError>(failures));
   }
 
   @Override

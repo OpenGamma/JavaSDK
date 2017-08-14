@@ -35,6 +35,11 @@ public interface AuthClient {
    */
   public abstract AccessTokenResult authenticateApiKey(String apiKey, String apiKeySecret);
 
+  /**
+   * Authenticates the use rbased on an API key.
+   * @param credentials the API key and secret, encapsulated in an instance of {@link ApiKeyCredentials}
+   * @return the result containing the access token
+   */
   public abstract AccessTokenResult authenticateApiKey(ApiKeyCredentials credentials);
 
 }

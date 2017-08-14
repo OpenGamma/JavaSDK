@@ -104,7 +104,7 @@ public final class CcpsResult implements ImmutableBean {
   private CcpsResult(
       List<String> ccpNames) {
     JodaBeanUtils.notNull(ccpNames, "ccpNames");
-    this.ccpNames = Collections.unmodifiableList(new ArrayList<>(ccpNames));
+    this.ccpNames = Collections.unmodifiableList(new ArrayList<String>(ccpNames));
   }
 
   @Override
@@ -242,7 +242,7 @@ public final class CcpsResult implements ImmutableBean {
    */
   private static final class Builder extends DirectPrivateBeanBuilder<CcpsResult> {
 
-    private List<String> ccpNames = Collections.EMPTY_LIST;
+    private List<String> ccpNames = Collections.emptyList();
 
     /**
      * Restricted constructor.
