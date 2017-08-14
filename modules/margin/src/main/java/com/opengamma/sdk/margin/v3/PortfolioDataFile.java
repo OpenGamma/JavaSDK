@@ -79,7 +79,10 @@ public final class PortfolioDataFile implements ImmutableBean {
    * @throws UncheckedIOException if an IO error occurs
    */
   public static PortfolioDataFile of(Path path) {
-    String filename = path.getFileName().toString();
+    String filename = path.toAbsolutePath().toString();
+    if(Files.notExists(path)) {
+      throw new IllegalArgumentException("Could not find portfolio file: " + filename);
+    }
     String base64Data = gzipBase64(path);
     return new PortfolioDataFile(filename + ".gz.base64", base64Data);
   }
@@ -95,6 +98,10 @@ public final class PortfolioDataFile implements ImmutableBean {
    * @throws UncheckedIOException if an IO error occurs
    */
   public static PortfolioDataFile ofCombined(List<Path> paths) {
+    if(paths.stream().anyMatch(Files::notExists)) {
+      String firstFileNotFound = paths.stream().filter(Files::notExists).findFirst().get().toAbsolutePath().toString();
+      throw new IllegalArgumentException("Could not find one of the input files in the list." + firstFileNotFound);
+    }
     String base64Data = zipBase64(paths);
     return new PortfolioDataFile("JavaSDK.zip.base64", base64Data);
   }
