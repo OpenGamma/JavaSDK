@@ -97,7 +97,7 @@ public final class InvokerMarginClient implements MarginClient {
   @Override
   public CcpInfo getCcpInfo(Ccp ccp) {
     Request request = new Request.Builder()
-        .url(invoker.getServiceUrl().resolve("margin/v3/ccps/" + ccp.name().toLowerCase()))
+        .url(invoker.getServiceUrl().resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH)))
         .get()
         .header("Accept", MEDIA_JSON.toString())
         .build();
