@@ -25,7 +25,10 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 /**
  * Username and password credentials, used to authenticate with the service.
+ *
+ * @deprecated ToDo
  */
+@Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
 final class UserPasswordCredentials implements Credentials, ImmutableBean {
 

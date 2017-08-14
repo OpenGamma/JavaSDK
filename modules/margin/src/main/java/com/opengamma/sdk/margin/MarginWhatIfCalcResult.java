@@ -30,7 +30,10 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 /**
  * Result from the service.
+ *
+ * @deprecated Moved an exact copy of this class to the v3 package. This class will be removed in future versions
  */
+@Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
 public final class MarginWhatIfCalcResult implements ImmutableBean {
 
@@ -95,7 +98,7 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
    * @param failures  the list of failures that occurred, may be empty
    * @return a new instance of {@link MarginWhatIfCalcResult}
    */
-  static MarginWhatIfCalcResult of(
+  public static MarginWhatIfCalcResult of(
       MarginCalcResultStatus status,
       MarginCalcRequestType type,
       LocalDate valuationDate,

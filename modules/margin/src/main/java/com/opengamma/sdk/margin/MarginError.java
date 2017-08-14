@@ -26,7 +26,10 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 /**
  * The error details.
+ *
+ * @deprecated Moved an exact copy of this class to the v3 package. This class will be removed in future versions
  */
+@Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
 public final class MarginError implements ImmutableBean {
 

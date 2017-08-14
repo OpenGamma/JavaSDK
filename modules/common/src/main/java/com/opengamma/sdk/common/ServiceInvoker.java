@@ -42,7 +42,10 @@ import okhttp3.Response;
  * <p>
  * This class implements {@link AutoCloseable} and should be closed when no longer needed,
  * such as via the try-with-resources statement.
+ *
+ * @deprecated A new version of this class exists in the v3 package. This class will be removed in future versions
  */
+@Deprecated
 public final class ServiceInvoker implements AutoCloseable {
 
   /**
@@ -73,7 +76,7 @@ public final class ServiceInvoker implements AutoCloseable {
   /**
    * The URL of the service.
    */
-  public static final HttpUrl SERVICE_URL = HttpUrl.parse("https://api.opengamma.com");
+  public static final HttpUrl SERVICE_URL = HttpUrl.parse("https://margin-api.dev.opengamma.com");
   /**
    * JSON media type.
    */

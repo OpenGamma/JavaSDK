@@ -27,7 +27,10 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
  * API key and secret credentials, used to authenticate with the service.
  * <p>
  * This is the OAuth2 "client credentials" concept.
+ *
+ * @deprecated Moved an exact copy of this class to the v3 package. This class will be removed in future versions
  */
+@Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
 final class ApiKeyCredentials implements Credentials, ImmutableBean {
 

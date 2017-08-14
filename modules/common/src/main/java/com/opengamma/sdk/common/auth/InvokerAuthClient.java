@@ -23,7 +23,10 @@ import okhttp3.Response;
 
 /**
  * Implementation of the auth client.
+ *
+ * @deprecated A new version of this class exists in the v3 package. This class will be removed in future versions
  */
+@Deprecated
 final class InvokerAuthClient implements AuthClient {
 
   /**

@@ -27,7 +27,10 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
  * The result returned to the client from an oauth2 request.
  * <p>
  * OAuth2 Access Token Response per https://tools.ietf.org/html/rfc6749#section-4.4
+ *
+ * @deprecated A new version of this class exists in the v3 package. This class will be removed in future versions
  */
+@Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private")
 public final class AccessTokenResult implements ImmutableBean {
 

@@ -38,7 +38,10 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 /**
  * Portfolio data to pass to the service.
+ *
+ * @deprecated Moved an exact copy of this class to the v3 package. This class will be removed in future versions
  */
+@Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private")
 public final class PortfolioDataFile implements ImmutableBean {
 

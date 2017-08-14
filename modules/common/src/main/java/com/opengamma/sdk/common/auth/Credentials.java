@@ -7,7 +7,10 @@ package com.opengamma.sdk.common.auth;
 
 /**
  * Credentials used to authenticate with the service.
+ *
+ * @deprecated Moved an exact copy of this interface to the v3 package. This interface will be removed in future versions
  */
+@Deprecated
 public interface Credentials {
 
   /**

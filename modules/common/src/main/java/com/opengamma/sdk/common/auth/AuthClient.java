@@ -12,7 +12,10 @@ import com.opengamma.sdk.common.ServiceInvoker;
  * <p>
  * Applications should not need to use this service directly.
  * The {@link ServiceInvoker} invokes authentication when required.
+ *
+ * @deprecated A new version of this interface exists in the v3 package. This interface will be removed in future versions
  */
+@Deprecated
 public interface AuthClient {
 
   /**

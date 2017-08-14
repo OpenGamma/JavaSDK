@@ -12,7 +12,10 @@ import org.joda.convert.ToString;
 
 /**
  * Represents a CCP.
+ *
+ * @deprecated Moved an exact copy of this ENUM to the v3 package. This class will be removed in future versions
  */
+@Deprecated
 public enum Ccp {
 
   /** Eurex. */

@@ -31,7 +31,10 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 /**
  * CCP information from the service.
+ *
+ * @deprecated since version
  */
+@Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
 public final class CcpInfo implements ImmutableBean {
 

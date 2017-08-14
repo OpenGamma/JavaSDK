@@ -7,7 +7,10 @@ package com.opengamma.sdk.margin;
 
 /**
  * The status of the calculation.
+ *
+ * @deprecated Moved an exact copy of this ENUM to the v3 package. This class will be removed in future versions
  */
+@Deprecated
 public enum MarginCalcResultStatus {
 
   /**

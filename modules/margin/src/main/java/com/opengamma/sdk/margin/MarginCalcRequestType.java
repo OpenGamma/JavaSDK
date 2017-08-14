@@ -7,7 +7,10 @@ package com.opengamma.sdk.margin;
 
 /**
  * The type of margin calculation to perform.
+ *
+ * @deprecated Moved an exact copy of this ENUM to the v3 package. This class will be removed in future versions
  */
+@Deprecated
 public enum MarginCalcRequestType {
 
   /**
