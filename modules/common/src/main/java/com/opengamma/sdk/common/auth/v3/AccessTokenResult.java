@@ -54,7 +54,7 @@ public final class AccessTokenResult implements ImmutableBean {
 
   /**
    * The API Credentials used to get the current {@link AccessTokenResult}.
-   *  This is needed by the {@link com.opengamma.sdk.common.v3.ServiceInvoker.TokenInterceptor} class, to handle expired or missing tokens.
+   *  This is needed by the the authentication logic, where the Token Interceptor class has to handle expired or missing tokens.
    */
   @PropertyDefinition
   private final transient ApiKeyCredentials credentials;
