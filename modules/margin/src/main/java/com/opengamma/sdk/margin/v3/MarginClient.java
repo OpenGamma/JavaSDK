@@ -9,10 +9,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import com.opengamma.sdk.common.v3.ServiceInvoker;
-import com.opengamma.sdk.margin.Ccp;
-import com.opengamma.sdk.margin.MarginCalcRequest;
-import com.opengamma.sdk.margin.MarginWhatIfCalcResult;
-import com.opengamma.sdk.margin.PortfolioDataFile;
 
 /**
  * Client providing access to the margin service.

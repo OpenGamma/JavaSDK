@@ -27,8 +27,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
-import com.opengamma.sdk.margin.Ccp;
-
 /**
  * CCP information from the service.
  */

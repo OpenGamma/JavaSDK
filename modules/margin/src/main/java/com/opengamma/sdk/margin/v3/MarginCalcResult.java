@@ -28,12 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
-import com.opengamma.sdk.margin.MarginCalcRequestType;
-import com.opengamma.sdk.margin.MarginCalcResultStatus;
-import com.opengamma.sdk.margin.MarginError;
-import com.opengamma.sdk.margin.MarginSummary;
-import com.opengamma.sdk.margin.PortfolioItemSummary;
-
 /**
  * Result from the service.
  */

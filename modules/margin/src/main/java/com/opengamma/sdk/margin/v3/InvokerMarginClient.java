@@ -23,12 +23,6 @@ import java.util.concurrent.TimeUnit;
 import org.joda.beans.ser.JodaBeanSer;
 
 import com.opengamma.sdk.common.v3.ServiceInvoker;
-import com.opengamma.sdk.margin.Ccp;
-import com.opengamma.sdk.margin.ErrorMessage;
-import com.opengamma.sdk.margin.MarginCalcRequest;
-import com.opengamma.sdk.margin.MarginCalcResultStatus;
-import com.opengamma.sdk.margin.MarginWhatIfCalcResult;
-import com.opengamma.sdk.margin.PortfolioDataFile;
 
 import okhttp3.Request;
 import okhttp3.RequestBody;
