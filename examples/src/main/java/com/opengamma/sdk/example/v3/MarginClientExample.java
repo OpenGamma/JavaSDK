@@ -15,13 +15,13 @@ import org.joda.beans.ser.JodaBeanSer;
 
 import com.opengamma.sdk.common.auth.v3.Credentials;
 import com.opengamma.sdk.common.v3.ServiceInvoker;
-import com.opengamma.sdk.margin.v3.MarginWhatIfCalcResult;
 import com.opengamma.sdk.margin.v3.Ccp;
 import com.opengamma.sdk.margin.v3.CcpInfo;
 import com.opengamma.sdk.margin.v3.CcpsResult;
 import com.opengamma.sdk.margin.v3.MarginCalcRequest;
 import com.opengamma.sdk.margin.v3.MarginCalcResult;
 import com.opengamma.sdk.margin.v3.MarginClient;
+import com.opengamma.sdk.margin.v3.MarginWhatIfCalcResult;
 import com.opengamma.sdk.margin.v3.PortfolioDataFile;
 
 /**
@@ -48,7 +48,7 @@ public class MarginClientExample {
 
       // Optional step: Checking if we are permissioned to the specific CCP calculation engine
       Ccp chosenCCP = Ccp.LCH;
-      if(!ccps.isCcpAvailable(chosenCCP)) {
+      if (!ccps.isCcpAvailable(chosenCCP)) {
         throw new IllegalStateException("Margin Calculator not available for " + chosenCCP.name());
       }
 

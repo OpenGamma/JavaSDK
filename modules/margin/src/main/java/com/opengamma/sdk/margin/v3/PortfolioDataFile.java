@@ -5,6 +5,9 @@
  */
 package com.opengamma.sdk.margin.v3;
 
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -99,9 +101,9 @@ public final class PortfolioDataFile implements ImmutableBean {
    * @throws UncheckedIOException if an IO error occurs
    */
   public static PortfolioDataFile ofCombined(List<Path> paths) {
-    List<Path> missingFiles = paths.stream().filter(Files::notExists).collect(Collectors.toList());
+    List<Path> missingFiles = paths.stream().filter(Files::notExists).collect(toList());
     if (!missingFiles.isEmpty()) {
-      String missingFilesAsString = missingFiles.stream().map(Path::toString).collect(Collectors.joining(","));
+      String missingFilesAsString = missingFiles.stream().map(Path::toString).collect(joining(","));
       throw new IllegalArgumentException("Could not find one or more of the input files in the list." + missingFilesAsString);
     }
     String base64Data = zipBase64(paths);
