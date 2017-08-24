@@ -39,17 +39,38 @@ public final class CcpsResult implements ImmutableBean {
   @PropertyDefinition(validate = "notNull", alias = "ccps")
   private final List<String> ccpNames;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the CCP is available.
+   * 
+   * @param ccpName  the CCP to check
+   * @return true if available to uses
+   */
   public boolean isCcpAvailable(String ccpName) {
     return ccpNames.stream().anyMatch(ccpName::equalsIgnoreCase);
   }
 
+  /**
+   * Checks if the CCP is available.
+   * 
+   * @param ccp  the CCP to check
+   * @return true if available to uses
+   */
   public boolean isCcpAvailable(Ccp ccp) {
     return ccpNames.stream().anyMatch(x -> ccp.name().equalsIgnoreCase(x));
   }
 
+  /**
+   * Gets the CCP instance by name.
+   * 
+   * @param ccpName  the name
+   * @return the instance
+   * @throws IllegalArgumentException if the name is not valid
+   */
   public Ccp getCcpByName(String ccpName) {
     return Ccp.of(ccpName);
   }
+
   //-------------------------------------------------------------------------
   /**
    * Gets information about a particular CCP, throwing an exception if not found.

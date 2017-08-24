@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
  * Test {@link PortfolioDataFile}.
  */
 @Test
+@SuppressWarnings("deprecation")
 public class PortfolioDataFileTest {
 
   public void test_ofString_small() {

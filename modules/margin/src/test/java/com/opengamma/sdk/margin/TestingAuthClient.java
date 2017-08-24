@@ -11,6 +11,7 @@ import com.opengamma.sdk.common.auth.AuthClient;
 /**
  * Mock auth client for testing.
  */
+@SuppressWarnings("deprecation")
 public final class TestingAuthClient implements AuthClient {
 
   @Override
