@@ -32,6 +32,7 @@ import okhttp3.mockwebserver.RecordedRequest;
  * Test.
  */
 @Test
+@SuppressWarnings("deprecation")
 public class MarginClientTest {
 
   private static final Credentials CREDENTIALS = Credentials.ofUsernamePassword("user", "password");

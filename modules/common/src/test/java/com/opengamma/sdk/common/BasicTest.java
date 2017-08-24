@@ -18,6 +18,7 @@ import com.opengamma.sdk.common.auth.Credentials;
  * Test.
  */
 @Test
+@SuppressWarnings("deprecation")
 public class BasicTest {
 
   private static final Credentials CREDENTIALS = Credentials.ofUsernamePassword("user", "pw");

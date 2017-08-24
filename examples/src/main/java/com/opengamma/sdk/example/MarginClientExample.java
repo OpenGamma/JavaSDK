@@ -25,6 +25,7 @@ import com.opengamma.sdk.margin.PortfolioDataFile;
 /**
  * Example code.
  */
+@SuppressWarnings("deprecation")
 public class MarginClientExample {
 
   // credentials must be set to use the example

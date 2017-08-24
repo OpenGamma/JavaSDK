@@ -5,7 +5,7 @@
  */
 package com.opengamma.sdk.margin.v3;
 
-import static com.opengamma.sdk.common.ServiceInvoker.MEDIA_JSON;
+import static com.opengamma.sdk.common.v3.ServiceInvoker.MEDIA_JSON;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -113,7 +113,7 @@ public final class InvokerMarginClient implements MarginClient {
     String text = JodaBeanSer.COMPACT.jsonWriter().write(calcRequest, false);
     RequestBody body = RequestBody.create(MEDIA_JSON, text);
     Request request = new Request.Builder()
-        .url(invoker.getServiceUrl().resolve("margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations"))
+        .url(invoker.getServiceUrl().resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations"))
         .post(body)
         .header("Content-Type", MEDIA_JSON.toString())
         .header("Accept", MEDIA_JSON.toString())
@@ -159,7 +159,7 @@ public final class InvokerMarginClient implements MarginClient {
   public void deleteCalculation(Ccp ccp, String calcId) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl()
-            .resolve("margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
+            .resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
         .delete()
         .header("Accept", MEDIA_JSON.toString())
         .build();

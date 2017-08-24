@@ -5,7 +5,7 @@
  */
 package com.opengamma.sdk.common.auth.v3;
 
-import static com.opengamma.sdk.common.ServiceInvoker.MEDIA_JSON;
+import static com.opengamma.sdk.common.v3.ServiceInvoker.MEDIA_JSON;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
