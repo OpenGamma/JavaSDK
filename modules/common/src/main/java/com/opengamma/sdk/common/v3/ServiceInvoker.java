@@ -105,6 +105,8 @@ public final class ServiceInvoker implements AutoCloseable {
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance for the specified credentials.
+   * <p>
+   * The executor will be initialized with {@link Runtime#availableProcessors()} threads.
    *
    * @param credentials  the credentials to use for authentication
    * @return the invoker
@@ -114,7 +116,20 @@ public final class ServiceInvoker implements AutoCloseable {
   }
 
   /**
+   * Obtains an instance for the specified credentials and executor service.
+   *
+   * @param credentials  the credentials to use for authentication
+   * @param executor  the executor service
+   * @return the invoker
+   */
+  public static ServiceInvoker of(Credentials credentials, ScheduledExecutorService executor) {
+    return new ServiceInvoker(credentials, SERVICE_URL, executor, null);
+  }
+
+  /**
    * Obtains an instance for the specified credentials and URL.
+   * <p>
+   * The executor will be initialized with {@link Runtime#availableProcessors()} threads.
    *
    * @param credentials  the credentials to use for authentication
    * @param serviceUrl  the URL of the service
@@ -122,6 +137,18 @@ public final class ServiceInvoker implements AutoCloseable {
    */
   public static ServiceInvoker of(Credentials credentials, HttpUrl serviceUrl) {
     return new ServiceInvoker(credentials, serviceUrl, createExecutor(), null);
+  }
+
+  /**
+   * Obtains an instance for the specified credentials, URL and executor service.
+   *
+   * @param credentials  the credentials to use for authentication
+   * @param serviceUrl  the URL of the service
+   * @param executor  the executor service
+   * @return the invoker
+   */
+  public static ServiceInvoker of(Credentials credentials, HttpUrl serviceUrl, ScheduledExecutorService executor) {
+    return new ServiceInvoker(credentials, serviceUrl, executor, null);
   }
 
   /**
@@ -146,7 +173,8 @@ public final class ServiceInvoker implements AutoCloseable {
       t.setDaemon(true);
       return t;
     };
-    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1, threadFactory);
+    ScheduledExecutorService executor =
+        Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(), threadFactory);
     return executor;
   }
 
