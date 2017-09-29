@@ -21,6 +21,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.beans.ser.JodaBeanSer;
+import org.joda.beans.ser.SerDeserializers;
 
 import com.opengamma.sdk.common.v3.ServiceInvoker;
 
@@ -52,6 +53,7 @@ public final class InvokerMarginClient implements MarginClient {
   private final ServiceInvoker invoker;
 
   //-------------------------------------------------------------------------
+
   /**
    * Obtains an instance.
    *
@@ -81,7 +83,9 @@ public final class InvokerMarginClient implements MarginClient {
         throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
             response.code() + ", message: " + errorMessage.getMessage());
       }
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), CcpsResult.class);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
+          .jsonReader()
+          .read(response.body().string(), CcpsResult.class);
 
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -100,9 +104,11 @@ public final class InvokerMarginClient implements MarginClient {
       if (!response.isSuccessful()) {
         ErrorMessage errorMessage = parseError(response);
         throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
-        response.code() + ", message: " + errorMessage.getMessage());
+            response.code() + ", message: " + errorMessage.getMessage());
       }
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), CcpInfo.class);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
+          .jsonReader()
+          .read(response.body().string(), CcpInfo.class);
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }
@@ -148,7 +154,9 @@ public final class InvokerMarginClient implements MarginClient {
         throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
             response.code() + ", message: " + errorMessage.getMessage());
       }
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), MarginCalcResult.class);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
+          .jsonReader()
+          .read(response.body().string(), MarginCalcResult.class);
 
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -294,5 +302,4 @@ public final class InvokerMarginClient implements MarginClient {
         deltaResult.getMargin().orElseThrow(IllegalStateException::new),
         deltaResult.getFailures());
   }
-
 }
