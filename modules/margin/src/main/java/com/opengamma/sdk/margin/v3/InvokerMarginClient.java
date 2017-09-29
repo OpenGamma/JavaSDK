@@ -17,10 +17,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.beans.ser.JodaBeanSer;
+import org.joda.beans.ser.SerDeserializers;
 
 import com.opengamma.sdk.common.v3.ServiceInvoker;
 
@@ -81,7 +83,7 @@ public final class InvokerMarginClient implements MarginClient {
         throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
             response.code() + ", message: " + errorMessage.getMessage());
       }
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), CcpsResult.class);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT).jsonReader().read(response.body().string(), CcpsResult.class);
 
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -102,7 +104,7 @@ public final class InvokerMarginClient implements MarginClient {
         throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
         response.code() + ", message: " + errorMessage.getMessage());
       }
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), CcpInfo.class);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT).jsonReader().read(response.body().string(), CcpInfo.class);
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }
@@ -148,7 +150,7 @@ public final class InvokerMarginClient implements MarginClient {
         throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
             response.code() + ", message: " + errorMessage.getMessage());
       }
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), MarginCalcResult.class);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT).jsonReader().read(response.body().string(), MarginCalcResult.class);
 
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -295,4 +297,91 @@ public final class InvokerMarginClient implements MarginClient {
         deltaResult.getFailures());
   }
 
+  @Override
+  public CompletableFuture<MarginWhatIfCalcResult> calculateWhatIfAsync(
+      Ccp ccp, MarginCalcRequest request, List<PortfolioDataFile> deltaFiles) {
+    CompletableFuture<MarginCalcResult> baseCalcResultPromise = new CompletableFuture<>();
+    CompletableFuture<MarginCalcResult> deltaCalcResultPromise = new CompletableFuture<>();
+
+    Runnable r = () -> {
+      String baseCalcId = createCalculation(ccp, request);
+      Instant timeout = Instant.now().plus(POLL_TIMEOUT);
+      Runnable pollTask = () -> {
+        MarginCalcResult baseResult = getCalculation(ccp, baseCalcId);
+        if (MarginCalcResultStatus.COMPLETED.equals(baseResult.getStatus())) {
+          baseCalcResultPromise.complete(baseResult);
+          return;
+        }
+        if (Instant.now().isAfter(timeout)) {
+          baseCalcResultPromise.completeExceptionally(new IllegalStateException("Timed out while polling margin service."));
+          return;
+        }
+      };
+      ScheduledFuture<?> scheduledTask = invoker.getExecutor().scheduleWithFixedDelay(
+          pollTask,
+          POLL_WAIT,
+          POLL_WAIT,
+          TimeUnit.MILLISECONDS);
+      baseCalcResultPromise.whenComplete((result, ex) -> {
+        scheduledTask.cancel(true);
+        //cleanup server state quietly
+        try {
+          deleteCalculation(ccp, baseCalcId);
+        } catch (RuntimeException ex2) {
+          //ignore
+        }
+      });
+    };
+
+    Runnable r2 = () -> {
+      String deltaCalcId = createCalculation(ccp, request);
+      Instant timeout = Instant.now().plus(POLL_TIMEOUT);
+      Runnable pollTask = () -> {
+        MarginCalcResult deltaResult = getCalculation(ccp, deltaCalcId);
+        if (MarginCalcResultStatus.COMPLETED.equals(deltaResult.getStatus())) {
+          deltaCalcResultPromise.complete(deltaResult);
+          return;
+        }
+        if (Instant.now().isAfter(timeout)) {
+          deltaCalcResultPromise.completeExceptionally(new IllegalStateException("Timed out while polling margin service."));
+          return;
+        }
+      };
+      ScheduledFuture<?> scheduledTask = invoker.getExecutor().scheduleWithFixedDelay(
+          pollTask,
+          POLL_WAIT,
+          POLL_WAIT,
+          TimeUnit.MILLISECONDS);
+      deltaCalcResultPromise.whenComplete((result, ex) -> {
+        scheduledTask.cancel(true);
+        //cleanup server state quietly
+        try {
+          deleteCalculation(ccp, deltaCalcId);
+        } catch (RuntimeException ex2) {
+          //ignore
+        }
+      });
+    };
+
+    invoker.getExecutor().execute(r);
+    invoker.getExecutor().execute(r2);
+
+    CompletableFuture<MarginWhatIfCalcResult> resultPromise = new CompletableFuture<>();
+    try {
+      MarginCalcResult baseResult = baseCalcResultPromise.get();
+      MarginCalcResult deltaResult = deltaCalcResultPromise.get();
+      resultPromise.complete(MarginWhatIfCalcResult.of(
+          MarginCalcResultStatus.COMPLETED,
+          request.getType(),
+          deltaResult.getValuationDate(),
+          deltaResult.getReportingCurrency(),
+          deltaResult.getPortfolioItems(),
+          baseResult.getMargin().orElseThrow(IllegalStateException::new),
+          deltaResult.getMargin().orElseThrow(IllegalStateException::new),
+          deltaResult.getFailures()));
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+    }
+    return resultPromise;
+  }
 }
