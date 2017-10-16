@@ -9,6 +9,8 @@ package com.opengamma.sdk.common.auth.v3;
  * Credentials used to authenticate with the service.
  */
 public interface Credentials {
+  // the design of this interface and the methods that use it are intended to support
+  // different ways to authenticate without exposing the implementing classes
 
   /**
    * Obtains credentials using an API key and secret.
