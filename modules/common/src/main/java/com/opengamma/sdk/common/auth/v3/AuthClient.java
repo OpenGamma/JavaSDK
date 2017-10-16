@@ -40,6 +40,6 @@ public interface AuthClient {
    * @param credentials the API key and secret, encapsulated in an instance of {@link ApiKeyCredentials}
    * @return the result containing the access token
    */
-  public abstract AccessTokenResult authenticateApiKey(ApiKeyCredentials credentials);
+  public abstract AccessTokenResult authenticateApiKey(Credentials credentials);
 
 }

@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.sdk.common.auth.v3.Credentials;
 import com.opengamma.sdk.common.v3.ServiceInvoker;
+import com.opengamma.sdk.margin.auth.v3.TestingAuthClient;
 
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;

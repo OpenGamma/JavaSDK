@@ -55,7 +55,7 @@ public final class InvokerAuthClient implements AuthClient {
   }
 
   @Override
-  public AccessTokenResult authenticateApiKey(ApiKeyCredentials credentials) {
+  public AccessTokenResult authenticateApiKey(Credentials credentials) {
     return credentials.authenticate(this);
   }
 
