@@ -6,13 +6,16 @@
 package com.opengamma.sdk.margin.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertThrows;
+import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.joda.beans.ser.JodaBeanSer;
@@ -175,6 +178,151 @@ public class MarginClientTest {
     assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
     assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
     assertEquals(result.getValuationDate(), VAL_DATE);
+  }
+
+  public void test_calculate_multi_ccp() throws Exception {
+    Dispatcher webServerDispatcher = new Dispatcher() {
+      boolean lchCalcRequested = false;
+      boolean eurexCalcRequested = false;
+
+      @Override
+      public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        String requestPath = request.getPath();
+        if (request.getMethod().equals("POST") && requestPath.equals("/margin/v3/ccps/lch/calculations")) {
+          return new MockResponse()
+              .setResponseCode(202)
+              .setHeader("Location", server.url("/ccps/lch/calculations/789"))
+              .setBody(RESPONSE_CALC_POST);
+        } else if (request.getMethod().equals("POST") && requestPath.equals("/margin/v3/ccps/eurex/calculations")){
+          return new MockResponse()
+              .setResponseCode(202)
+              .setHeader("Location", server.url("/ccps/eurex/calculations/790"))
+              .setBody(RESPONSE_CALC_POST);
+        } else if (request.getMethod().equals("GET") && requestPath.equals("/margin/v3/ccps/lch/calculations/789")) {
+          if (!lchCalcRequested) {
+            lchCalcRequested = true;
+            return new MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(RESPONSE_CALC_GET_PENDING);
+          } else {
+            return new MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(RESPONSE_CALC_GET_COMPLETE);
+          }
+        } else if (request.getMethod().equals("GET") && requestPath.equals("/margin/v3/ccps/eurex/calculations/790")) {
+          if (!eurexCalcRequested) {
+            eurexCalcRequested = true;
+            return new MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(RESPONSE_CALC_GET_PENDING);
+          } else {
+            return new MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(RESPONSE_CALC_WHATIF_GET_COMPLETE);
+          }
+        } else if (request.getMethod().equals("DELETE")) {
+          return new MockResponse()
+              .setBody(RESPONSE_DELETE);
+        } else {
+
+          return new MockResponse().setResponseCode(404);
+        }
+      }
+    };
+    server.setDispatcher(webServerDispatcher);
+
+    // call server
+    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    MarginClient client = MarginClient.of(invoker);
+
+    List<Ccp> ccps = Arrays.asList(Ccp.LCH, Ccp.EUREX);
+    MultiCcpMarginCalcResult result = client.calculate(ccps, REQUEST);
+    assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
+    assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
+    assertEquals(result.getValuationDate(), VAL_DATE);
+    assertEquals(result.getReportingCurrency(), "GBP");
+    assertEquals(result.isApplyClientMultiplier(), false);
+    assertTrue(result.getPortfolioItems().isEmpty());
+    assertTrue(result.getMargin().isPresent());
+    MarginSummary expectedLchMarginSummary = MarginSummary.of(125.0, Collections.emptyList());
+    MarginSummary expectedEurexMarginSummary = MarginSummary.of(260.0, Collections.emptyList());
+    assertEquals(result.getMargin().get().get(Ccp.LCH), expectedLchMarginSummary);
+    assertEquals(result.getMargin().get().get(Ccp.EUREX), expectedEurexMarginSummary);
+    assertFalse(result.getMargin().get().containsKey(Ccp.CME));
+  }
+
+  public void test_calculate_for_all_ccps() throws Exception {
+    Dispatcher webServerDispatcher = new Dispatcher() {
+      boolean lchCalcRequested = false;
+      boolean eurexCalcRequested = false;
+
+      @Override
+      public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        String requestPath = request.getPath();
+        if (request.getMethod().equals("GET") && requestPath.equals("/margin/v3/ccps")) {
+          return new MockResponse()
+              .setHeader("Content-Type", "application/json")
+              .setBody(RESPONSE_LIST_TWO_CCPS);
+        } else if(request.getMethod().equals("POST") && requestPath.equals("/margin/v3/ccps/lch/calculations")) {
+          return new MockResponse()
+              .setResponseCode(202)
+              .setHeader("Location", server.url("/ccps/lch/calculations/789"))
+              .setBody(RESPONSE_CALC_POST);
+        } else if (request.getMethod().equals("POST") && requestPath.equals("/margin/v3/ccps/eurex/calculations")){
+          return new MockResponse()
+              .setResponseCode(202)
+              .setHeader("Location", server.url("/ccps/eurex/calculations/790"))
+              .setBody(RESPONSE_CALC_POST);
+        } else if (request.getMethod().equals("GET") && requestPath.equals("/margin/v3/ccps/lch/calculations/789")) {
+          if (!lchCalcRequested) {
+            lchCalcRequested = true;
+            return new MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(RESPONSE_CALC_GET_PENDING);
+          } else {
+            return new MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(RESPONSE_CALC_GET_COMPLETE);
+          }
+        } else if (request.getMethod().equals("GET") && requestPath.equals("/margin/v3/ccps/eurex/calculations/790")) {
+          if (!eurexCalcRequested) {
+            eurexCalcRequested = true;
+            return new MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(RESPONSE_CALC_GET_PENDING);
+          } else {
+            return new MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(RESPONSE_CALC_WHATIF_GET_COMPLETE);
+          }
+        } else if (request.getMethod().equals("DELETE")) {
+          return new MockResponse()
+              .setBody(RESPONSE_DELETE);
+        } else {
+
+          return new MockResponse().setResponseCode(404);
+        }
+      }
+    };
+    server.setDispatcher(webServerDispatcher);
+
+    // call server
+    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    MarginClient client = MarginClient.of(invoker);
+
+    MultiCcpMarginCalcResult result = client.calculateForAllCcps(REQUEST);
+    assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
+    assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
+    assertEquals(result.getValuationDate(), VAL_DATE);
+    assertEquals(result.getReportingCurrency(), "GBP");
+    assertEquals(result.isApplyClientMultiplier(), false);
+    assertTrue(result.getPortfolioItems().isEmpty());
+    assertTrue(result.getMargin().isPresent());
+    MarginSummary expectedLchMarginSummary = MarginSummary.of(125.0, Collections.emptyList());
+    MarginSummary expectedEurexMarginSummary = MarginSummary.of(260.0, Collections.emptyList());
+    assertEquals(result.getMargin().get().get(Ccp.LCH), expectedLchMarginSummary);
+    assertEquals(result.getMargin().get().get(Ccp.EUREX), expectedEurexMarginSummary);
+    assertFalse(result.getMargin().get().containsKey(Ccp.CME));
   }
 
   /**
