@@ -13,12 +13,17 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.joda.beans.ser.JodaBeanSer;
 import org.joda.beans.ser.SerDeserializers;
@@ -213,6 +218,49 @@ public final class InvokerMarginClient implements MarginClient {
       // ignore
     }
     return result;
+  }
+
+  @Override
+  public MultiCcpMarginCalcResult calculate(
+      List<Ccp> ccps,
+      MarginCalcRequest request) throws ExecutionException, InterruptedException {
+
+    Map<Ccp, CompletableFuture<MarginCalcResult>> completableFutures = ccps.parallelStream()
+        .collect(Collectors.toMap(Function.identity(), ccp -> calculateAsync(ccp, request)));
+
+    List<MarginCalcResult> multiCcpMarginResults = new ArrayList<>();
+    HashMap<Ccp, MarginSummary> multiCcpMarginSummaries = new HashMap<>();
+    for (Map.Entry<Ccp, CompletableFuture<MarginCalcResult>> entry : completableFutures.entrySet()) {
+      MarginCalcResult marginCalcResult = entry.getValue().get();
+
+      multiCcpMarginResults.add(marginCalcResult);
+      if (marginCalcResult.getMargin().isPresent()) {
+        multiCcpMarginSummaries.put(entry.getKey(), marginCalcResult.getMargin().get());
+      }
+    }
+
+    List<MarginError> aggregatedFailures = multiCcpMarginResults.stream()
+        .flatMap(x -> x.getFailures().stream())
+        .collect(Collectors.toList());
+
+    return MultiCcpMarginCalcResult.builder()
+        .status(MarginCalcResultStatus.COMPLETED) //The status is always COMPLETED at this stage
+        .type(request.getType())
+        .valuationDate(request.getValuationDate())
+        .reportingCurrency(request.getReportingCurrency())
+        .applyClientMultiplier(request.isApplyClientMultiplier())
+        .margin(multiCcpMarginSummaries)
+        .failures(aggregatedFailures)
+        .build();
+  }
+
+  @Override
+  public MultiCcpMarginCalcResult calculateForAllCcps(MarginCalcRequest request) throws ExecutionException, InterruptedException {
+    List<Ccp> availableCcps = listCcps().getCcpNames().stream()
+        .map(Ccp::of)
+        .collect(Collectors.toList());
+
+    return calculate(availableCcps, request);
   }
 
   @Override

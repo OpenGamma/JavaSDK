@@ -256,7 +256,7 @@ public final class ServiceInvoker implements AutoCloseable {
         if (token == null) {
           throw new IllegalStateException("Authentication failed: Unable to retry");
         }
-        token = authClient.authenticateApiKey(token.getCredentials());
+        token = token.getCredentials().authenticate(authClient);
         Request modifiedRequest2 = initialRequest.newBuilder()
             .header(AUTHORIZATION, "Bearer " + token.getAccessToken())
             .build();

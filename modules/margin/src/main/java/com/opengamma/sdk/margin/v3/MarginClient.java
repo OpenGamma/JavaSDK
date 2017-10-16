@@ -7,6 +7,7 @@ package com.opengamma.sdk.margin.v3;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import com.opengamma.sdk.common.v3.ServiceInvoker;
 
@@ -74,6 +75,23 @@ public interface MarginClient {
    * @return the detailed result of the calculation
    */
   public abstract MarginCalcResult calculate(Ccp ccp, MarginCalcRequest request);
+
+  /**
+   * High-level call to submit a portfolio for parsing, validation and IM calculation, across multiple CCPs.
+   *
+   * @param ccps the listof CCPs to use for calculation. If one of the selected CCPs is not available to the user, an exception will occur
+   * @param request  the calculation request
+   * @return the detailed result of the calculation, grouped by CCP
+   */
+  public abstract MultiCcpMarginCalcResult calculate(List<Ccp> ccps, MarginCalcRequest request) throws ExecutionException, InterruptedException;
+
+  /**
+   * High-level call to submit a portfolio for parsing, validation and IM calculation, across all available CCPs.
+   *
+   * @param request  the calculation request
+   * @return the detailed result of the calculation, grouped by CCP
+   */
+  public abstract MultiCcpMarginCalcResult calculateForAllCcps(MarginCalcRequest request) throws ExecutionException, InterruptedException;
 
   /**
    * High-level call to submit a portfolio for parsing, validation and IM calculation.
