@@ -28,6 +28,8 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
  */
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
 final class ApiKeyCredentials implements Credentials, ImmutableBean {
+  // this class is intended to stay package-scoped
+  // users are not exposed to the data, to reduce attempts to query the data held within
 
   /**
    * The API Key ID with which to authenticate
