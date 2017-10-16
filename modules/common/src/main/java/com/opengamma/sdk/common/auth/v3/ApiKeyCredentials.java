@@ -27,7 +27,9 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
  * This is the OAuth2 "client credentials" concept.
  */
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
-public final class ApiKeyCredentials implements Credentials, ImmutableBean {
+final class ApiKeyCredentials implements Credentials, ImmutableBean {
+  // this class is intended to stay package-scoped
+  // users are not exposed to the data, to reduce attempts to query the data held within
 
   /**
    * The API Key ID with which to authenticate
