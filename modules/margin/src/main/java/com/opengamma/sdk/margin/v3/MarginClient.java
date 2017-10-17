@@ -76,6 +76,15 @@ public interface MarginClient {
   public abstract MarginCalcResult calculate(Ccp ccp, MarginCalcRequest request);
 
   /**
+   * High-level call to submit a portfolio for parsing, validation and IM calculation, across multiple CCPs.
+   *
+   * @param ccps the listof CCPs to use for calculation
+   * @param request  the calculation request
+   * @return the detailed result of the calculation, grouped by CCP
+   */
+  public abstract MultiCcpMarginCalcResult calculate(List<Ccp> ccps, MarginCalcRequest request);
+
+  /**
    * High-level call to submit a portfolio for parsing, validation and IM calculation.
    *
    * @param ccp  the CCP to use
