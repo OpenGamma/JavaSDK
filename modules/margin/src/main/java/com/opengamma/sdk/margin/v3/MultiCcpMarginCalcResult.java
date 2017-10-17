@@ -61,7 +61,6 @@ public final class MultiCcpMarginCalcResult implements ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final List<PortfolioItemSummary> portfolioItems;
-
   /**
    * The result of the margin calculation, grouped by CCP
    */
