@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.joda.beans.ser.JodaBeanSer;
@@ -221,27 +221,30 @@ public final class InvokerMarginClient implements MarginClient {
   }
 
   @Override
-  public MultiCcpMarginCalcResult calculate(
-      List<Ccp> ccps,
-      MarginCalcRequest request) throws ExecutionException, InterruptedException {
+  public MultiCcpMarginCalcResult calculate(List<Ccp> ccps, MarginCalcRequest request) {
 
-    Map<Ccp, CompletableFuture<MarginCalcResult>> completableFutures = ccps.parallelStream()
-        .collect(Collectors.toMap(Function.identity(), ccp -> calculateAsync(ccp, request)));
+    HashMap<Ccp, ScheduledFuture<MarginCalcResult>> futures = new HashMap<>();
+    for (Ccp ccp : ccps) {
+      Callable<MarginCalcResult> ccpAsyncCalculator = () -> calculate(ccp, request);
+      ScheduledFuture<MarginCalcResult> future = invoker.getExecutor().schedule(ccpAsyncCalculator, 5, TimeUnit.SECONDS);
+      futures.put(ccp, future);
+    }
 
-    List<MarginCalcResult> multiCcpMarginResults = new ArrayList<>();
-    HashMap<Ccp, MarginSummary> multiCcpMarginSummaries = new HashMap<>();
-    for (Map.Entry<Ccp, CompletableFuture<MarginCalcResult>> entry : completableFutures.entrySet()) {
-      MarginCalcResult marginCalcResult = entry.getValue().get();
-
-      multiCcpMarginResults.add(marginCalcResult);
-      if (marginCalcResult.getMargin().isPresent()) {
-        multiCcpMarginSummaries.put(entry.getKey(), marginCalcResult.getMargin().get());
+    Map<Ccp, MarginCalcResult> results = new HashMap<>();
+    Map<Ccp, MarginError> completeFailures = new HashMap<>();
+    for (Map.Entry<Ccp, ScheduledFuture<MarginCalcResult>> entry : futures.entrySet()) {
+      try {
+        results.put(entry.getKey(), entry.getValue().get());
+      } catch (InterruptedException | ExecutionException e) {
+        completeFailures.put(entry.getKey(), MarginError.of("TestReason", "Calculator did not return a result for this.", "TestType"));
       }
     }
 
-    List<MarginError> aggregatedFailures = multiCcpMarginResults.stream()
-        .flatMap(x -> x.getFailures().stream())
-        .collect(Collectors.toList());
+    Map<Ccp, MarginSummary> marginSummaries = results.entrySet().stream()
+        .filter(x -> x.getValue().getMargin().isPresent())
+        .collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().getMargin().get()));
+
+    Map<Ccp, List<MarginError>> failuresPerCcp = getFailuresPerCcp(results, completeFailures);
 
     return MultiCcpMarginCalcResult.builder()
         .status(MarginCalcResultStatus.COMPLETED) //The status is always COMPLETED at this stage
@@ -249,13 +252,27 @@ public final class InvokerMarginClient implements MarginClient {
         .valuationDate(request.getValuationDate())
         .reportingCurrency(request.getReportingCurrency())
         .applyClientMultiplier(request.isApplyClientMultiplier())
-        .margin(multiCcpMarginSummaries)
-        .failures(aggregatedFailures)
+        .margin(marginSummaries)
+        .failures(failuresPerCcp)
         .build();
   }
 
+  private Map<Ccp, List<MarginError>> getFailuresPerCcp(
+      Map<Ccp, MarginCalcResult> results,
+      Map<Ccp, MarginError> completeFailures) {
+    Map<Ccp, List<MarginError>> failuresPerCcp = new HashMap<>();
+    results.entrySet().stream()
+        .filter(x -> !x.getValue().getFailures().isEmpty())
+        .forEach(x -> failuresPerCcp.put(x.getKey(), x.getValue().getFailures()));
+    completeFailures.forEach((k, v) -> {
+      failuresPerCcp.putIfAbsent(k, new ArrayList<>());
+      failuresPerCcp.get(k).add(v);
+    });
+    return failuresPerCcp;
+  }
+
   @Override
-  public MultiCcpMarginCalcResult calculateForAllCcps(MarginCalcRequest request) throws ExecutionException, InterruptedException {
+  public MultiCcpMarginCalcResult calculateForAllCcps(MarginCalcRequest request) {
     List<Ccp> availableCcps = listCcps().getCcpNames().stream()
         .map(Ccp::of)
         .collect(Collectors.toList());
