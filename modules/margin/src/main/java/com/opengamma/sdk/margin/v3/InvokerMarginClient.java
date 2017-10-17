@@ -6,6 +6,7 @@
 package com.opengamma.sdk.margin.v3;
 
 import static com.opengamma.sdk.common.v3.ServiceInvoker.MEDIA_JSON;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -21,9 +22,9 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.joda.beans.ser.JodaBeanSer;
 import org.joda.beans.ser.SerDeserializers;
@@ -223,26 +224,26 @@ public final class InvokerMarginClient implements MarginClient {
   @Override
   public MultiCcpMarginCalcResult calculate(List<Ccp> ccps, MarginCalcRequest request) {
 
-    HashMap<Ccp, ScheduledFuture<MarginCalcResult>> futures = new HashMap<>();
+    HashMap<Ccp, Future<MarginCalcResult>> futures = new HashMap<>();
     for (Ccp ccp : ccps) {
       Callable<MarginCalcResult> ccpAsyncCalculator = () -> calculate(ccp, request);
-      ScheduledFuture<MarginCalcResult> future = invoker.getExecutor().schedule(ccpAsyncCalculator, 5, TimeUnit.SECONDS);
+      Future<MarginCalcResult> future = invoker.getExecutor().submit(ccpAsyncCalculator);
       futures.put(ccp, future);
     }
 
     Map<Ccp, MarginCalcResult> results = new HashMap<>();
     Map<Ccp, MarginError> completeFailures = new HashMap<>();
-    for (Map.Entry<Ccp, ScheduledFuture<MarginCalcResult>> entry : futures.entrySet()) {
+    for (Map.Entry<Ccp, Future<MarginCalcResult>> entry : futures.entrySet()) {
       try {
         results.put(entry.getKey(), entry.getValue().get());
       } catch (InterruptedException | ExecutionException e) {
-        completeFailures.put(entry.getKey(), MarginError.of("TestReason", "Calculator did not return a result for this.", "TestType"));
+        completeFailures.put(entry.getKey(), MarginError.of("No Margin Result", "Calculator did not return a result for this.", "Calculation Error"));
       }
     }
 
     Map<Ccp, MarginSummary> marginSummaries = results.entrySet().stream()
         .filter(x -> x.getValue().getMargin().isPresent())
-        .collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().getMargin().get()));
+        .collect(toMap(Map.Entry::getKey, x -> x.getValue().getMargin().get()));
 
     Map<Ccp, List<MarginError>> failuresPerCcp = getFailuresPerCcp(results, completeFailures);
 
@@ -260,6 +261,7 @@ public final class InvokerMarginClient implements MarginClient {
   private Map<Ccp, List<MarginError>> getFailuresPerCcp(
       Map<Ccp, MarginCalcResult> results,
       Map<Ccp, MarginError> completeFailures) {
+
     Map<Ccp, List<MarginError>> failuresPerCcp = new HashMap<>();
     results.entrySet().stream()
         .filter(x -> !x.getValue().getFailures().isEmpty())

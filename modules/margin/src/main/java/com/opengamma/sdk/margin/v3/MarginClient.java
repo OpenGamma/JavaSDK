@@ -78,7 +78,7 @@ public interface MarginClient {
   /**
    * High-level call to submit a portfolio for parsing, validation and IM calculation, across multiple CCPs.
    *
-   * @param ccps the listof CCPs to use for calculation. If one of the selected CCPs is not available to the user, an exception will occur
+   * @param ccps the listof CCPs to use for calculation
    * @param request  the calculation request
    * @return the detailed result of the calculation, grouped by CCP
    */

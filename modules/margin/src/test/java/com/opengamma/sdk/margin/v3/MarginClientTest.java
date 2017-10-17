@@ -305,6 +305,11 @@ public class MarginClientTest {
     assertEquals(result.getMargin().get().get(Ccp.LCH), expectedLchMarginSummary);
     assertTrue(!result.getMargin().get().containsKey(Ccp.EUREX));
     assertFalse(result.getMargin().get().containsKey(Ccp.CME));
+
+    assertEquals(result.getFailures().size(), 1);
+    assertEquals(result.getFailures().get(Ccp.EUREX).get(0).getReason(), "No Margin Result");
+    assertEquals(result.getFailures().get(Ccp.EUREX).get(0).getMessage(), "Calculator did not return a result for this.");
+    assertEquals(result.getFailures().get(Ccp.EUREX).get(0).getType().orElse("N/A"), "Calculation Error");
   }
 
   /**
