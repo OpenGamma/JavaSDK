@@ -272,15 +272,6 @@ public final class InvokerMarginClient implements MarginClient {
   }
 
   @Override
-  public MultiCcpMarginCalcResult calculateForAllCcps(MarginCalcRequest request) {
-    List<Ccp> availableCcps = listCcps().getCcpNames().stream()
-        .map(Ccp::of)
-        .collect(Collectors.toList());
-
-    return calculate(availableCcps, request);
-  }
-
-  @Override
   public CompletableFuture<MarginCalcResult> calculateAsync(Ccp ccp, MarginCalcRequest request) {
     CompletableFuture<MarginCalcResult> resultPromise = new CompletableFuture<>();
 
