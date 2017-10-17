@@ -51,7 +51,9 @@ public final class MultiCcpMarginCalcResult implements ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final String reportingCurrency;
-
+  /**
+   * Whether to apply the client multiplier, as specified in the request.
+   */
   @PropertyDefinition(validate = "notNull")
   private final boolean applyClientMultiplier;
   /**
