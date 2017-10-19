@@ -211,7 +211,7 @@ public final class MultiCcpMarginCalcResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the applyClientMultiplier.
+   * Gets whether to apply the client multiplier, as specified in the request.
    * @return the value of the property, not null
    */
   public boolean isApplyClientMultiplier() {
@@ -463,7 +463,7 @@ public final class MultiCcpMarginCalcResult implements ImmutableBean {
     }
 
     /**
-     * Sets the applyClientMultiplier.
+     * Sets whether to apply the client multiplier, as specified in the request.
      * @param applyClientMultiplier  the new value, not null
      * @return this, for chaining, not null
      */

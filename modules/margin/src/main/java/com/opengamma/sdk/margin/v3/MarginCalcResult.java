@@ -187,7 +187,7 @@ public final class MarginCalcResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the applyClientMultiplier.
+   * Gets whether to apply the client multiplier, as specified in the request.
    * @return the value of the property, not null
    */
   public boolean isApplyClientMultiplier() {
