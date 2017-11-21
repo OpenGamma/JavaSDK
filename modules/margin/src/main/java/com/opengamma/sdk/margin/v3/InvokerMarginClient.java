@@ -6,7 +6,6 @@
 package com.opengamma.sdk.margin.v3;
 
 import static com.opengamma.sdk.common.v3.ServiceInvoker.MEDIA_JSON;
-import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -14,15 +13,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -219,58 +213,6 @@ public final class InvokerMarginClient implements MarginClient {
       // ignore
     }
     return result;
-  }
-
-  @Override
-  public MultiCcpMarginCalcResult calculate(List<Ccp> ccps, MarginCalcRequest request) {
-
-    HashMap<Ccp, Future<MarginCalcResult>> futures = new HashMap<>();
-    for (Ccp ccp : ccps) {
-      Callable<MarginCalcResult> ccpAsyncCalculator = () -> calculate(ccp, request);
-      Future<MarginCalcResult> future = invoker.getExecutor().submit(ccpAsyncCalculator);
-      futures.put(ccp, future);
-    }
-
-    Map<Ccp, MarginCalcResult> results = new HashMap<>();
-    Map<Ccp, MarginError> completeFailures = new HashMap<>();
-    for (Map.Entry<Ccp, Future<MarginCalcResult>> entry : futures.entrySet()) {
-      try {
-        results.put(entry.getKey(), entry.getValue().get());
-      } catch (InterruptedException | ExecutionException e) {
-        completeFailures.put(entry.getKey(), MarginError.of("No Margin Result", "Calculator did not return a result for this.", "Calculation Error"));
-      }
-    }
-
-    Map<Ccp, MarginSummary> marginSummaries = results.entrySet().stream()
-        .filter(x -> x.getValue().getMargin().isPresent())
-        .collect(toMap(Map.Entry::getKey, x -> x.getValue().getMargin().get()));
-
-    Map<Ccp, List<MarginError>> failuresPerCcp = getFailuresPerCcp(results, completeFailures);
-
-    return MultiCcpMarginCalcResult.builder()
-        .status(MarginCalcResultStatus.COMPLETED) //The status is always COMPLETED at this stage
-        .type(request.getType())
-        .valuationDate(request.getValuationDate())
-        .reportingCurrency(request.getReportingCurrency())
-        .applyClientMultiplier(request.isApplyClientMultiplier())
-        .margin(marginSummaries)
-        .failures(failuresPerCcp)
-        .build();
-  }
-
-  private Map<Ccp, List<MarginError>> getFailuresPerCcp(
-      Map<Ccp, MarginCalcResult> results,
-      Map<Ccp, MarginError> completeFailures) {
-
-    Map<Ccp, List<MarginError>> failuresPerCcp = new HashMap<>();
-    results.entrySet().stream()
-        .filter(x -> !x.getValue().getFailures().isEmpty())
-        .forEach(x -> failuresPerCcp.put(x.getKey(), x.getValue().getFailures()));
-    completeFailures.forEach((k, v) -> {
-      failuresPerCcp.putIfAbsent(k, new ArrayList<>());
-      failuresPerCcp.get(k).add(v);
-    });
-    return failuresPerCcp;
   }
 
   @Override
