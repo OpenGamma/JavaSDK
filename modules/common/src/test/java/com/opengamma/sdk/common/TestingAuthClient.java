@@ -17,7 +17,7 @@ public final class TestingAuthClient implements AuthClient {
 
   @Override
   public AccessTokenResult authenticateApiKey(Credentials credentials) {
-    return AccessTokenResult.of("1234", "bearer", 60_000, credentials);
+    return credentials.authenticate(this);
   }
 
   @Override
