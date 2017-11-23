@@ -80,7 +80,7 @@ public final class InvokerMarginClient implements MarginClient {
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (!response.isSuccessful()) {
         ErrorMessage errorMessage = parseError(response);
-        throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
+        throw new MarginException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
             response.code() + ", message: " + errorMessage.getMessage());
       }
       return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
@@ -103,7 +103,7 @@ public final class InvokerMarginClient implements MarginClient {
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (!response.isSuccessful()) {
         ErrorMessage errorMessage = parseError(response);
-        throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
+        throw new MarginException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
             response.code() + ", message: " + errorMessage.getMessage());
       }
       return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
@@ -128,7 +128,7 @@ public final class InvokerMarginClient implements MarginClient {
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (response.code() != 202) {
         ErrorMessage errorMessage = parseError(response);
-        throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
+        throw new MarginException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
             response.code() + ", message: " + errorMessage.getMessage());
       }
       String location = response.header(LOCATION);
@@ -151,7 +151,7 @@ public final class InvokerMarginClient implements MarginClient {
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (!response.isSuccessful()) {
         ErrorMessage errorMessage = parseError(response);
-        throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
+        throw new MarginException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
             response.code() + ", message: " + errorMessage.getMessage());
       }
       return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
@@ -175,7 +175,7 @@ public final class InvokerMarginClient implements MarginClient {
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (!response.isSuccessful()) {
         ErrorMessage errorMessage = parseError(response);
-        throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
+        throw new MarginException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
             response.code() + ", message: " + errorMessage.getMessage());
       }
 
@@ -229,7 +229,7 @@ public final class InvokerMarginClient implements MarginClient {
           return;
         }
         if (Instant.now().isAfter(timeout)) {
-          resultPromise.completeExceptionally(new IllegalStateException("Timed out while polling margin service"));
+          resultPromise.completeExceptionally(new MarginException("Timed out while polling margin service"));
           return;
         }
       };
@@ -298,8 +298,9 @@ public final class InvokerMarginClient implements MarginClient {
         deltaResult.getValuationDate(),
         deltaResult.getReportingCurrency(),
         deltaResult.getPortfolioItems(),
-        baseResult.getMargin().orElseThrow(IllegalStateException::new),
-        deltaResult.getMargin().orElseThrow(IllegalStateException::new),
+        baseResult.getMargin().orElseThrow(() -> new MarginException("No base margin found in response")),
+        deltaResult.getMargin().orElseThrow(() -> new MarginException("No combined margin found in response")),
         deltaResult.getFailures());
   }
+
 }

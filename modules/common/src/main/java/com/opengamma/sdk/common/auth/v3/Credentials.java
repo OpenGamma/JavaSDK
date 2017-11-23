@@ -5,6 +5,8 @@
  */
 package com.opengamma.sdk.common.auth.v3;
 
+import java.io.UncheckedIOException;
+
 /**
  * Credentials used to authenticate with the service.
  */
@@ -27,11 +29,12 @@ public interface Credentials {
 
   //-------------------------------------------------------------------------
   /**
-   * Authenticates, returning an access token.
+   * Authenticates using these credentials, returning an access token.
    * 
    * @param client  the client to authenticate with
    * @return the access token result
-   * @throws RuntimeException if the token cannot be obtained
+   * @throws AuthenticationException if unable to authenticate
+   * @throws UncheckedIOException if an IO error occurs
    */
   public abstract AccessTokenResult authenticate(AuthClient client);
 

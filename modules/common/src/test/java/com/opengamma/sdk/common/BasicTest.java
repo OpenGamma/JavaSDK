@@ -5,27 +5,30 @@
  */
 package com.opengamma.sdk.common;
 
-import static com.opengamma.sdk.common.ServiceInvoker.SERVICE_URL;
+import static com.opengamma.sdk.common.v3.ServiceInvoker.SERVICE_URL;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertThrows;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.sdk.common.auth.AuthClient;
-import com.opengamma.sdk.common.auth.Credentials;
+import com.opengamma.sdk.common.auth.v3.AuthClient;
+import com.opengamma.sdk.common.auth.v3.AuthenticationException;
+import com.opengamma.sdk.common.auth.v3.Credentials;
+import com.opengamma.sdk.common.v3.ServiceInvoker;
+
+import okhttp3.HttpUrl;
 
 /**
  * Test.
  */
 @Test
-@SuppressWarnings("deprecation")
 public class BasicTest {
 
-  private static final Credentials CREDENTIALS = Credentials.ofUsernamePassword("user", "pw");
-  private static final Credentials BAD_CREDENTIALS = Credentials.ofUsernamePassword("bad", "pw");
+  private static final Credentials CREDENTIALS = Credentials.ofApiKey("user", "pw");
+  private static final Credentials BAD_CREDENTIALS = Credentials.ofApiKey("bad", "pw");
 
   public void testBasics() {
-    assertThrows(NullPointerException.class, () -> ServiceInvoker.of(CREDENTIALS, null));
+    assertThrows(NullPointerException.class, () -> ServiceInvoker.of(CREDENTIALS, (HttpUrl) null));
     assertThrows(NullPointerException.class, () -> ServiceInvoker.of(null, SERVICE_URL));
   }
 
@@ -42,7 +45,7 @@ public class BasicTest {
 
   public void testAuthBad() {
     AuthClient mockAuth = new TestingAuthClient();
-    assertThrows(IllegalStateException.class, () -> ServiceInvoker.of(BAD_CREDENTIALS, SERVICE_URL, mockAuth));
+    assertThrows(AuthenticationException.class, () -> ServiceInvoker.of(BAD_CREDENTIALS, SERVICE_URL, mockAuth));
   }
 
 }

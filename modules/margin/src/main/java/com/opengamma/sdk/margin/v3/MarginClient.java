@@ -5,6 +5,7 @@
  */
 package com.opengamma.sdk.margin.v3;
 
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -16,10 +17,10 @@ import com.opengamma.sdk.common.v3.ServiceInvoker;
 public interface MarginClient {
 
   /**
-   * Obtains an instance.
+   * Obtains an instance, specifying the invoker to use.
    * <p>
    * The {@link ServiceInvoker} provides authentication.
-   * 
+   *
    * @param invoker  the service invoker
    * @return the client
    */
@@ -32,9 +33,19 @@ public interface MarginClient {
    * Lists the available CCPs.
    *
    * @return the list of available CCPs
+   * @throws MarginException if unable to list the CCPS
+   * @throws UncheckedIOException if an IO error occurs
    */
   public abstract CcpsResult listCcps();
 
+  /**
+   * Gets information about a single CCP.
+   *
+   * @param ccp  the CCP to lookup
+   * @return the information about the CCP
+   * @throws MarginException if unable to get the information
+   * @throws UncheckedIOException if an IO error occurs
+   */
   public CcpInfo getCcpInfo(Ccp ccp);
 
   /**
@@ -43,6 +54,8 @@ public interface MarginClient {
    * @param ccp  the CCP to use
    * @param request  the calculation request
    * @return the calculation identifier
+   * @throws MarginException if unable to create the calculation
+   * @throws UncheckedIOException if an IO error occurs
    */
   public abstract String createCalculation(Ccp ccp, MarginCalcRequest request);
 
@@ -52,7 +65,8 @@ public interface MarginClient {
    * @param ccp  the CCP to use
    * @param calcId  the calculation identifier
    * @return the calculation result
-   * @throws IllegalArgumentException if the calculation is not found
+   * @throws MarginException if unable to get the calculation
+   * @throws UncheckedIOException if an IO error occurs
    */
   public abstract MarginCalcResult getCalculation(Ccp ccp, String calcId);
 
@@ -61,7 +75,8 @@ public interface MarginClient {
    *
    * @param ccp  the CCP to use
    * @param calcId  the calculation identifier
-   * @throws IllegalArgumentException if the calculation is not found
+   * @throws MarginException if unable to delete the calculation
+   * @throws UncheckedIOException if an IO error occurs
    */
   public abstract void deleteCalculation(Ccp ccp, String calcId);
 
@@ -72,15 +87,21 @@ public interface MarginClient {
    * @param ccp  the CCP to use
    * @param request  the calculation request
    * @return the detailed result of the calculation
+   * @throws MarginException if unable to calculate
+   * @throws UncheckedIOException if an IO error occurs
    */
   public abstract MarginCalcResult calculate(Ccp ccp, MarginCalcRequest request);
 
   /**
-   * High-level call to submit a portfolio for parsing, validation and IM calculation.
+   * High-level call to submit a portfolio for parsing, validation and IM calculation,
+   * performing the work on a background thread.
+   * <p>
+   * This will use the executor from the service invoker to perform the background work.
    *
    * @param ccp  the CCP to use
    * @param request  the calculation request
    * @return the detailed result of the calculation, expressed via a future
+   * @throws RuntimeException if unable to setup the async calculation
    */
   public abstract CompletableFuture<MarginCalcResult> calculateAsync(Ccp ccp, MarginCalcRequest request);
 
@@ -96,6 +117,8 @@ public interface MarginClient {
    * @param request  the calculation request
    * @param deltaFiles  the portfolios representing the extra trades for the what-if scenario
    * @return the detailed result of the calculation
+   * @throws MarginException if unable to calculate
+   * @throws UncheckedIOException if an IO error occurs
    */
   public abstract MarginWhatIfCalcResult calculateWhatIf(
       Ccp ccp,
