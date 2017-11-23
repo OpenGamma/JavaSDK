@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.sdk.common.Version;
 import com.opengamma.sdk.common.auth.v3.AccessTokenResult;
 import com.opengamma.sdk.common.auth.v3.AuthClient;
+import com.opengamma.sdk.common.auth.v3.AuthenticationException;
 import com.opengamma.sdk.common.auth.v3.Credentials;
 
 import okhttp3.HttpUrl;
@@ -254,7 +255,7 @@ public final class ServiceInvoker implements AutoCloseable {
       lock.lock();
       try {
         if (token == null) {
-          throw new IllegalStateException("Authentication failed: Unable to retry");
+          throw new AuthenticationException("Authentication failed: Unable to retry");
         }
         token = token.getCredentials().authenticate(authClient);
         Request modifiedRequest2 = initialRequest.newBuilder()

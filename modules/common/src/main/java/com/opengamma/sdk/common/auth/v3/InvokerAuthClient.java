@@ -69,13 +69,13 @@ public final class InvokerAuthClient implements AuthClient {
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (response.code() == 401) {
-        throw new IllegalStateException("Authentication failed: Invalid credentials for " + message);
+        throw new AuthenticationException("Authentication failed: Invalid credentials for " + message);
       }
       if (response.code() == 403) {
-        throw new IllegalStateException("Authentication failed: Forbidden access for " + message);
+        throw new AuthenticationException("Authentication failed: Forbidden access for " + message);
       }
       if (!response.isSuccessful()) {
-        throw new IllegalStateException("Authentication failed: " + response.code() + " for " + message);
+        throw new AuthenticationException("Authentication failed: " + response.code() + " for " + message);
       }
       return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), AccessTokenResult.class);
 
