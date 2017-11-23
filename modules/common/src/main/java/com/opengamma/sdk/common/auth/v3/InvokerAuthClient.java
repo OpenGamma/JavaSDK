@@ -22,7 +22,7 @@ import okhttp3.Response;
 /**
  * Implementation of the auth client.
  */
-public final class InvokerAuthClient implements AuthClient {
+public class InvokerAuthClient implements AuthClient {
 
   /**
    * The service invoker.
