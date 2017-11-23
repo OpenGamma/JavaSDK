@@ -45,7 +45,7 @@ import okhttp3.Response;
  * This class implements {@link AutoCloseable} and should be closed when no longer needed,
  * such as via the try-with-resources statement.
  */
-public final class ServiceInvoker implements AutoCloseable {
+public class ServiceInvoker implements AutoCloseable {
 
   /**
    * The user agent to send with requests.
