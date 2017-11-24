@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sdk.common;
+package com.opengamma.sdk.margin;
 
 import com.opengamma.sdk.common.auth.AccessTokenResult;
 import com.opengamma.sdk.common.auth.AuthClient;
@@ -16,16 +16,16 @@ import com.opengamma.sdk.common.auth.Credentials;
 public final class TestingAuthClient implements AuthClient {
 
   @Override
-  public AccessTokenResult authenticateApiKey(Credentials credentials) {
-    return credentials.authenticate(this);
-  }
-
-  @Override
   public AccessTokenResult authenticateApiKey(String apiKey, String apiKeySecret) {
     if (apiKey.equals("bad")) {
       throw new AuthenticationException("API key rejected: bad", "Bad");
     }
-    return AccessTokenResult.of("1234", "bearer", 60_000, Credentials.ofApiKey(apiKey, apiKeySecret));
+    return AccessTokenResult.of("1234", "bearer", 60_000, Credentials.ofApiKey("1234", "secret"));
+  }
+
+  @Override
+  public AccessTokenResult authenticateApiKey(Credentials credentials) {
+    return credentials.authenticate(this);
   }
 
 }
