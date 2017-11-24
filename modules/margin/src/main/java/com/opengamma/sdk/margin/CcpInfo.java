@@ -31,6 +31,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
  */
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
 public final class CcpInfo implements ImmutableBean {
+
   /**
    * The list of valuation dates available for the CCP, may be empty.
    */

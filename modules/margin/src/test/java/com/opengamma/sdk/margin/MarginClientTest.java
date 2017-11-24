@@ -11,6 +11,7 @@ import static org.testng.Assert.assertThrows;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
@@ -21,19 +22,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.sdk.common.ServiceInvoker;
 import com.opengamma.sdk.common.auth.Credentials;
-import com.opengamma.sdk.margin.Ccp;
-import com.opengamma.sdk.margin.CcpInfo;
-import com.opengamma.sdk.margin.CcpsResult;
-import com.opengamma.sdk.margin.ErrorMessage;
-import com.opengamma.sdk.margin.MarginCalcRequest;
-import com.opengamma.sdk.margin.MarginCalcRequestType;
-import com.opengamma.sdk.margin.MarginCalcResult;
-import com.opengamma.sdk.margin.MarginCalcResultStatus;
-import com.opengamma.sdk.margin.MarginClient;
-import com.opengamma.sdk.margin.MarginSummary;
-import com.opengamma.sdk.margin.MarginWhatIfCalcResult;
-import com.opengamma.sdk.margin.PortfolioDataFile;
-import com.opengamma.sdk.margin.PortfolioItemSummary;
 
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -52,7 +40,7 @@ public class MarginClientTest {
       MarginCalcRequest.of(VAL_DATE, "GBP", Collections.emptyList(), MarginCalcRequestType.STANDARD, false);
 
   private static final String RESPONSE_LIST_CCPS = JodaBeanSer.PRETTY.simpleJsonWriter()
-      .write(CcpsResult.of(Collections.singletonList("LCH")));
+      .write(CcpsResult.of(Arrays.asList("LCH", "RUBBISH")));
 
   private static final String RESPONSE_GET_CCP_INFO = JodaBeanSer.PRETTY.simpleJsonWriter()
       .write(CcpInfo.of(
@@ -121,10 +109,11 @@ public class MarginClientTest {
     MarginClient client = MarginClient.of(invoker);
 
     CcpsResult ccps = client.listCcps();
-    assertEquals(ccps.getCcpNames().size(), 1);
+    assertEquals(ccps.getCcpNames().size(), 2);
     assertEquals(ccps.getCcpNames().get(0), Ccp.LCH.name());
-    assertEquals(ccps.findCcp(Ccp.LCH).orElse("N/A"), Ccp.LCH.name());
-    assertEquals(ccps.getCcp(Ccp.LCH), Ccp.LCH.name());
+    assertEquals(ccps.getCcpNames().get(1), "RUBBISH");
+    assertEquals(ccps.isCcpAvailable(Ccp.LCH), true);
+    assertEquals(ccps.isCcpAvailable(Ccp.CME), false);
   }
 
   public void test_getCcpInfo() {
