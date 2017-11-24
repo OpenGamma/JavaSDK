@@ -23,7 +23,7 @@ public final class TestingAuthClient implements AuthClient {
   @Override
   public AccessTokenResult authenticateApiKey(String apiKey, String apiKeySecret) {
     if (apiKey.equals("bad")) {
-      throw new AuthenticationException("API key rejected: bad");
+      throw new AuthenticationException("API key rejected: bad", "Bad");
     }
     return AccessTokenResult.of("1234", "bearer", 60_000, Credentials.ofApiKey(apiKey, apiKeySecret));
   }

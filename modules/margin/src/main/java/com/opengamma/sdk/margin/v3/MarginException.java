@@ -5,21 +5,36 @@
  */
 package com.opengamma.sdk.margin.v3;
 
+import com.opengamma.sdk.common.v3.JavaSdkException;
+
 /**
  * Used to indicate that there was a problem with a margin request.
  */
-public final class MarginException extends IllegalStateException {
+public class MarginException extends JavaSdkException {
 
   /** Serialization version. */
   private static final long serialVersionUID = 8789233267870746967L;
 
   /**
-   * Creates an instance from a message.
+   * Creates an instance from a message and reason.
    * 
-   * @param message the message
+   * @param reason  the reason sent by the remote API call
+   * @param message  the message
    */
-  public MarginException(String message) {
-    super(message);
+  public MarginException(String message, String reason) {
+    super(message, reason);
+  }
+
+  /**
+   * Creates an instance from a message, HTTP code, reason and description.
+   * 
+   * @param httpCode  the HTTP code of the remote API call
+   * @param reason  the reason sent by the remote API call
+   * @param description  the description sent by the remote API call
+   * @param message  the message
+   */
+  public MarginException(String message, int httpCode, String reason, String description) {
+    super(message, httpCode, reason, description);
   }
 
 }
