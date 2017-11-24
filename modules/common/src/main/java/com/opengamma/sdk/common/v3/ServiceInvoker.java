@@ -255,7 +255,7 @@ public final class ServiceInvoker implements AutoCloseable {
       lock.lock();
       try {
         if (token == null) {
-          throw new AuthenticationException("Authentication failed: Unable to retry");
+          throw new AuthenticationException("Authentication failed: Unable to retry", "Authentication Failed");
         }
         token = token.getCredentials().authenticate(authClient);
         Request modifiedRequest2 = initialRequest.newBuilder()
