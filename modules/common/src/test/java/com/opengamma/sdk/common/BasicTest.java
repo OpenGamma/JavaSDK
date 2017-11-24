@@ -5,16 +5,15 @@
  */
 package com.opengamma.sdk.common;
 
-import static com.opengamma.sdk.common.v3.ServiceInvoker.SERVICE_URL;
+import static com.opengamma.sdk.common.ServiceInvoker.SERVICE_URL;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertThrows;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.sdk.common.auth.v3.AuthClient;
-import com.opengamma.sdk.common.auth.v3.AuthenticationException;
-import com.opengamma.sdk.common.auth.v3.Credentials;
-import com.opengamma.sdk.common.v3.ServiceInvoker;
+import com.opengamma.sdk.common.auth.AuthClient;
+import com.opengamma.sdk.common.auth.AuthenticationException;
+import com.opengamma.sdk.common.auth.Credentials;
 
 import okhttp3.OkHttpClient;
 
