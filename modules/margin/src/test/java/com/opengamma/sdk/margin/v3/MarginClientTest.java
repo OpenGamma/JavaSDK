@@ -11,7 +11,6 @@ import static org.testng.Assert.assertThrows;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
@@ -42,9 +41,6 @@ public class MarginClientTest {
 
   private static final String RESPONSE_LIST_CCPS = JodaBeanSer.PRETTY.simpleJsonWriter()
       .write(CcpsResult.of(Collections.singletonList("LCH")));
-
-  private static final String RESPONSE_LIST_TWO_CCPS = JodaBeanSer.PRETTY.simpleJsonWriter()
-      .write(CcpsResult.of(Arrays.asList("LCH", "EUREX")));
 
   private static final String RESPONSE_GET_CCP_INFO = JodaBeanSer.PRETTY.simpleJsonWriter()
       .write(CcpInfo.of(
@@ -109,7 +105,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_LIST_CCPS));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     CcpsResult ccps = client.listCcps();
@@ -125,7 +121,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_GET_CCP_INFO));
 
     //call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     LocalDate expectedValuationDate = LocalDate.of(2017, 6, 1);
@@ -146,7 +142,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_ERROR));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     assertThrows(IllegalStateException.class, () -> client.listCcps());
@@ -167,8 +163,7 @@ public class MarginClientTest {
     server.enqueue(new MockResponse()
         .setBody(RESPONSE_DELETE));
 
-    // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     MarginCalcResult result = client.calculate(Ccp.LCH, REQUEST);
@@ -241,7 +236,7 @@ public class MarginClientTest {
     server.setDispatcher(webServerDispatcher);
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     PortfolioDataFile lchPortfolioFile = PortfolioDataFile.of(Paths.get(
@@ -265,7 +260,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_ERROR));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     assertThrows(IllegalStateException.class, () -> client.calculate(Ccp.LCH, REQUEST));
@@ -282,7 +277,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_ERROR));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     assertThrows(IllegalStateException.class, () -> client.calculate(Ccp.LCH, REQUEST));
@@ -302,7 +297,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_ERROR));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     // succeeds - delete failure ignored
@@ -317,7 +312,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_ERROR));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     assertThrows(IllegalStateException.class, () -> client.deleteCalculation(Ccp.LCH, "789"));
@@ -339,7 +334,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_DELETE));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     CompletableFuture<MarginCalcResult> future = client.calculateAsync(Ccp.LCH, REQUEST);
@@ -347,6 +342,13 @@ public class MarginClientTest {
     assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
     assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
     assertEquals(result.getValuationDate(), VAL_DATE);
+  }
+
+  private ServiceInvoker createInvoker() {
+    return ServiceInvoker.builder(CREDENTIALS)
+        .serviceUrl(server.url("/"))
+        .authClientFactory(inv -> new TestingAuthClient())
+        .build();
   }
 
 }

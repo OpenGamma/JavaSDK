@@ -35,7 +35,6 @@ public class MarginClientExample {
   // the file to upload
   private static final Path LCH_FILE = Paths.get("src/main/resources/lch-trades.txt");
 
-
   // example code - invoke with no arguments
   public static void main(String[] args) throws InterruptedException {
     // create the invoker specifying the URL and credentials
@@ -68,7 +67,8 @@ public class MarginClientExample {
       System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(result));
 
       // make the what-if call and view the result (the difference in margin numbers)
-      MarginWhatIfCalcResult whatIfResult = client.calculateWhatIf(Ccp.LCH, request, Collections.singletonList(PortfolioDataFile.of(LCH_FILE)));
+      MarginWhatIfCalcResult whatIfResult =
+          client.calculateWhatIf(Ccp.LCH, request, Collections.singletonList(PortfolioDataFile.of(LCH_FILE)));
       System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(whatIfResult));
     }
   }

@@ -16,16 +16,16 @@ import com.opengamma.sdk.common.auth.v3.Credentials;
 public final class TestingAuthClient implements AuthClient {
 
   @Override
+  public AccessTokenResult authenticateApiKey(Credentials credentials) {
+    return credentials.authenticate(this);
+  }
+
+  @Override
   public AccessTokenResult authenticateApiKey(String apiKey, String apiKeySecret) {
     if (apiKey.equals("bad")) {
       throw new AuthenticationException("API key rejected: bad", "Bad");
     }
     return AccessTokenResult.of("1234", "bearer", 60_000, Credentials.ofApiKey(apiKey, apiKeySecret));
-  }
-
-  @Override
-  public AccessTokenResult authenticateApiKey(Credentials credentials) {
-    return AccessTokenResult.of("1234", "bearer", 60_000, credentials);
   }
 
 }
