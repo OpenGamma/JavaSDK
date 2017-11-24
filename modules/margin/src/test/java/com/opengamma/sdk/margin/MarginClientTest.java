@@ -21,19 +21,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.sdk.common.ServiceInvoker;
 import com.opengamma.sdk.common.auth.Credentials;
-import com.opengamma.sdk.margin.Ccp;
-import com.opengamma.sdk.margin.CcpInfo;
-import com.opengamma.sdk.margin.CcpsResult;
-import com.opengamma.sdk.margin.ErrorMessage;
-import com.opengamma.sdk.margin.MarginCalcRequest;
-import com.opengamma.sdk.margin.MarginCalcRequestType;
-import com.opengamma.sdk.margin.MarginCalcResult;
-import com.opengamma.sdk.margin.MarginCalcResultStatus;
-import com.opengamma.sdk.margin.MarginClient;
-import com.opengamma.sdk.margin.MarginSummary;
-import com.opengamma.sdk.margin.MarginWhatIfCalcResult;
-import com.opengamma.sdk.margin.PortfolioDataFile;
-import com.opengamma.sdk.margin.PortfolioItemSummary;
 
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -123,8 +110,6 @@ public class MarginClientTest {
     CcpsResult ccps = client.listCcps();
     assertEquals(ccps.getCcpNames().size(), 1);
     assertEquals(ccps.getCcpNames().get(0), Ccp.LCH.name());
-    assertEquals(ccps.findCcp(Ccp.LCH).orElse("N/A"), Ccp.LCH.name());
-    assertEquals(ccps.getCcp(Ccp.LCH), Ccp.LCH.name());
   }
 
   public void test_getCcpInfo() {
