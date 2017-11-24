@@ -299,7 +299,7 @@ public final class ServiceInvokerBuilder {
       lock.lock();
       try {
         if (token == null) {
-          throw new AuthenticationException("Authentication failed: Unable to retry");
+          throw new AuthenticationException("Authentication failed: Unable to retry", "Authentication token is not set.");
         }
         token = token.getCredentials().authenticate(authClient);
         Request modifiedRequest2 = initialRequest.newBuilder()
