@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sdk.margin.auth.v3;
+package com.opengamma.sdk.margin.v3;
 
 import com.opengamma.sdk.common.auth.v3.AccessTokenResult;
 import com.opengamma.sdk.common.auth.v3.AuthClient;
@@ -27,6 +27,5 @@ public final class TestingAuthClient implements AuthClient {
   public AccessTokenResult authenticateApiKey(Credentials credentials) {
     return credentials.authenticate(this);
   }
-
 
 }
