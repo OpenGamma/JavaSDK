@@ -47,10 +47,14 @@ public final class InvokerAuthClient implements AuthClient {
   //-------------------------------------------------------------------------
   @Override
   public AccessTokenResult authenticateApiKey(String apiKey, String secret) {
-    RequestBody requestBody = RequestBody.create(MEDIA_JSON, "{ \"grant_type\": \"client_credentials\","
-        + "\"client_id\": \"" + apiKey + "\","
-        + "\"client_secret\": \"" + secret + "\""
-        + "}");
+    String json = "{ \"grant_type\": \"client_credentials\"," +
+        "\"client_id\": \"" +
+        apiKey + "\"," +
+        "\"client_secret\": \"" +
+        secret +
+        "\"" +
+        "}";
+    RequestBody requestBody = RequestBody.create(MEDIA_JSON, json);
     return authenticate("auth/v3/token", "API key: " + apiKey, requestBody);
   }
 

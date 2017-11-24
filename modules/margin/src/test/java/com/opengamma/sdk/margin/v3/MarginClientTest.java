@@ -11,7 +11,6 @@ import static org.testng.Assert.assertThrows;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
@@ -22,7 +21,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.sdk.common.auth.v3.Credentials;
 import com.opengamma.sdk.common.v3.ServiceInvoker;
-import com.opengamma.sdk.margin.auth.v3.TestingAuthClient;
 
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -42,9 +40,6 @@ public class MarginClientTest {
 
   private static final String RESPONSE_LIST_CCPS = JodaBeanSer.PRETTY.simpleJsonWriter()
       .write(CcpsResult.of(Collections.singletonList("LCH")));
-
-  private static final String RESPONSE_LIST_TWO_CCPS = JodaBeanSer.PRETTY.simpleJsonWriter()
-      .write(CcpsResult.of(Arrays.asList("LCH", "EUREX")));
 
   private static final String RESPONSE_GET_CCP_INFO = JodaBeanSer.PRETTY.simpleJsonWriter()
       .write(CcpInfo.of(
