@@ -31,7 +31,6 @@ public enum Ccp {
   JSCC,
   /** CME_SPAN. */
   CME_SPAN;
-  ;
 
   @FromString
   public static final Ccp of(String str) {
