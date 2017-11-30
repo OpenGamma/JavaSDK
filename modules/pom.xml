@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
     <version>2.1.0</version>
-    <relativePath></relativePath>
+    <relativePath />
   </parent>
   <groupId>com.opengamma.sdk</groupId>
   <artifactId>sdk-parent</artifactId>
-  <version>2.5.0-SNAPSHOT</version>
+  <version>2.5.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>SDK-Parent</name>
   <description>OpenGamma SDK - Parent project</description>
@@ -35,6 +34,7 @@
     <connection>scm:git:https://github.com/OpenGamma/JavaSDK.git</connection>
     <developerConnection>scm:git:https://github.com/OpenGamma/JavaSDK.git</developerConnection>
     <url>https://github.com/OpenGamma/JavaSDK</url>
+    <tag>HEAD</tag>
   </scm>
 
   <!-- ==================================================================== -->
@@ -51,7 +51,7 @@
         <directory>src/main/resources</directory>
       </resource>
       <resource>
-        <directory></directory>
+        <directory />
         <includes>
           <include>LICENSE.txt</include>
         </includes>
@@ -448,7 +448,7 @@
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma SDK</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma SDK</h1>]]></doctitle>
-    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>See <a href="http://www.opengamma.com">www.opengamma.com</a> for more info.</i>]]></bottom>
+    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br /><i>${javadoc.footer.license}</i><br /><i>See <a href="http://www.opengamma.com">www.opengamma.com</a> for more info.</i>]]></bottom>
     <javadoc.footer.license>Apache v2 licensed</javadoc.footer.license>
   </properties>
 
