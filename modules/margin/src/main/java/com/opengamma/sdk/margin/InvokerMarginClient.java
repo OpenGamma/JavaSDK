@@ -6,6 +6,11 @@
 package com.opengamma.sdk.margin;
 
 import static com.opengamma.sdk.common.ServiceInvoker.MEDIA_JSON;
+import static com.opengamma.sdk.margin.MarginOperation.CREATE_CALCULATION;
+import static com.opengamma.sdk.margin.MarginOperation.DELETE_CALCULATION;
+import static com.opengamma.sdk.margin.MarginOperation.GET_CALCULATION;
+import static com.opengamma.sdk.margin.MarginOperation.GET_CCP_INFO;
+import static com.opengamma.sdk.margin.MarginOperation.LIST_CCPS;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -79,7 +84,7 @@ public final class InvokerMarginClient implements MarginClient {
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (!response.isSuccessful()) {
-        throw parseError("listCcps", response);
+        throw parseError(LIST_CCPS, response);
       }
       return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
           .jsonReader()
@@ -100,7 +105,7 @@ public final class InvokerMarginClient implements MarginClient {
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (!response.isSuccessful()) {
-        throw parseError("getCcpInfo", response);
+        throw parseError(GET_CCP_INFO, response);
       }
       return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
           .jsonReader()
@@ -123,7 +128,7 @@ public final class InvokerMarginClient implements MarginClient {
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (response.code() != 202) {
-        throw parseError("createCalculation", response);
+        throw parseError(CREATE_CALCULATION, response);
       }
       String location = response.header(LOCATION);
       return location.substring(location.lastIndexOf('/') + 1);
@@ -144,7 +149,7 @@ public final class InvokerMarginClient implements MarginClient {
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (!response.isSuccessful()) {
-        throw parseError("getCalculation", response);
+        throw parseError(GET_CALCULATION, response);
       }
       return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
           .jsonReader()
@@ -166,7 +171,7 @@ public final class InvokerMarginClient implements MarginClient {
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (!response.isSuccessful()) {
-        throw parseError("deleteCalculation", response);
+        throw parseError(DELETE_CALCULATION, response);
       }
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -174,11 +179,11 @@ public final class InvokerMarginClient implements MarginClient {
   }
 
   // throw exception in case of error
-  private MarginException parseError(String operation, Response response) throws IOException {
+  private MarginException parseError(MarginOperation operation, Response response) throws IOException {
     ErrorMessage errorMessage = parseError(response);
-    String combinedMsg = "Request '" + operation + "' failed. Reason: " + errorMessage.getReason() + ", status code: " +
+    String combinedMsg = "Request '" + operation.getUserFriendlyName() + "' failed. Reason: " + errorMessage.getReason() + ", status code: " +
         response.code() + ", message: " + errorMessage.getMessage();
-    return new MarginException(combinedMsg, response.code(), errorMessage.getReason(), errorMessage.getMessage());
+    return new MarginException(combinedMsg, response.code(), errorMessage.getReason(), errorMessage.getMessage(), operation);
   }
 
   // avoid errors when processing errors
