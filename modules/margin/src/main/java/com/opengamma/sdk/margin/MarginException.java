@@ -5,12 +5,16 @@
  */
 package com.opengamma.sdk.margin;
 
+import java.util.Optional;
+
 import com.opengamma.sdk.common.JavaSdkException;
 
 /**
  * Used to indicate that there was a problem with a margin request.
  */
 public class MarginException extends JavaSdkException {
+
+  private Optional<MarginOperation> marginOperation;
 
   /** Serialization version. */
   private static final long serialVersionUID = 8789233267870746967L;
@@ -48,5 +52,10 @@ public class MarginException extends JavaSdkException {
    */
   public MarginException(String message, int httpCode, String reason, String description, MarginOperation operation) {
     super(message, httpCode, reason, description);
+    this.marginOperation = Optional.of(operation);
+  }
+
+  public Optional<MarginOperation> getMarginOperation() {
+    return marginOperation;
   }
 }
