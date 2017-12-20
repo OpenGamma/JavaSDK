@@ -5,8 +5,6 @@
  */
 package com.opengamma.sdk.margin;
 
-import java.util.Optional;
-
 import com.opengamma.sdk.common.JavaSdkException;
 
 /**
@@ -15,7 +13,7 @@ import com.opengamma.sdk.common.JavaSdkException;
 public class MarginException extends JavaSdkException {
 
   /** The Margin operation which is associated with the current exception. This is optional, as some exceptions are not mapped to a single operation. */
-  private Optional<MarginOperation> marginOperation = Optional.empty();
+  private final MarginOperation marginOperation;
 
   /** Serialization version. */
   private static final long serialVersionUID = 8789233267870746967L;
@@ -28,6 +26,7 @@ public class MarginException extends JavaSdkException {
    */
   public MarginException(String message, String reason) {
     super(message, reason);
+    marginOperation = null;
   }
 
   /**
@@ -40,6 +39,7 @@ public class MarginException extends JavaSdkException {
    */
   public MarginException(String message, int httpCode, String reason, String description) {
     super(message, httpCode, reason, description);
+    marginOperation = null;
   }
 
   /**
@@ -53,15 +53,15 @@ public class MarginException extends JavaSdkException {
    */
   public MarginException(String message, int httpCode, String reason, String description, MarginOperation operation) {
     super(message, httpCode, reason, description);
-    this.marginOperation = Optional.of(operation);
+    this.marginOperation = operation;
   }
 
   /**
    * Gets the margin operation responsible for the current exception.
    *
-   * @return the Margin Operation, wrapped in an {@link Optional}
+   * @return the Margin Operation. This can be null, if there is no margin operation associated with the current exception
    */
-  public Optional<MarginOperation> getMarginOperation() {
+  public MarginOperation getMarginOperation() {
     return marginOperation;
   }
 }
