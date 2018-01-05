@@ -9,24 +9,23 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 /**
  * The result returned to the client from an oauth2 request.
  * <p>
  * OAuth2 Access Token Response per https://tools.ietf.org/html/rfc6749#section-4.4
  */
-@BeanDefinition(builderScope = "private", metaScope = "private")
+@BeanDefinition(builderScope = "public", metaScope = "private")
 public final class AccessTokenResult implements ImmutableBean {
   // this bean exposes the type `Credentials`, not `ApiKeyCredentials`
   // the reathenticate() method allows the credentials type to be hidden
@@ -89,6 +88,14 @@ public final class AccessTokenResult implements ImmutableBean {
     MetaBean.register(AccessTokenResult.Meta.INSTANCE);
   }
 
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static AccessTokenResult.Builder builder() {
+    return new AccessTokenResult.Builder();
+  }
+
   private AccessTokenResult(
       String accessToken,
       String tokenType,
@@ -145,6 +152,14 @@ public final class AccessTokenResult implements ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -247,7 +262,7 @@ public final class AccessTokenResult implements ImmutableBean {
     }
 
     @Override
-    public BeanBuilder<? extends AccessTokenResult> builder() {
+    public AccessTokenResult.Builder builder() {
       return new AccessTokenResult.Builder();
     }
 
@@ -295,7 +310,7 @@ public final class AccessTokenResult implements ImmutableBean {
   /**
    * The bean-builder for {@code AccessTokenResult}.
    */
-  private static final class Builder extends DirectPrivateBeanBuilder<AccessTokenResult> {
+  public static final class Builder extends DirectFieldsBeanBuilder<AccessTokenResult> {
 
     private String accessToken;
     private String tokenType;
@@ -306,6 +321,17 @@ public final class AccessTokenResult implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
+    }
+
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    private Builder(AccessTokenResult beanToCopy) {
+      this.accessToken = beanToCopy.getAccessToken();
+      this.tokenType = beanToCopy.getTokenType();
+      this.expiresIn = beanToCopy.getExpiresIn();
+      this.credentials = beanToCopy.getCredentials();
     }
 
     //-----------------------------------------------------------------------
@@ -353,12 +379,62 @@ public final class AccessTokenResult implements ImmutableBean {
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
     public AccessTokenResult build() {
       return new AccessTokenResult(
           accessToken,
           tokenType,
           expiresIn,
           credentials);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the access token.
+     * @param accessToken  the new value, not blank
+     * @return this, for chaining, not null
+     */
+    public Builder accessToken(String accessToken) {
+      JodaBeanUtils.notBlank(accessToken, "accessToken");
+      this.accessToken = accessToken;
+      return this;
+    }
+
+    /**
+     * Sets the token type.
+     * @param tokenType  the new value, not blank
+     * @return this, for chaining, not null
+     */
+    public Builder tokenType(String tokenType) {
+      JodaBeanUtils.notBlank(tokenType, "tokenType");
+      this.tokenType = tokenType;
+      return this;
+    }
+
+    /**
+     * Sets the lifetime of the token in seconds.
+     * @param expiresIn  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder expiresIn(long expiresIn) {
+      this.expiresIn = expiresIn;
+      return this;
+    }
+
+    /**
+     * Sets the credentials used to get the current {@link AccessTokenResult}.
+     * This is needed by the re-authentication logic, where the Token Interceptor class has to handle expired or missing tokens.
+     * @param credentials  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder credentials(Credentials credentials) {
+      this.credentials = credentials;
+      return this;
     }
 
     //-----------------------------------------------------------------------

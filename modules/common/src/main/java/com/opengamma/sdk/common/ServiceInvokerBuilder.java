@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.sdk.common.auth.AccessTokenResult;
 import com.opengamma.sdk.common.auth.AuthClient;
-import com.opengamma.sdk.common.auth.AuthenticationException;
 import com.opengamma.sdk.common.auth.Credentials;
 
 import okhttp3.HttpUrl;
@@ -280,7 +279,7 @@ public final class ServiceInvokerBuilder {
       if (initialRequest.url().pathSegments().contains("auth")) {
         return chain.proceed(initialRequest);
       }
-  
+
       // try using the current access token, unless not present
       AccessTokenResult copyOfToken = token;
       if (copyOfToken != null) {
@@ -293,13 +292,10 @@ public final class ServiceInvokerBuilder {
           return response;
         }
       }
-  
+
       // try to get a new token
       lock.lock();
       try {
-        if (token == null) {
-          throw new AuthenticationException("Authentication failed: Unable to retry", "Authentication token is not set.");
-        }
         token = token.getCredentials().authenticate(authClient);
         Request modifiedRequest2 = initialRequest.newBuilder()
             .header(AUTHORIZATION, "Bearer " + token.getAccessToken())
