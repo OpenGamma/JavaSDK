@@ -98,10 +98,9 @@ public final class InvokerAuthClient implements AuthClient {
             response.message(),
             response.code() + " for " + message);
       }
-      AccessTokenResult tokenResult = JodaBeanSer.COMPACT.jsonReader().read(
+      return JodaBeanSer.COMPACT.jsonReader().read(
           response.body().string(),
           AccessTokenResult.class);
-      return tokenResult.withCredentials(credentials);
 
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);

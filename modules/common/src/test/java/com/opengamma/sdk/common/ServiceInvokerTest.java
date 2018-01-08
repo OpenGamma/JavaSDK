@@ -20,6 +20,9 @@ import okhttp3.Response;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
+/**
+ * Test {@link ServiceInvoker}.
+ */
 @Test
 public class ServiceInvokerTest {
 

@@ -5,6 +5,8 @@
  */
 package com.opengamma.sdk.margin;
 
+import java.util.Optional;
+
 import com.opengamma.sdk.common.JavaSdkException;
 
 /**
@@ -12,12 +14,16 @@ import com.opengamma.sdk.common.JavaSdkException;
  */
 public class MarginException extends JavaSdkException {
 
-  /** The Margin operation which is associated with the current exception. This is optional, as some exceptions are not mapped to a single operation. */
-  private final MarginOperation marginOperation;
-
   /** Serialization version. */
   private static final long serialVersionUID = 8789233267870746967L;
 
+  /**
+   * The Margin operation which is associated with the current exception.
+   * This is optional, as some exceptions are not mapped to a single operation.
+   */
+  private final MarginOperation marginOperation;
+
+  //-------------------------------------------------------------------------
   /**
    * Creates an instance from a message and reason.
    * 
@@ -59,9 +65,10 @@ public class MarginException extends JavaSdkException {
   /**
    * Gets the margin operation responsible for the current exception.
    *
-   * @return the Margin Operation. This can be null, if there is no margin operation associated with the current exception
+   * @return the Margin Operation, empty if there is no margin operation associated with the current exception
    */
-  public MarginOperation getMarginOperation() {
-    return marginOperation;
+  public Optional<MarginOperation> getMarginOperation() {
+    return Optional.ofNullable(marginOperation);
   }
+
 }

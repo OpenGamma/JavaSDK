@@ -37,7 +37,7 @@ import okhttp3.Response;
 /**
  * Implementation of the margin client.
  */
-public final class InvokerMarginClient implements MarginClient {
+final class InvokerMarginClient implements MarginClient {
 
   /**
    * Sleep for 500ms between polls.
@@ -58,14 +58,13 @@ public final class InvokerMarginClient implements MarginClient {
   private final ServiceInvoker invoker;
 
   //-------------------------------------------------------------------------
-
   /**
    * Obtains an instance.
    *
    * @param invoker  the service invoker
    * @return the client
    */
-  public static InvokerMarginClient of(ServiceInvoker invoker) {
+  static InvokerMarginClient of(ServiceInvoker invoker) {
     return new InvokerMarginClient(invoker);
   }
 
@@ -181,8 +180,8 @@ public final class InvokerMarginClient implements MarginClient {
   // throw exception in case of error
   private MarginException parseError(MarginOperation operation, Response response) throws IOException {
     ErrorMessage errorMessage = parseError(response);
-    String combinedMsg = "Request '" + operation.getDescription() + "' failed. Reason: " + errorMessage.getReason() + ", status code: " +
-        response.code() + ", message: " + errorMessage.getMessage();
+    String combinedMsg = "Request '" + operation.getDescription() + "' failed. Reason: " + errorMessage.getReason() +
+        ", status code: " + response.code() + ", message: " + errorMessage.getMessage();
     return new MarginException(combinedMsg, response.code(), errorMessage.getReason(), errorMessage.getMessage(), operation);
   }
 

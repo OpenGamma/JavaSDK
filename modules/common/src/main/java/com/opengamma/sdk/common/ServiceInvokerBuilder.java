@@ -263,15 +263,18 @@ public final class ServiceInvokerBuilder {
     private final Lock lock = new ReentrantLock();
     /** The auth client. */
     private volatile AuthClient authClient;
+    /** The credentials. */
+    private volatile Credentials credentials;
     /** The current token. */
     private volatile AccessTokenResult token;
-  
+
     // initializes the state, to ensure that ServiceInvoker is pure immutable wrt Java Memory Model
     void init(AuthClient authClient, Credentials credentials) {
       this.authClient = authClient;
-      token = credentials.authenticate(authClient);
+      this.credentials = credentials;
+      this.token = credentials.authenticate(authClient);
     }
-  
+
     @Override
     public Response intercept(Chain chain) throws IOException {
       // do nothing for auth
@@ -296,12 +299,12 @@ public final class ServiceInvokerBuilder {
       // try to get a new token
       lock.lock();
       try {
-        token = token.getCredentials().authenticate(authClient);
+        token = credentials.authenticate(authClient);
         Request modifiedRequest2 = initialRequest.newBuilder()
             .header(AUTHORIZATION, "Bearer " + token.getAccessToken())
             .build();
         return chain.proceed(modifiedRequest2);
-  
+
       } finally {
         lock.unlock();
       }

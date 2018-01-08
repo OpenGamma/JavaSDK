@@ -28,10 +28,10 @@ public class AuthenticationException extends JavaSdkException {
   /**
    * Creates an instance from a message, HTTP code, reason and description.
    * 
+   * @param message  the message
    * @param httpCode  the HTTP code of the remote API call
    * @param reason  the reason sent by the remote API call
    * @param description  the description sent by the remote API call
-   * @param message  the message
    */
   public AuthenticationException(String message, int httpCode, String reason, String description) {
     super(message, httpCode, reason, description);

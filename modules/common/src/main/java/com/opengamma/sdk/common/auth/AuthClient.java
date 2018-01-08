@@ -42,7 +42,7 @@ public interface AuthClient {
   /**
    * Authenticates the user based on an API key.
    *
-   * @param credentials  the API key and secret, encapsulated in an instance of {@link ApiKeyCredentials}
+   * @param credentials  the API key and secret, encapsulated in {@code Credentials}
    * @return the result containing the access token
    * @throws AuthenticationException if unable to authenticate
    * @throws UncheckedIOException if an IO error occurs
