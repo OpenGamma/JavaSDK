@@ -30,7 +30,7 @@ public class ServiceInvokerTest {
     server = new MockWebServer();
     server.start(18080);
     server.enqueue(new MockResponse().setResponseCode(200).setBody("{\n" +
-        "  \"access_token\": \"<Your access token here>\",\n" +
+        "  \"access_token\": \"testAccessToken\",\n" +
         "  \"expires_in\": 1,\n" +
         "  \"token_type\": \"Bearer\"\n" +
         "}"));
