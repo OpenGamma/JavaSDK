@@ -30,11 +30,8 @@ public enum MarginOperation {
    */
   private final String description;
 
-  /**
-   * Constructs an instance for each item in this ENUM, together with its user-friendly version.
-   * @param description  the user-readable version of the Margin Service operation
-   */
-  MarginOperation(String description) {
+  // creates an instance
+  private MarginOperation(String description) {
     this.description = description;
   }
 
