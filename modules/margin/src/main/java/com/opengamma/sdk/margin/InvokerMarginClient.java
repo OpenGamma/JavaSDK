@@ -37,7 +37,7 @@ import okhttp3.Response;
 /**
  * Implementation of the margin client.
  */
-public final class InvokerMarginClient implements MarginClient {
+final class InvokerMarginClient implements MarginClient {
 
   /**
    * Sleep for 500ms between polls.
@@ -58,14 +58,13 @@ public final class InvokerMarginClient implements MarginClient {
   private final ServiceInvoker invoker;
 
   //-------------------------------------------------------------------------
-
   /**
    * Obtains an instance.
    *
    * @param invoker  the service invoker
    * @return the client
    */
-  public static InvokerMarginClient of(ServiceInvoker invoker) {
+  static InvokerMarginClient of(ServiceInvoker invoker) {
     return new InvokerMarginClient(invoker);
   }
 

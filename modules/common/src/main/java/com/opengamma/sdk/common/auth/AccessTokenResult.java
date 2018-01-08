@@ -52,7 +52,7 @@ public final class AccessTokenResult implements ImmutableBean {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance, visible for testing.
+   * Obtains an instance.
    * <p>
    * It is intended that instances of {@code AccessTokenResult} are obtained
    * through the authentication process, not by calling this method.
