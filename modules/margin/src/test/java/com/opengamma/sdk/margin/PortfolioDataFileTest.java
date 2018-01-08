@@ -22,6 +22,8 @@ import java.util.zip.ZipOutputStream;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.sdk.margin.PortfolioDataFile;
+
 /**
  * Test {@link PortfolioDataFile}.
  */
@@ -51,28 +53,28 @@ public class PortfolioDataFileTest {
   public void test_ofPath_CSV() {
     Path path = Paths.get("src/test/resources/simple.csv");
     PortfolioDataFile test = PortfolioDataFile.of(path);
-    assertEquals(test.getName(), "simple.csv.gz.base64");
+    assertEquals(test.getName().endsWith("simple.csv.gz.base64"), true);
     assertEquals(test.getData(), Base64.getEncoder().encodeToString(gzip(path)));
   }
 
   public void test_ofPath_XML() {
     Path path = Paths.get("src/test/resources/simple.xml");
     PortfolioDataFile test = PortfolioDataFile.of(path);
-    assertEquals(test.getName(), "simple.xml.gz.base64");
+    assertEquals(test.getName().endsWith("simple.xml.gz.base64"), true);
     assertEquals(test.getData(), Base64.getEncoder().encodeToString(gzip(path)));
   }
 
   public void test_ofPath_XLS() {
     Path path = Paths.get("src/test/resources/simple.xls");
     PortfolioDataFile test = PortfolioDataFile.of(path);
-    assertEquals(test.getName(), "simple.xls.gz.base64");
+    assertEquals(test.getName().endsWith("simple.xls.gz.base64"), true);
     assertEquals(test.getData(), Base64.getEncoder().encodeToString(gzip(path)));
   }
 
   public void test_ofPath_XLSX() {
     Path path = Paths.get("src/test/resources/simple.xlsx");
     PortfolioDataFile test = PortfolioDataFile.of(path);
-    assertEquals(test.getName(), "simple.xlsx.gz.base64");
+    assertEquals(test.getName().endsWith("simple.xlsx.gz.base64"), true);
     assertEquals(test.getData(), Base64.getEncoder().encodeToString(gzip(path)));
   }
 

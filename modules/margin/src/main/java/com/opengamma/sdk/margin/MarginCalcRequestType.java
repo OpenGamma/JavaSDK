@@ -7,11 +7,7 @@ package com.opengamma.sdk.margin;
 
 /**
  * The type of margin calculation to perform.
- *
- * @deprecated Since 1.3.0. Replaced by an exact copy: {@link com.opengamma.sdk.margin.v3.MarginCalcRequestType}.
- *   The current class will be removed in future versions.
  */
-@Deprecated
 public enum MarginCalcRequestType {
 
   /**

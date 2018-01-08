@@ -28,11 +28,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 /**
  * Result from the service.
- *
- * @deprecated Since 1.3.0. Replaced by {@link com.opengamma.sdk.margin.v3.MarginCalcResult} with an updated implementation (one extra field).
- *   The current class will be removed in future versions.
  */
-@Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
 public final class MarginCalcResult implements ImmutableBean {
 
@@ -56,6 +52,11 @@ public final class MarginCalcResult implements ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final String reportingCurrency;
+  /**
+   * Whether to apply the client multiplier, as specified in the request.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final boolean applyClientMultiplier;
   /**
    * The summary of the portfolio items, may be empty.
    */
@@ -91,6 +92,7 @@ public final class MarginCalcResult implements ImmutableBean {
    * @param type  the value of the property, not null
    * @param valuationDate  the value of the property, not null
    * @param reportingCurrency  the value of the property, not null
+   * @param applyClientMultiplier  the value of the property, not null
    * @param portfolioItems  the value of the property, not null
    * @param margin  the value of the property
    * @param failures  the value of the property, not null
@@ -101,6 +103,7 @@ public final class MarginCalcResult implements ImmutableBean {
       MarginCalcRequestType type,
       LocalDate valuationDate,
       String reportingCurrency,
+      boolean applyClientMultiplier,
       List<PortfolioItemSummary> portfolioItems,
       MarginSummary margin,
       List<MarginError> failures) {
@@ -109,6 +112,7 @@ public final class MarginCalcResult implements ImmutableBean {
       type,
       valuationDate,
       reportingCurrency,
+      applyClientMultiplier,
       portfolioItems,
       margin,
       failures);
@@ -119,6 +123,7 @@ public final class MarginCalcResult implements ImmutableBean {
       MarginCalcRequestType type,
       LocalDate valuationDate,
       String reportingCurrency,
+      boolean applyClientMultiplier,
       List<PortfolioItemSummary> portfolioItems,
       MarginSummary margin,
       List<MarginError> failures) {
@@ -126,12 +131,14 @@ public final class MarginCalcResult implements ImmutableBean {
     JodaBeanUtils.notNull(type, "type");
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
     JodaBeanUtils.notNull(reportingCurrency, "reportingCurrency");
+    JodaBeanUtils.notNull(applyClientMultiplier, "applyClientMultiplier");
     JodaBeanUtils.notNull(portfolioItems, "portfolioItems");
     JodaBeanUtils.notNull(failures, "failures");
     this.status = status;
     this.type = type;
     this.valuationDate = valuationDate;
     this.reportingCurrency = reportingCurrency;
+    this.applyClientMultiplier = applyClientMultiplier;
     this.portfolioItems = Collections.unmodifiableList(new ArrayList<>(portfolioItems));
     this.margin = margin;
     this.failures = Collections.unmodifiableList(new ArrayList<>(failures));
@@ -180,6 +187,15 @@ public final class MarginCalcResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets whether to apply the client multiplier, as specified in the request.
+   * @return the value of the property, not null
+   */
+  public boolean isApplyClientMultiplier() {
+    return applyClientMultiplier;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the summary of the portfolio items, may be empty.
    * @return the value of the property, not null
    */
@@ -217,6 +233,7 @@ public final class MarginCalcResult implements ImmutableBean {
           JodaBeanUtils.equal(type, other.type) &&
           JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
           JodaBeanUtils.equal(reportingCurrency, other.reportingCurrency) &&
+          (applyClientMultiplier == other.applyClientMultiplier) &&
           JodaBeanUtils.equal(portfolioItems, other.portfolioItems) &&
           JodaBeanUtils.equal(margin, other.margin) &&
           JodaBeanUtils.equal(failures, other.failures);
@@ -231,6 +248,7 @@ public final class MarginCalcResult implements ImmutableBean {
     hash = hash * 31 + JodaBeanUtils.hashCode(type);
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(reportingCurrency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(applyClientMultiplier);
     hash = hash * 31 + JodaBeanUtils.hashCode(portfolioItems);
     hash = hash * 31 + JodaBeanUtils.hashCode(margin);
     hash = hash * 31 + JodaBeanUtils.hashCode(failures);
@@ -239,12 +257,13 @@ public final class MarginCalcResult implements ImmutableBean {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("MarginCalcResult{");
     buf.append("status").append('=').append(status).append(',').append(' ');
     buf.append("type").append('=').append(type).append(',').append(' ');
     buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
     buf.append("reportingCurrency").append('=').append(reportingCurrency).append(',').append(' ');
+    buf.append("applyClientMultiplier").append('=').append(applyClientMultiplier).append(',').append(' ');
     buf.append("portfolioItems").append('=').append(portfolioItems).append(',').append(' ');
     buf.append("margin").append('=').append(margin).append(',').append(' ');
     buf.append("failures").append('=').append(JodaBeanUtils.toString(failures));
@@ -283,6 +302,11 @@ public final class MarginCalcResult implements ImmutableBean {
     private final MetaProperty<String> reportingCurrency = DirectMetaProperty.ofImmutable(
         this, "reportingCurrency", MarginCalcResult.class, String.class);
     /**
+     * The meta-property for the {@code applyClientMultiplier} property.
+     */
+    private final MetaProperty<Boolean> applyClientMultiplier = DirectMetaProperty.ofImmutable(
+        this, "applyClientMultiplier", MarginCalcResult.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code portfolioItems} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -308,6 +332,7 @@ public final class MarginCalcResult implements ImmutableBean {
         "type",
         "valuationDate",
         "reportingCurrency",
+        "applyClientMultiplier",
         "portfolioItems",
         "margin",
         "failures");
@@ -329,6 +354,8 @@ public final class MarginCalcResult implements ImmutableBean {
           return valuationDate;
         case -1287844769:  // reportingCurrency
           return reportingCurrency;
+        case 1555658618:  // applyClientMultiplier
+          return applyClientMultiplier;
         case 110493528:  // portfolioItems
           return portfolioItems;
         case -1081309778:  // margin
@@ -366,6 +393,8 @@ public final class MarginCalcResult implements ImmutableBean {
           return ((MarginCalcResult) bean).getValuationDate();
         case -1287844769:  // reportingCurrency
           return ((MarginCalcResult) bean).getReportingCurrency();
+        case 1555658618:  // applyClientMultiplier
+          return ((MarginCalcResult) bean).isApplyClientMultiplier();
         case 110493528:  // portfolioItems
           return ((MarginCalcResult) bean).getPortfolioItems();
         case -1081309778:  // margin
@@ -397,6 +426,7 @@ public final class MarginCalcResult implements ImmutableBean {
     private MarginCalcRequestType type;
     private LocalDate valuationDate;
     private String reportingCurrency;
+    private boolean applyClientMultiplier;
     private List<PortfolioItemSummary> portfolioItems = Collections.emptyList();
     private MarginSummary margin;
     private List<MarginError> failures = Collections.emptyList();
@@ -419,6 +449,8 @@ public final class MarginCalcResult implements ImmutableBean {
           return valuationDate;
         case -1287844769:  // reportingCurrency
           return reportingCurrency;
+        case 1555658618:  // applyClientMultiplier
+          return applyClientMultiplier;
         case 110493528:  // portfolioItems
           return portfolioItems;
         case -1081309778:  // margin
@@ -446,6 +478,9 @@ public final class MarginCalcResult implements ImmutableBean {
         case -1287844769:  // reportingCurrency
           this.reportingCurrency = (String) newValue;
           break;
+        case 1555658618:  // applyClientMultiplier
+          this.applyClientMultiplier = (Boolean) newValue;
+          break;
         case 110493528:  // portfolioItems
           this.portfolioItems = (List<PortfolioItemSummary>) newValue;
           break;
@@ -468,6 +503,7 @@ public final class MarginCalcResult implements ImmutableBean {
           type,
           valuationDate,
           reportingCurrency,
+          applyClientMultiplier,
           portfolioItems,
           margin,
           failures);
@@ -476,12 +512,13 @@ public final class MarginCalcResult implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("MarginCalcResult.Builder{");
       buf.append("status").append('=').append(JodaBeanUtils.toString(status)).append(',').append(' ');
       buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("reportingCurrency").append('=').append(JodaBeanUtils.toString(reportingCurrency)).append(',').append(' ');
+      buf.append("applyClientMultiplier").append('=').append(JodaBeanUtils.toString(applyClientMultiplier)).append(',').append(' ');
       buf.append("portfolioItems").append('=').append(JodaBeanUtils.toString(portfolioItems)).append(',').append(' ');
       buf.append("margin").append('=').append(JodaBeanUtils.toString(margin)).append(',').append(' ');
       buf.append("failures").append('=').append(JodaBeanUtils.toString(failures));

@@ -28,11 +28,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 /**
  * Result from the service.
- *
- * @deprecated Since 1.3.0. Replaced by an exact copy: {@link com.opengamma.sdk.margin.v3.MarginWhatIfCalcResult}.
- *   The current class will be removed in future versions.
  */
-@Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
 public final class MarginWhatIfCalcResult implements ImmutableBean {
 

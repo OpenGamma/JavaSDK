@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+import org.joda.beans.ser.JodaBeanSer;
+
 import com.opengamma.sdk.common.ServiceInvoker;
 import com.opengamma.sdk.common.auth.Credentials;
 import com.opengamma.sdk.margin.Ccp;
@@ -23,29 +25,34 @@ import com.opengamma.sdk.margin.MarginWhatIfCalcResult;
 import com.opengamma.sdk.margin.PortfolioDataFile;
 
 /**
- * Example code.
+ * Example code for the OpenGamma Margin Service API (v3)
  */
-@SuppressWarnings("deprecation")
 public class MarginClientExample {
 
   // credentials must be set to use the example
   private static final Credentials CREDENTIALS = Credentials.ofApiKey("ABC", "123");
 
   // the file to upload
-  private static final Path LCH_FILE = Paths.get("src/main/resources/lch-trades.txt");
+  private static final Path LCH_FILE = Paths.get("src/main/resources/com/opengamma/sdk/example/lch-trades.txt");
 
   // example code - invoke with no arguments
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
     // create the invoker specifying the URL and credentials
     try (ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS)) {
-      // create the margin client
+      // Creating the margin client
       MarginClient client = MarginClient.of(invoker);
 
-      // list the available CCPs, valuation dates and currencies
+      // Listing the CCPs that are available
       CcpsResult ccps = client.listCcps();
 
-      // extract the information about the CCP to call
-      CcpInfo lch = ccps.getCcp(Ccp.LCH);
+      // Optional step: Checking if we are permissioned to the specific CCP calculation engine
+      Ccp chosenCCP = Ccp.LCH;
+      if (!ccps.isCcpAvailable(chosenCCP)) {
+        throw new IllegalStateException("Margin Calculator not available for " + chosenCCP.name());
+      }
+
+      //Retrieve specific information about the CCP calculation engine: valuation dates and available currencies
+      CcpInfo lch = client.getCcpInfo(chosenCCP);
       LocalDate valuationDate = lch.getLatestValuationDate();
       String currency = lch.getDefaultCurrency();
 
@@ -56,14 +63,14 @@ public class MarginClientExample {
       MarginCalcRequest request = MarginCalcRequest.of(valuationDate, currency, files);
 
       // make the call and view the result
-      MarginCalcResult result = client.calculate(Ccp.LCH, request);
-      System.out.println(result);
+      MarginCalcResult result = client.calculate(chosenCCP, request);
+      System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(result));
 
       // make the what-if call and view the result (the difference in margin numbers)
-      MarginWhatIfCalcResult whatIfResult = client.calculateWhatIf(Ccp.LCH, request, Collections.singletonList(PortfolioDataFile.of(LCH_FILE)));
-      System.out.println(whatIfResult);
+      MarginWhatIfCalcResult whatIfResult =
+          client.calculateWhatIf(Ccp.LCH, request, Collections.singletonList(PortfolioDataFile.of(LCH_FILE)));
+      System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(whatIfResult));
     }
-
   }
 
 }

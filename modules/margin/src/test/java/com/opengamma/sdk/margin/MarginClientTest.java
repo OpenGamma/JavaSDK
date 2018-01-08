@@ -9,9 +9,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertThrows;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
@@ -32,23 +32,23 @@ import okhttp3.mockwebserver.RecordedRequest;
  * Test.
  */
 @Test
-@SuppressWarnings("deprecation")
 public class MarginClientTest {
 
-  private static final Credentials CREDENTIALS = Credentials.ofUsernamePassword("user", "password");
+  private static final Credentials CREDENTIALS = Credentials.ofApiKey("user", "password");
   private static final LocalDate VAL_DATE = LocalDate.of(2017, 6, 1);
   private static final MarginCalcRequest REQUEST =
       MarginCalcRequest.of(VAL_DATE, "GBP", Collections.emptyList(), MarginCalcRequestType.STANDARD, false);
 
-  private static final String RESPONSE_LIST_CCPS = JodaBeanSer.PRETTY.simpleJsonWriter().write(
-      CcpsResult.of(Collections.singletonList(
-          CcpInfo.of(
-              Ccp.LCH,
-              URI.create("/ccps/lch"),
-              Collections.singletonList(VAL_DATE),
-              "GBP",
-              Collections.singletonList("GBP"),
-              Collections.singletonList("GBP")))));
+  private static final String RESPONSE_LIST_CCPS = JodaBeanSer.PRETTY.simpleJsonWriter()
+      .write(CcpsResult.of(Arrays.asList("LCH", "RUBBISH")));
+
+  private static final String RESPONSE_GET_CCP_INFO = JodaBeanSer.PRETTY.simpleJsonWriter()
+      .write(CcpInfo.of(
+          Collections.singletonList(VAL_DATE),
+          "GBP",
+          Collections.singletonList("GBP"),
+          Collections.singletonList("GBP")));
+
   private static final String RESPONSE_CALC_POST = "";
   private static final String RESPONSE_CALC_GET_PENDING = JodaBeanSer.PRETTY.simpleJsonWriter().write(
       MarginCalcResult.of(
@@ -56,6 +56,7 @@ public class MarginClientTest {
           MarginCalcRequestType.STANDARD,
           VAL_DATE,
           "GBP",
+          true,
           Collections.emptyList(),
           null,
           Collections.emptyList()));
@@ -65,6 +66,7 @@ public class MarginClientTest {
           MarginCalcRequestType.STANDARD,
           VAL_DATE,
           "GBP",
+          true,
           Collections.singletonList(PortfolioItemSummary.of("1", "SWAP", "MySwap")),
           MarginSummary.of(125d, Collections.emptyList()),
           Collections.emptyList()));
@@ -74,6 +76,7 @@ public class MarginClientTest {
           MarginCalcRequestType.STANDARD,
           VAL_DATE,
           "GBP",
+          true,
           Collections.singletonList(PortfolioItemSummary.of("1", "SWAP", "MySwap")),
           MarginSummary.of(260d, Collections.emptyList()),
           Collections.emptyList()));
@@ -96,21 +99,41 @@ public class MarginClientTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_listCcps() throws Exception {
+  public void test_listCcps() {
     server.enqueue(new MockResponse()
-        .setHeader("Content-Type", "application/xml")
+        .setHeader("Content-Type", "application/json")
         .setBody(RESPONSE_LIST_CCPS));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     CcpsResult ccps = client.listCcps();
-    assertEquals(ccps.getCcps().size(), 1);
-    assertEquals(ccps.getCcps().get(0).getName(), Ccp.LCH);
-    assertEquals(ccps.findCcp(Ccp.LCH).get().getName(), Ccp.LCH);
-    assertEquals(ccps.getCcp(Ccp.LCH).getName(), Ccp.LCH);
-    assertEquals(ccps.getCcp(Ccp.LCH).getLatestValuationDate(), VAL_DATE);
+    assertEquals(ccps.getCcpNames().size(), 2);
+    assertEquals(ccps.getCcpNames().get(0), Ccp.LCH.name());
+    assertEquals(ccps.getCcpNames().get(1), "RUBBISH");
+    assertEquals(ccps.isCcpAvailable(Ccp.LCH), true);
+    assertEquals(ccps.isCcpAvailable(Ccp.CME), false);
+  }
+
+  public void test_getCcpInfo() {
+    server.enqueue(new MockResponse()
+        .setHeader("Content-Type", "application/json")
+        .setBody(RESPONSE_GET_CCP_INFO));
+
+    //call server
+    ServiceInvoker invoker = createInvoker();
+    MarginClient client = MarginClient.of(invoker);
+
+    LocalDate expectedValuationDate = LocalDate.of(2017, 6, 1);
+    String expectedCurrency = "GBP";
+
+    CcpInfo ccpInfo = client.getCcpInfo(Ccp.LCH);
+    assertEquals(ccpInfo.getCalculationCurrencies(), Collections.singletonList(expectedCurrency));
+    assertEquals(ccpInfo.getReportingCurrencies(), Collections.singletonList(expectedCurrency));
+    assertEquals(ccpInfo.getDefaultCurrency(), expectedCurrency);
+    assertEquals(ccpInfo.getValuationDates(), Collections.singletonList(expectedValuationDate));
+    assertEquals(ccpInfo.getLatestValuationDate(), expectedValuationDate);
   }
 
   public void test_listCcps_fail() throws Exception {
@@ -120,7 +143,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_ERROR));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     assertThrows(IllegalStateException.class, () -> client.listCcps());
@@ -141,8 +164,7 @@ public class MarginClientTest {
     server.enqueue(new MockResponse()
         .setBody(RESPONSE_DELETE));
 
-    // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     MarginCalcResult result = client.calculate(Ccp.LCH, REQUEST);
@@ -168,7 +190,7 @@ public class MarginClientTest {
       @Override
       public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         String requestPath = request.getPath();
-        if (request.getMethod().equals("POST") && requestPath.equals("/margin/v1/ccps/lch/calculations")) {
+        if (request.getMethod().equals("POST") && requestPath.equals("/margin/v3/ccps/lch/calculations")) {
           if (!firstRequestSubmitted) {
             firstRequestSubmitted = true;
             return new MockResponse()
@@ -181,7 +203,7 @@ public class MarginClientTest {
                 .setHeader("Location", server.url("/ccps/lch/calculations/790"))
                 .setBody(RESPONSE_CALC_POST);
           }
-        } else if (request.getMethod().equals("GET") && requestPath.equals("/margin/v1/ccps/lch/calculations/789")) {
+        } else if (request.getMethod().equals("GET") && requestPath.equals("/margin/v3/ccps/lch/calculations/789")) {
           if (!firstCalcRequested) {
             firstCalcRequested = true;
             return new MockResponse()
@@ -192,7 +214,7 @@ public class MarginClientTest {
                 .setHeader("Content-Type", "application/json")
                 .setBody(RESPONSE_CALC_GET_COMPLETE);
           }
-        } else if (request.getMethod().equals("GET") && requestPath.equals("/margin/v1/ccps/lch/calculations/790")) {
+        } else if (request.getMethod().equals("GET") && requestPath.equals("/margin/v3/ccps/lch/calculations/790")) {
           if (!secondCalcRequested) {
             secondCalcRequested = true;
             return new MockResponse()
@@ -215,7 +237,7 @@ public class MarginClientTest {
     server.setDispatcher(webServerDispatcher);
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     PortfolioDataFile lchPortfolioFile = PortfolioDataFile.of(Paths.get(
@@ -239,7 +261,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_ERROR));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     assertThrows(IllegalStateException.class, () -> client.calculate(Ccp.LCH, REQUEST));
@@ -256,7 +278,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_ERROR));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     assertThrows(IllegalStateException.class, () -> client.calculate(Ccp.LCH, REQUEST));
@@ -276,7 +298,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_ERROR));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     // succeeds - delete failure ignored
@@ -291,7 +313,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_ERROR));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     assertThrows(IllegalStateException.class, () -> client.deleteCalculation(Ccp.LCH, "789"));
@@ -313,7 +335,7 @@ public class MarginClientTest {
         .setBody(RESPONSE_DELETE));
 
     // call server
-    ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS, server.url("/"), new TestingAuthClient());
+    ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
     CompletableFuture<MarginCalcResult> future = client.calculateAsync(Ccp.LCH, REQUEST);
@@ -321,6 +343,13 @@ public class MarginClientTest {
     assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
     assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
     assertEquals(result.getValuationDate(), VAL_DATE);
+  }
+
+  private ServiceInvoker createInvoker() {
+    return ServiceInvoker.builder(CREDENTIALS)
+        .serviceUrl(server.url("/"))
+        .authClientFactory(inv -> new TestingAuthClient())
+        .build();
   }
 
 }

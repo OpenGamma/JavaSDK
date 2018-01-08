@@ -25,24 +25,22 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
  * API key and secret credentials, used to authenticate with the service.
  * <p>
  * This is the OAuth2 "client credentials" concept.
- *
- * @deprecated Since 1.3.0. Replaced by an exact copy: {@code com.opengamma.sdk.common.auth.v3.ApiKeyCredentials}.
- *   The current class will be removed in future versions.
  */
-@Deprecated
 @BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
 final class ApiKeyCredentials implements Credentials, ImmutableBean {
+  // this class is intended to stay package-scoped
+  // users are not exposed to the data, to reduce attempts to query the data held within
 
   /**
    * The API Key ID with which to authenticate
    */
-  @PropertyDefinition(validate = "notEmpty", get = "")
+  @PropertyDefinition(validate = "notBlank", get = "")
   private final String apiKey;
 
   /**
    * The secret corresponding to the id with which to authenticate
    */
-  @PropertyDefinition(validate = "notEmpty", get = "")
+  @PropertyDefinition(validate = "notBlank", get = "")
   private final String secret;
 
   //-------------------------------------------------------------------------
@@ -66,8 +64,8 @@ final class ApiKeyCredentials implements Credentials, ImmutableBean {
 
   /**
    * Obtains an instance.
-   * @param apiKey  the value of the property, not empty
-   * @param secret  the value of the property, not empty
+   * @param apiKey  the value of the property, not blank
+   * @param secret  the value of the property, not blank
    * @return the instance
    */
   public static ApiKeyCredentials of(
@@ -81,8 +79,8 @@ final class ApiKeyCredentials implements Credentials, ImmutableBean {
   private ApiKeyCredentials(
       String apiKey,
       String secret) {
-    JodaBeanUtils.notEmpty(apiKey, "apiKey");
-    JodaBeanUtils.notEmpty(secret, "secret");
+    JodaBeanUtils.notBlank(apiKey, "apiKey");
+    JodaBeanUtils.notBlank(secret, "secret");
     this.apiKey = apiKey;
     this.secret = secret;
   }

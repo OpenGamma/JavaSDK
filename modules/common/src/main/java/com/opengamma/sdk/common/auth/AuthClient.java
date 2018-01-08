@@ -5,6 +5,8 @@
  */
 package com.opengamma.sdk.common.auth;
 
+import java.io.UncheckedIOException;
+
 import com.opengamma.sdk.common.ServiceInvoker;
 
 /**
@@ -12,16 +14,12 @@ import com.opengamma.sdk.common.ServiceInvoker;
  * <p>
  * Applications should not need to use this service directly.
  * The {@link ServiceInvoker} invokes authentication when required.
- *
- * @deprecated Since 1.3.0. Replaced by {@link com.opengamma.sdk.common.auth.v3.AuthClient} with an updated implementation.
- *   The current interface will be removed in future versions.
  */
-@Deprecated
 public interface AuthClient {
 
   /**
-   * Obtains an instance.
-   * 
+   * Obtains an instance, specifying the invoker to use.
+   *
    * @param invoker  the service invoker
    * @return the client
    */
@@ -31,29 +29,24 @@ public interface AuthClient {
 
   //-------------------------------------------------------------------------
   /**
-   * Authenticates the user based on a username and password.
-   * 
-   * @param username  the username
-   * @param password  the password
-   * @return the result containing the access token
-   */
-  public abstract AccessTokenResult authenticatePassword(String username, String password);
-
-  /**
    * Authenticates the user based on an API key.
-   * 
+   *
    * @param apiKey  the API key
    * @param apiKeySecret  the secret
    * @return the result containing the access token
+   * @throws AuthenticationException if unable to authenticate
+   * @throws UncheckedIOException if an IO error occurs
    */
   public abstract AccessTokenResult authenticateApiKey(String apiKey, String apiKeySecret);
 
   /**
-   * Refreshes the main token based on the refresh token.
-   * 
-   * @param refreshToken  the refresh token
+   * Authenticates the user based on an API key.
+   *
+   * @param credentials  the API key and secret, encapsulated in {@code Credentials}
    * @return the result containing the access token
+   * @throws AuthenticationException if unable to authenticate
+   * @throws UncheckedIOException if an IO error occurs
    */
-  public abstract AccessTokenResult refreshToken(String refreshToken);
+  public abstract AccessTokenResult authenticateApiKey(Credentials credentials);
 
 }

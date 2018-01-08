@@ -30,11 +30,7 @@ import org.joda.beans.ser.JodaBeanSer;
 
 /**
  * Request to pass to the service.
- *
- * @deprecated Since 1.3.0. Replaced by an exact copy: {@link com.opengamma.sdk.margin.v3.MarginCalcRequest}.
- *   The current class will be removed in future versions.
  */
-@Deprecated
 @BeanDefinition(metaScope = "private")
 public final class MarginCalcRequest implements ImmutableBean {
 
@@ -76,7 +72,7 @@ public final class MarginCalcRequest implements ImmutableBean {
    * <p>
    * The list of portfolio data should be either {@link PortfolioDataFile} instances
    * or Strata {@code CalculationTarget} instances, such as trades or positions.
-   * 
+   *
    * @param valuationDate  the valuation date
    * @param reportingCurrency  the reporting currency
    * @param portfolioData  the portfolio data, which can be {@link PortfolioDataFile} or Strata trades
@@ -102,7 +98,7 @@ public final class MarginCalcRequest implements ImmutableBean {
    * <p>
    * The list of portfolio data should be either {@link PortfolioDataFile} instances
    * or Strata {@code CalculationTarget} instances, such as trades or positions.
-   * 
+   *
    * @param valuationDate  the valuation date
    * @param reportingCurrency  the reporting currency
    * @param portfolioData  the portfolio data, which can be {@link PortfolioDataFile} or Strata trades

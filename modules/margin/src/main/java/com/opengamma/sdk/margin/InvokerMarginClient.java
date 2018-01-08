@@ -6,6 +6,11 @@
 package com.opengamma.sdk.margin;
 
 import static com.opengamma.sdk.common.ServiceInvoker.MEDIA_JSON;
+import static com.opengamma.sdk.margin.MarginOperation.CREATE_CALCULATION;
+import static com.opengamma.sdk.margin.MarginOperation.DELETE_CALCULATION;
+import static com.opengamma.sdk.margin.MarginOperation.GET_CALCULATION;
+import static com.opengamma.sdk.margin.MarginOperation.GET_CCP_INFO;
+import static com.opengamma.sdk.margin.MarginOperation.LIST_CCPS;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -21,6 +26,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.beans.ser.JodaBeanSer;
+import org.joda.beans.ser.SerDeserializers;
 
 import com.opengamma.sdk.common.ServiceInvoker;
 
@@ -30,11 +36,7 @@ import okhttp3.Response;
 
 /**
  * Implementation of the margin client.
- *
- * @deprecated Since 1.3.0. Replaced by {@link com.opengamma.sdk.margin.v3.InvokerMarginClient} with an updated implementation.
- *   The current class will be removed in future versions.
  */
-@Deprecated
 final class InvokerMarginClient implements MarginClient {
 
   /**
@@ -74,19 +76,39 @@ final class InvokerMarginClient implements MarginClient {
   @Override
   public CcpsResult listCcps() {
     Request request = new Request.Builder()
-        .url(invoker.getServiceUrl().resolve("margin/v1/ccps"))
+        .url(invoker.getServiceUrl().resolve("margin/v3/ccps"))
         .get()
         .header("Accept", MEDIA_JSON.toString())
         .build();
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (!response.isSuccessful()) {
-        ErrorMessage errorMessage = parseError(response);
-        throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
-            response.code() + ", message: " + errorMessage.getMessage());
+        throw parseError(LIST_CCPS, response);
       }
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), CcpsResult.class);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
+          .jsonReader()
+          .read(response.body().string(), CcpsResult.class);
 
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+  }
+
+  @Override
+  public CcpInfo getCcpInfo(Ccp ccp) {
+    Request request = new Request.Builder()
+        .url(invoker.getServiceUrl().resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH)))
+        .get()
+        .header("Accept", MEDIA_JSON.toString())
+        .build();
+
+    try (Response response = invoker.getHttpClient().newCall(request).execute()) {
+      if (!response.isSuccessful()) {
+        throw parseError(GET_CCP_INFO, response);
+      }
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
+          .jsonReader()
+          .read(response.body().string(), CcpInfo.class);
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }
@@ -97,7 +119,7 @@ final class InvokerMarginClient implements MarginClient {
     String text = JodaBeanSer.COMPACT.jsonWriter().write(calcRequest, false);
     RequestBody body = RequestBody.create(MEDIA_JSON, text);
     Request request = new Request.Builder()
-        .url(invoker.getServiceUrl().resolve("margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations"))
+        .url(invoker.getServiceUrl().resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations"))
         .post(body)
         .header("Content-Type", MEDIA_JSON.toString())
         .header("Accept", MEDIA_JSON.toString())
@@ -105,9 +127,7 @@ final class InvokerMarginClient implements MarginClient {
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (response.code() != 202) {
-        ErrorMessage errorMessage = parseError(response);
-        throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
-            response.code() + ", message: " + errorMessage.getMessage());
+        throw parseError(CREATE_CALCULATION, response);
       }
       String location = response.header(LOCATION);
       return location.substring(location.lastIndexOf('/') + 1);
@@ -121,18 +141,18 @@ final class InvokerMarginClient implements MarginClient {
   public MarginCalcResult getCalculation(Ccp ccp, String calcId) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl()
-            .resolve("margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
+            .resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
         .get()
         .header("Accept", MEDIA_JSON.toString())
         .build();
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (!response.isSuccessful()) {
-        ErrorMessage errorMessage = parseError(response);
-        throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
-            response.code() + ", message: " + errorMessage.getMessage());
+        throw parseError(GET_CALCULATION, response);
       }
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), MarginCalcResult.class);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
+          .jsonReader()
+          .read(response.body().string(), MarginCalcResult.class);
 
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -143,21 +163,26 @@ final class InvokerMarginClient implements MarginClient {
   public void deleteCalculation(Ccp ccp, String calcId) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl()
-            .resolve("margin/v1/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
+            .resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
         .delete()
         .header("Accept", MEDIA_JSON.toString())
         .build();
 
     try (Response response = invoker.getHttpClient().newCall(request).execute()) {
       if (!response.isSuccessful()) {
-        ErrorMessage errorMessage = parseError(response);
-        throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
-            response.code() + ", message: " + errorMessage.getMessage());
+        throw parseError(DELETE_CALCULATION, response);
       }
-
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }
+  }
+
+  // throw exception in case of error
+  private MarginException parseError(MarginOperation operation, Response response) throws IOException {
+    ErrorMessage errorMessage = parseError(response);
+    String combinedMsg = "Request '" + operation.getDescription() + "' failed. Reason: " + errorMessage.getReason() +
+        ", status code: " + response.code() + ", message: " + errorMessage.getMessage();
+    return new MarginException(combinedMsg, response.code(), errorMessage.getReason(), errorMessage.getMessage(), operation);
   }
 
   // avoid errors when processing errors
@@ -205,7 +230,7 @@ final class InvokerMarginClient implements MarginClient {
           return;
         }
         if (Instant.now().isAfter(timeout)) {
-          resultPromise.completeExceptionally(new IllegalStateException("Timed out while polling margin service"));
+          resultPromise.completeExceptionally(new MarginException("Timed out while polling margin service", "Time Out"));
           return;
         }
       };
@@ -274,8 +299,8 @@ final class InvokerMarginClient implements MarginClient {
         deltaResult.getValuationDate(),
         deltaResult.getReportingCurrency(),
         deltaResult.getPortfolioItems(),
-        baseResult.getMargin().orElseThrow(IllegalStateException::new),
-        deltaResult.getMargin().orElseThrow(IllegalStateException::new),
+        baseResult.getMargin().orElseThrow(() -> new MarginException("No base margin found in response", "Invalid")),
+        deltaResult.getMargin().orElseThrow(() -> new MarginException("No combined margin found in response", "Invalid")),
         deltaResult.getFailures());
   }
 

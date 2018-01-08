@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.opengamma.sdk</groupId>
     <artifactId>sdk-parent</artifactId>
-    <version>2.5.2-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>sdk-common</artifactId>
@@ -43,6 +43,11 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>mockwebserver</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
