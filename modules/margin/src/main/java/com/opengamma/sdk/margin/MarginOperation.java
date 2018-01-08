@@ -27,17 +27,17 @@ public enum MarginOperation {
   /**
    * Provides a user-readable name of the Margin Service operation
    */
-  private final String userFriendlyName;
+  private final String description;
 
   /**
    * Constructs an instance for each item in this ENUM, together with its user-friendly version.
-   * @param userFriendlyName  the user-readable version of the Margin Service operation
+   * @param description  the user-readable version of the Margin Service operation
    */
-  MarginOperation(String userFriendlyName) {
-    this.userFriendlyName = userFriendlyName;
+  MarginOperation(String description) {
+    this.description = description;
   }
 
-  String getUserFriendlyName() {
-    return userFriendlyName;
+  String getDescription() {
+    return description;
   }
 }
