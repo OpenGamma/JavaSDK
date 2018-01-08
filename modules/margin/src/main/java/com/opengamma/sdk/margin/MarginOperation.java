@@ -9,6 +9,7 @@ package com.opengamma.sdk.margin;
  * Provides a list of Margin Service operations available in the SDK
  */
 public enum MarginOperation {
+
   /** List CCPs operation */
   LIST_CCPS("List CCPs"),
 

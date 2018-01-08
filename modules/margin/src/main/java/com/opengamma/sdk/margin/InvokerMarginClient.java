@@ -181,8 +181,8 @@ public final class InvokerMarginClient implements MarginClient {
   // throw exception in case of error
   private MarginException parseError(MarginOperation operation, Response response) throws IOException {
     ErrorMessage errorMessage = parseError(response);
-    String combinedMsg = "Request '" + operation.getDescription() + "' failed. Reason: " + errorMessage.getReason() + ", status code: " +
-        response.code() + ", message: " + errorMessage.getMessage();
+    String combinedMsg = "Request '" + operation.getDescription() + "' failed. Reason: " + errorMessage.getReason() +
+        ", status code: " + response.code() + ", message: " + errorMessage.getMessage();
     return new MarginException(combinedMsg, response.code(), errorMessage.getReason(), errorMessage.getMessage(), operation);
   }
 

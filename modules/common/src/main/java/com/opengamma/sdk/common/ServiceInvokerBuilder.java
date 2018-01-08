@@ -265,13 +265,13 @@ public final class ServiceInvokerBuilder {
     private volatile AuthClient authClient;
     /** The current token. */
     private volatile AccessTokenResult token;
-  
+
     // initializes the state, to ensure that ServiceInvoker is pure immutable wrt Java Memory Model
     void init(AuthClient authClient, Credentials credentials) {
       this.authClient = authClient;
       token = credentials.authenticate(authClient);
     }
-  
+
     @Override
     public Response intercept(Chain chain) throws IOException {
       // do nothing for auth
@@ -301,7 +301,7 @@ public final class ServiceInvokerBuilder {
             .header(AUTHORIZATION, "Bearer " + token.getAccessToken())
             .build();
         return chain.proceed(modifiedRequest2);
-  
+
       } finally {
         lock.unlock();
       }
