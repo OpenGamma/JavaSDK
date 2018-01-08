@@ -55,7 +55,7 @@ public final class InvokerAuthClient implements AuthClient {
         "\"" +
         "}";
     RequestBody requestBody = RequestBody.create(MEDIA_JSON, json);
-    return authenticate("auth/v3/token", "API key: " + apiKey, requestBody, apiKey, secret);
+    return authenticate("auth/v3/token", "API key: " + apiKey, requestBody, Credentials.ofApiKey(apiKey, secret));
   }
 
   @Override
@@ -67,8 +67,7 @@ public final class InvokerAuthClient implements AuthClient {
       String url,
       String message,
       RequestBody formBody,
-      String apiKey,
-      String secret) {
+      Credentials credentials) {
 
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl().resolve(url))
@@ -102,7 +101,7 @@ public final class InvokerAuthClient implements AuthClient {
       AccessTokenResult tokenResult = JodaBeanSer.COMPACT.jsonReader().read(
           response.body().string(),
           AccessTokenResult.class);
-      return tokenResult.toBuilder().credentials(Credentials.ofApiKey(apiKey, secret)).build();
+      return tokenResult.withCredentials(credentials);
 
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);

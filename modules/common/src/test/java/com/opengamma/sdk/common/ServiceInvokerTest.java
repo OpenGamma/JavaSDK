@@ -5,6 +5,9 @@
  */
 package com.opengamma.sdk.common;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -49,7 +52,7 @@ public class ServiceInvokerTest {
   }
 
   @Test
-  public void testName() throws Exception {
+  public void testNewRequestWithReauthenticationSequence() throws Exception {
 
     try (ServiceInvoker invoker = ServiceInvoker.builder(Credentials.ofApiKey("test", "test"))
         .serviceUrl(HttpUrl.parse("http://" + server.getHostName() + ":" + server.getPort()))
@@ -60,6 +63,9 @@ public class ServiceInvokerTest {
           .get()
           .build();
       Response response = invoker.getHttpClient().newCall(request).execute();
+      assertEquals(response.code(), 200);
+      assertEquals(response.message(), "OK");
+      assertTrue(response.isSuccessful());
     }
   }
 }
