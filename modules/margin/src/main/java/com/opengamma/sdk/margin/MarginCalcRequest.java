@@ -65,8 +65,44 @@ public final class MarginCalcRequest implements ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final List<PortfolioDataFile> portfolioData;
+  /**
+   * The regular expression used to select the party in any FpML input.
+   * The regular expression is matched against the content of the {@code partyId} elements.
+   * If this is not specified, FpML cannot be parsed.
+   */
+  @PropertyDefinition(get = "optional")
+  private final String fpmlPartySelectionRegex;
 
   //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance that requests a standard margin calculation.
+   * <p>
+   * The list of portfolio data should be either {@link PortfolioDataFile} instances
+   * or Strata {@code CalculationTarget} instances, such as trades or positions.
+   *
+   * @param valuationDate  the valuation date
+   * @param reportingCurrency  the reporting currency
+   * @param portfolioData  the portfolio data, which can be {@link PortfolioDataFile} or Strata trades
+   * @param fpmlPartySelectionRegex  the regular expression used to select the party in any FpML input
+   * @return the request
+   */
+  public static MarginCalcRequest of(
+      LocalDate valuationDate,
+      String reportingCurrency,
+      List<? extends Bean> portfolioData,
+      String fpmlPartySelectionRegex) {
+
+    List<PortfolioDataFile> files = convertPortfolioData(portfolioData);
+    return new MarginCalcRequest(
+        MarginCalcRequestType.STANDARD,
+        valuationDate,
+        false,
+        reportingCurrency,
+        null,
+        files,
+        fpmlPartySelectionRegex);
+  }
+
   /**
    * Obtains an instance that requests a standard margin calculation.
    * <p>
@@ -90,7 +126,8 @@ public final class MarginCalcRequest implements ImmutableBean {
         false,
         reportingCurrency,
         null,
-        files);
+        files,
+        null);
   }
 
   /**
@@ -120,7 +157,8 @@ public final class MarginCalcRequest implements ImmutableBean {
         applyClientModifier,
         reportingCurrency,
         null,
-        files);
+        files,
+        null);
   }
 
   private static List<PortfolioDataFile> convertPortfolioData(List<? extends Bean> portfolioData) {
@@ -168,7 +206,8 @@ public final class MarginCalcRequest implements ImmutableBean {
       boolean applyClientMultiplier,
       String reportingCurrency,
       String calculationCurrency,
-      List<PortfolioDataFile> portfolioData) {
+      List<PortfolioDataFile> portfolioData,
+      String fpmlPartySelectionRegex) {
     JodaBeanUtils.notNull(type, "type");
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
     JodaBeanUtils.notNull(reportingCurrency, "reportingCurrency");
@@ -179,6 +218,7 @@ public final class MarginCalcRequest implements ImmutableBean {
     this.reportingCurrency = reportingCurrency;
     this.calculationCurrency = calculationCurrency;
     this.portfolioData = Collections.unmodifiableList(new ArrayList<>(portfolioData));
+    this.fpmlPartySelectionRegex = fpmlPartySelectionRegex;
   }
 
   @Override
@@ -243,6 +283,17 @@ public final class MarginCalcRequest implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the regular expression used to select the party in any FpML input.
+   * The regular expression is matched against the content of the {@code partyId} elements.
+   * If this is not specified, FpML cannot be parsed.
+   * @return the optional value of the property, not null
+   */
+  public Optional<String> getFpmlPartySelectionRegex() {
+    return Optional.ofNullable(fpmlPartySelectionRegex);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -262,7 +313,8 @@ public final class MarginCalcRequest implements ImmutableBean {
           (applyClientMultiplier == other.applyClientMultiplier) &&
           JodaBeanUtils.equal(reportingCurrency, other.reportingCurrency) &&
           JodaBeanUtils.equal(calculationCurrency, other.calculationCurrency) &&
-          JodaBeanUtils.equal(portfolioData, other.portfolioData);
+          JodaBeanUtils.equal(portfolioData, other.portfolioData) &&
+          JodaBeanUtils.equal(fpmlPartySelectionRegex, other.fpmlPartySelectionRegex);
     }
     return false;
   }
@@ -276,19 +328,21 @@ public final class MarginCalcRequest implements ImmutableBean {
     hash = hash * 31 + JodaBeanUtils.hashCode(reportingCurrency);
     hash = hash * 31 + JodaBeanUtils.hashCode(calculationCurrency);
     hash = hash * 31 + JodaBeanUtils.hashCode(portfolioData);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fpmlPartySelectionRegex);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("MarginCalcRequest{");
     buf.append("type").append('=').append(type).append(',').append(' ');
     buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
     buf.append("applyClientMultiplier").append('=').append(applyClientMultiplier).append(',').append(' ');
     buf.append("reportingCurrency").append('=').append(reportingCurrency).append(',').append(' ');
     buf.append("calculationCurrency").append('=').append(calculationCurrency).append(',').append(' ');
-    buf.append("portfolioData").append('=').append(JodaBeanUtils.toString(portfolioData));
+    buf.append("portfolioData").append('=').append(portfolioData).append(',').append(' ');
+    buf.append("fpmlPartySelectionRegex").append('=').append(JodaBeanUtils.toString(fpmlPartySelectionRegex));
     buf.append('}');
     return buf.toString();
   }
@@ -335,6 +389,11 @@ public final class MarginCalcRequest implements ImmutableBean {
     private final MetaProperty<List<PortfolioDataFile>> portfolioData = DirectMetaProperty.ofImmutable(
         this, "portfolioData", MarginCalcRequest.class, (Class) List.class);
     /**
+     * The meta-property for the {@code fpmlPartySelectionRegex} property.
+     */
+    private final MetaProperty<String> fpmlPartySelectionRegex = DirectMetaProperty.ofImmutable(
+        this, "fpmlPartySelectionRegex", MarginCalcRequest.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -344,7 +403,8 @@ public final class MarginCalcRequest implements ImmutableBean {
         "applyClientMultiplier",
         "reportingCurrency",
         "calculationCurrency",
-        "portfolioData");
+        "portfolioData",
+        "fpmlPartySelectionRegex");
 
     /**
      * Restricted constructor.
@@ -367,6 +427,8 @@ public final class MarginCalcRequest implements ImmutableBean {
           return calculationCurrency;
         case -689339118:  // portfolioData
           return portfolioData;
+        case 527038456:  // fpmlPartySelectionRegex
+          return fpmlPartySelectionRegex;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -402,6 +464,8 @@ public final class MarginCalcRequest implements ImmutableBean {
           return ((MarginCalcRequest) bean).calculationCurrency;
         case -689339118:  // portfolioData
           return ((MarginCalcRequest) bean).getPortfolioData();
+        case 527038456:  // fpmlPartySelectionRegex
+          return ((MarginCalcRequest) bean).fpmlPartySelectionRegex;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -429,6 +493,7 @@ public final class MarginCalcRequest implements ImmutableBean {
     private String reportingCurrency;
     private String calculationCurrency;
     private List<PortfolioDataFile> portfolioData = Collections.emptyList();
+    private String fpmlPartySelectionRegex;
 
     /**
      * Restricted constructor.
@@ -448,6 +513,7 @@ public final class MarginCalcRequest implements ImmutableBean {
       this.reportingCurrency = beanToCopy.getReportingCurrency();
       this.calculationCurrency = beanToCopy.calculationCurrency;
       this.portfolioData = new ArrayList<>(beanToCopy.getPortfolioData());
+      this.fpmlPartySelectionRegex = beanToCopy.fpmlPartySelectionRegex;
     }
 
     //-----------------------------------------------------------------------
@@ -466,6 +532,8 @@ public final class MarginCalcRequest implements ImmutableBean {
           return calculationCurrency;
         case -689339118:  // portfolioData
           return portfolioData;
+        case 527038456:  // fpmlPartySelectionRegex
+          return fpmlPartySelectionRegex;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -493,6 +561,9 @@ public final class MarginCalcRequest implements ImmutableBean {
         case -689339118:  // portfolioData
           this.portfolioData = (List<PortfolioDataFile>) newValue;
           break;
+        case 527038456:  // fpmlPartySelectionRegex
+          this.fpmlPartySelectionRegex = (String) newValue;
+          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -513,7 +584,8 @@ public final class MarginCalcRequest implements ImmutableBean {
           applyClientMultiplier,
           reportingCurrency,
           calculationCurrency,
-          portfolioData);
+          portfolioData,
+          fpmlPartySelectionRegex);
     }
 
     //-----------------------------------------------------------------------
@@ -592,17 +664,30 @@ public final class MarginCalcRequest implements ImmutableBean {
       return portfolioData(Arrays.asList(portfolioData));
     }
 
+    /**
+     * Sets the regular expression used to select the party in any FpML input.
+     * The regular expression is matched against the content of the {@code partyId} elements.
+     * If this is not specified, FpML cannot be parsed.
+     * @param fpmlPartySelectionRegex  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder fpmlPartySelectionRegex(String fpmlPartySelectionRegex) {
+      this.fpmlPartySelectionRegex = fpmlPartySelectionRegex;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("MarginCalcRequest.Builder{");
       buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("applyClientMultiplier").append('=').append(JodaBeanUtils.toString(applyClientMultiplier)).append(',').append(' ');
       buf.append("reportingCurrency").append('=').append(JodaBeanUtils.toString(reportingCurrency)).append(',').append(' ');
       buf.append("calculationCurrency").append('=').append(JodaBeanUtils.toString(calculationCurrency)).append(',').append(' ');
-      buf.append("portfolioData").append('=').append(JodaBeanUtils.toString(portfolioData));
+      buf.append("portfolioData").append('=').append(JodaBeanUtils.toString(portfolioData)).append(',').append(' ');
+      buf.append("fpmlPartySelectionRegex").append('=').append(JodaBeanUtils.toString(fpmlPartySelectionRegex));
       buf.append('}');
       return buf.toString();
     }
