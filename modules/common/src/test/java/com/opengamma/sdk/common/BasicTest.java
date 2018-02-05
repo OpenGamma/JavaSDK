@@ -16,6 +16,7 @@ import com.opengamma.sdk.common.auth.AuthenticationException;
 import com.opengamma.sdk.common.auth.Credentials;
 
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 /**
  * Test.
@@ -70,8 +71,13 @@ public class BasicTest {
 
   public void testAuthBad() {
     AuthClient mockAuth = new TestingAuthClient();
-    assertThrows(AuthenticationException.class,
-        () -> ServiceInvoker.builder(BAD_CREDENTIALS).authClientFactory(inv -> mockAuth).build());
+    try (ServiceInvoker serviceInvoker = ServiceInvoker.builder(BAD_CREDENTIALS).authClientFactory(inv -> mockAuth).build()) {
+      Request testRequest = new Request.Builder()
+          .url(serviceInvoker.getServiceUrl().resolve("/test"))
+          .get()
+          .build();
+      assertThrows(AuthenticationException.class, () -> serviceInvoker.getHttpClient().newCall(testRequest).execute());
+    }
   }
 
 }
