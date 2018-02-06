@@ -272,7 +272,6 @@ public final class ServiceInvokerBuilder {
     void init(AuthClient authClient, Credentials credentials) {
       this.authClient = authClient;
       this.credentials = credentials;
-      this.token = credentials.authenticate(authClient);
     }
 
     @Override

@@ -37,9 +37,6 @@ public class ServiceInvokerTest {
         "  \"expires_in\": 1,\n" +
         "  \"token_type\": \"Bearer\"\n" +
         "}"));
-    server.enqueue(new MockResponse().setResponseCode(401).setBody("{\n" +
-        "\"message\": \"Unauthorized\"\n" +
-        "}"));
     server.enqueue(new MockResponse().setResponseCode(200).setBody("{\n" +
         "  \"access_token\": \"<Your access token here>\",\n" +
         "  \"expires_in\": 1,\n" +
