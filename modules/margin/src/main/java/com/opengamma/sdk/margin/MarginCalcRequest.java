@@ -40,6 +40,11 @@ public final class MarginCalcRequest implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final MarginCalcRequestType type;
   /**
+   * The mode of the calculation, defaulted to {@code SPOT}.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final MarginCalcMode mode;
+  /**
    * The valuation date for which the portfolio will be processed.
    */
   @PropertyDefinition(validate = "notNull")
@@ -79,6 +84,7 @@ public final class MarginCalcRequest implements ImmutableBean {
    * <p>
    * The list of portfolio data should be either {@link PortfolioDataFile} instances
    * or Strata {@code CalculationTarget} instances, such as trades or positions.
+   * Defaults the {@link MarginCalcMode} to MarginCalcMode.SPOT.
    *
    * @param valuationDate  the valuation date
    * @param reportingCurrency  the reporting currency
@@ -95,6 +101,7 @@ public final class MarginCalcRequest implements ImmutableBean {
     List<PortfolioDataFile> files = convertPortfolioData(portfolioData);
     return new MarginCalcRequest(
         MarginCalcRequestType.STANDARD,
+        MarginCalcMode.SPOT,
         valuationDate,
         false,
         reportingCurrency,
@@ -111,6 +118,39 @@ public final class MarginCalcRequest implements ImmutableBean {
    *
    * @param valuationDate  the valuation date
    * @param reportingCurrency  the reporting currency
+   * @param mode  the mode of the calculation
+   * @param portfolioData  the portfolio data, which can be {@link PortfolioDataFile} or Strata trades
+   * @param fpmlPartySelectionRegex  the regular expression used to select the party in any FpML input
+   * @return the request
+   */
+  public static MarginCalcRequest of(
+      LocalDate valuationDate,
+      String reportingCurrency,
+      MarginCalcMode mode,
+      List<? extends Bean> portfolioData,
+      String fpmlPartySelectionRegex) {
+
+    List<PortfolioDataFile> files = convertPortfolioData(portfolioData);
+    return new MarginCalcRequest(
+        MarginCalcRequestType.STANDARD,
+        mode,
+        valuationDate,
+        false,
+        reportingCurrency,
+        null,
+        files,
+        fpmlPartySelectionRegex);
+  }
+
+  /**
+   * Obtains an instance that requests a standard margin calculation.
+   * <p>
+   * The list of portfolio data should be either {@link PortfolioDataFile} instances
+   * or Strata {@code CalculationTarget} instances, such as trades or positions.
+   * Defaults the {@link MarginCalcMode} to MarginCalcMode.SPOT.
+   *
+   * @param valuationDate  the valuation date
+   * @param reportingCurrency  the reporting currency
    * @param portfolioData  the portfolio data, which can be {@link PortfolioDataFile} or Strata trades
    * @return the request
    */
@@ -122,6 +162,7 @@ public final class MarginCalcRequest implements ImmutableBean {
     List<PortfolioDataFile> files = convertPortfolioData(portfolioData);
     return new MarginCalcRequest(
         MarginCalcRequestType.STANDARD,
+        MarginCalcMode.SPOT,
         valuationDate,
         false,
         reportingCurrency,
@@ -135,6 +176,41 @@ public final class MarginCalcRequest implements ImmutableBean {
    * <p>
    * The list of portfolio data should be either {@link PortfolioDataFile} instances
    * or Strata {@code CalculationTarget} instances, such as trades or positions.
+   *
+   * @param valuationDate  the valuation date
+   * @param reportingCurrency  the reporting currency
+   * @param mode  the mode of the calculation
+   * @param portfolioData  the portfolio data, which can be {@link PortfolioDataFile} or Strata trades
+   * @param type  the type of request to perform
+   * @param applyClientModifier  whether to apply the client modifier
+   * @return the request
+   */
+  public static MarginCalcRequest of(
+      LocalDate valuationDate,
+      String reportingCurrency,
+      MarginCalcMode mode,
+      List<? extends Bean> portfolioData,
+      MarginCalcRequestType type,
+      boolean applyClientModifier) {
+
+    List<PortfolioDataFile> files = convertPortfolioData(portfolioData);
+    return new MarginCalcRequest(
+        type,
+        mode,
+        valuationDate,
+        applyClientModifier,
+        reportingCurrency,
+        null,
+        files,
+        null);
+  }
+
+  /**
+   * Obtains an instance that requests a margin calculation.
+   * <p>
+   * The list of portfolio data should be either {@link PortfolioDataFile} instances
+   * or Strata {@code CalculationTarget} instances, such as trades or positions.
+   * Defaults the {@link MarginCalcMode} to MarginCalcMode.SPOT.
    *
    * @param valuationDate  the valuation date
    * @param reportingCurrency  the reporting currency
@@ -153,6 +229,7 @@ public final class MarginCalcRequest implements ImmutableBean {
     List<PortfolioDataFile> files = convertPortfolioData(portfolioData);
     return new MarginCalcRequest(
         type,
+        MarginCalcMode.SPOT,
         valuationDate,
         applyClientModifier,
         reportingCurrency,
@@ -177,6 +254,7 @@ public final class MarginCalcRequest implements ImmutableBean {
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.type = MarginCalcRequestType.STANDARD;
+    builder.mode = MarginCalcMode.SPOT;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -202,6 +280,7 @@ public final class MarginCalcRequest implements ImmutableBean {
 
   private MarginCalcRequest(
       MarginCalcRequestType type,
+      MarginCalcMode mode,
       LocalDate valuationDate,
       boolean applyClientMultiplier,
       String reportingCurrency,
@@ -209,10 +288,12 @@ public final class MarginCalcRequest implements ImmutableBean {
       List<PortfolioDataFile> portfolioData,
       String fpmlPartySelectionRegex) {
     JodaBeanUtils.notNull(type, "type");
+    JodaBeanUtils.notNull(mode, "mode");
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
     JodaBeanUtils.notNull(reportingCurrency, "reportingCurrency");
     JodaBeanUtils.notNull(portfolioData, "portfolioData");
     this.type = type;
+    this.mode = mode;
     this.valuationDate = valuationDate;
     this.applyClientMultiplier = applyClientMultiplier;
     this.reportingCurrency = reportingCurrency;
@@ -233,6 +314,15 @@ public final class MarginCalcRequest implements ImmutableBean {
    */
   public MarginCalcRequestType getType() {
     return type;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the mode of the calculation, defaulted to {@code SPOT}.
+   * @return the value of the property, not null
+   */
+  public MarginCalcMode getMode() {
+    return mode;
   }
 
   //-----------------------------------------------------------------------
@@ -309,6 +399,7 @@ public final class MarginCalcRequest implements ImmutableBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       MarginCalcRequest other = (MarginCalcRequest) obj;
       return JodaBeanUtils.equal(type, other.type) &&
+          JodaBeanUtils.equal(mode, other.mode) &&
           JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
           (applyClientMultiplier == other.applyClientMultiplier) &&
           JodaBeanUtils.equal(reportingCurrency, other.reportingCurrency) &&
@@ -323,6 +414,7 @@ public final class MarginCalcRequest implements ImmutableBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(type);
+    hash = hash * 31 + JodaBeanUtils.hashCode(mode);
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(applyClientMultiplier);
     hash = hash * 31 + JodaBeanUtils.hashCode(reportingCurrency);
@@ -334,9 +426,10 @@ public final class MarginCalcRequest implements ImmutableBean {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("MarginCalcRequest{");
     buf.append("type").append('=').append(type).append(',').append(' ');
+    buf.append("mode").append('=').append(mode).append(',').append(' ');
     buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
     buf.append("applyClientMultiplier").append('=').append(applyClientMultiplier).append(',').append(' ');
     buf.append("reportingCurrency").append('=').append(reportingCurrency).append(',').append(' ');
@@ -362,6 +455,11 @@ public final class MarginCalcRequest implements ImmutableBean {
      */
     private final MetaProperty<MarginCalcRequestType> type = DirectMetaProperty.ofImmutable(
         this, "type", MarginCalcRequest.class, MarginCalcRequestType.class);
+    /**
+     * The meta-property for the {@code mode} property.
+     */
+    private final MetaProperty<MarginCalcMode> mode = DirectMetaProperty.ofImmutable(
+        this, "mode", MarginCalcRequest.class, MarginCalcMode.class);
     /**
      * The meta-property for the {@code valuationDate} property.
      */
@@ -399,6 +497,7 @@ public final class MarginCalcRequest implements ImmutableBean {
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "type",
+        "mode",
         "valuationDate",
         "applyClientMultiplier",
         "reportingCurrency",
@@ -417,6 +516,8 @@ public final class MarginCalcRequest implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 3575610:  // type
           return type;
+        case 3357091:  // mode
+          return mode;
         case 113107279:  // valuationDate
           return valuationDate;
         case 1555658618:  // applyClientMultiplier
@@ -454,6 +555,8 @@ public final class MarginCalcRequest implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 3575610:  // type
           return ((MarginCalcRequest) bean).getType();
+        case 3357091:  // mode
+          return ((MarginCalcRequest) bean).getMode();
         case 113107279:  // valuationDate
           return ((MarginCalcRequest) bean).getValuationDate();
         case 1555658618:  // applyClientMultiplier
@@ -488,6 +591,7 @@ public final class MarginCalcRequest implements ImmutableBean {
   public static final class Builder extends DirectFieldsBeanBuilder<MarginCalcRequest> {
 
     private MarginCalcRequestType type;
+    private MarginCalcMode mode;
     private LocalDate valuationDate;
     private boolean applyClientMultiplier;
     private String reportingCurrency;
@@ -508,6 +612,7 @@ public final class MarginCalcRequest implements ImmutableBean {
      */
     private Builder(MarginCalcRequest beanToCopy) {
       this.type = beanToCopy.getType();
+      this.mode = beanToCopy.getMode();
       this.valuationDate = beanToCopy.getValuationDate();
       this.applyClientMultiplier = beanToCopy.isApplyClientMultiplier();
       this.reportingCurrency = beanToCopy.getReportingCurrency();
@@ -522,6 +627,8 @@ public final class MarginCalcRequest implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 3575610:  // type
           return type;
+        case 3357091:  // mode
+          return mode;
         case 113107279:  // valuationDate
           return valuationDate;
         case 1555658618:  // applyClientMultiplier
@@ -545,6 +652,9 @@ public final class MarginCalcRequest implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 3575610:  // type
           this.type = (MarginCalcRequestType) newValue;
+          break;
+        case 3357091:  // mode
+          this.mode = (MarginCalcMode) newValue;
           break;
         case 113107279:  // valuationDate
           this.valuationDate = (LocalDate) newValue;
@@ -580,6 +690,7 @@ public final class MarginCalcRequest implements ImmutableBean {
     public MarginCalcRequest build() {
       return new MarginCalcRequest(
           type,
+          mode,
           valuationDate,
           applyClientMultiplier,
           reportingCurrency,
@@ -597,6 +708,17 @@ public final class MarginCalcRequest implements ImmutableBean {
     public Builder type(MarginCalcRequestType type) {
       JodaBeanUtils.notNull(type, "type");
       this.type = type;
+      return this;
+    }
+
+    /**
+     * Sets the mode of the calculation, defaulted to {@code SPOT}.
+     * @param mode  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder mode(MarginCalcMode mode) {
+      JodaBeanUtils.notNull(mode, "mode");
+      this.mode = mode;
       return this;
     }
 
@@ -679,9 +801,10 @@ public final class MarginCalcRequest implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("MarginCalcRequest.Builder{");
       buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
+      buf.append("mode").append('=').append(JodaBeanUtils.toString(mode)).append(',').append(' ');
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("applyClientMultiplier").append('=').append(JodaBeanUtils.toString(applyClientMultiplier)).append(',').append(' ');
       buf.append("reportingCurrency").append('=').append(JodaBeanUtils.toString(reportingCurrency)).append(',').append(' ');
