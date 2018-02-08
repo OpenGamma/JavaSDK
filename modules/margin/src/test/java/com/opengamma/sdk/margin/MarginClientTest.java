@@ -54,6 +54,7 @@ public class MarginClientTest {
       MarginCalcResult.of(
           MarginCalcResultStatus.PENDING,
           MarginCalcRequestType.STANDARD,
+          MarginCalcMode.SPOT,
           VAL_DATE,
           "GBP",
           true,
@@ -64,6 +65,7 @@ public class MarginClientTest {
       MarginCalcResult.of(
           MarginCalcResultStatus.COMPLETED,
           MarginCalcRequestType.STANDARD,
+          MarginCalcMode.SPOT,
           VAL_DATE,
           "GBP",
           true,
@@ -74,6 +76,7 @@ public class MarginClientTest {
       MarginCalcResult.of(
           MarginCalcResultStatus.COMPLETED,
           MarginCalcRequestType.STANDARD,
+          MarginCalcMode.SPOT,
           VAL_DATE,
           "GBP",
           true,

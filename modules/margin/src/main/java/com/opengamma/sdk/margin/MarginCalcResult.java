@@ -43,6 +43,11 @@ public final class MarginCalcResult implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final MarginCalcRequestType type;
   /**
+   * The mode of the calculation.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final MarginCalcMode mode;
+  /**
    * The valuation date for which the portfolio will be processed.
    */
   @PropertyDefinition(validate = "notNull")
@@ -90,6 +95,7 @@ public final class MarginCalcResult implements ImmutableBean {
    * Obtains an instance.
    * @param status  the value of the property, not null
    * @param type  the value of the property, not null
+   * @param mode  the value of the property, not null
    * @param valuationDate  the value of the property, not null
    * @param reportingCurrency  the value of the property, not null
    * @param applyClientMultiplier  the value of the property, not null
@@ -101,6 +107,7 @@ public final class MarginCalcResult implements ImmutableBean {
   public static MarginCalcResult of(
       MarginCalcResultStatus status,
       MarginCalcRequestType type,
+      MarginCalcMode mode,
       LocalDate valuationDate,
       String reportingCurrency,
       boolean applyClientMultiplier,
@@ -110,6 +117,7 @@ public final class MarginCalcResult implements ImmutableBean {
     return new MarginCalcResult(
       status,
       type,
+      mode,
       valuationDate,
       reportingCurrency,
       applyClientMultiplier,
@@ -121,6 +129,7 @@ public final class MarginCalcResult implements ImmutableBean {
   private MarginCalcResult(
       MarginCalcResultStatus status,
       MarginCalcRequestType type,
+      MarginCalcMode mode,
       LocalDate valuationDate,
       String reportingCurrency,
       boolean applyClientMultiplier,
@@ -129,6 +138,7 @@ public final class MarginCalcResult implements ImmutableBean {
       List<MarginError> failures) {
     JodaBeanUtils.notNull(status, "status");
     JodaBeanUtils.notNull(type, "type");
+    JodaBeanUtils.notNull(mode, "mode");
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
     JodaBeanUtils.notNull(reportingCurrency, "reportingCurrency");
     JodaBeanUtils.notNull(applyClientMultiplier, "applyClientMultiplier");
@@ -136,6 +146,7 @@ public final class MarginCalcResult implements ImmutableBean {
     JodaBeanUtils.notNull(failures, "failures");
     this.status = status;
     this.type = type;
+    this.mode = mode;
     this.valuationDate = valuationDate;
     this.reportingCurrency = reportingCurrency;
     this.applyClientMultiplier = applyClientMultiplier;
@@ -165,6 +176,15 @@ public final class MarginCalcResult implements ImmutableBean {
    */
   public MarginCalcRequestType getType() {
     return type;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the mode of the calculation.
+   * @return the value of the property, not null
+   */
+  public MarginCalcMode getMode() {
+    return mode;
   }
 
   //-----------------------------------------------------------------------
@@ -231,6 +251,7 @@ public final class MarginCalcResult implements ImmutableBean {
       MarginCalcResult other = (MarginCalcResult) obj;
       return JodaBeanUtils.equal(status, other.status) &&
           JodaBeanUtils.equal(type, other.type) &&
+          JodaBeanUtils.equal(mode, other.mode) &&
           JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
           JodaBeanUtils.equal(reportingCurrency, other.reportingCurrency) &&
           (applyClientMultiplier == other.applyClientMultiplier) &&
@@ -246,6 +267,7 @@ public final class MarginCalcResult implements ImmutableBean {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(status);
     hash = hash * 31 + JodaBeanUtils.hashCode(type);
+    hash = hash * 31 + JodaBeanUtils.hashCode(mode);
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(reportingCurrency);
     hash = hash * 31 + JodaBeanUtils.hashCode(applyClientMultiplier);
@@ -257,10 +279,11 @@ public final class MarginCalcResult implements ImmutableBean {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("MarginCalcResult{");
     buf.append("status").append('=').append(status).append(',').append(' ');
     buf.append("type").append('=').append(type).append(',').append(' ');
+    buf.append("mode").append('=').append(mode).append(',').append(' ');
     buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
     buf.append("reportingCurrency").append('=').append(reportingCurrency).append(',').append(' ');
     buf.append("applyClientMultiplier").append('=').append(applyClientMultiplier).append(',').append(' ');
@@ -291,6 +314,11 @@ public final class MarginCalcResult implements ImmutableBean {
      */
     private final MetaProperty<MarginCalcRequestType> type = DirectMetaProperty.ofImmutable(
         this, "type", MarginCalcResult.class, MarginCalcRequestType.class);
+    /**
+     * The meta-property for the {@code mode} property.
+     */
+    private final MetaProperty<MarginCalcMode> mode = DirectMetaProperty.ofImmutable(
+        this, "mode", MarginCalcResult.class, MarginCalcMode.class);
     /**
      * The meta-property for the {@code valuationDate} property.
      */
@@ -330,6 +358,7 @@ public final class MarginCalcResult implements ImmutableBean {
         this, null,
         "status",
         "type",
+        "mode",
         "valuationDate",
         "reportingCurrency",
         "applyClientMultiplier",
@@ -350,6 +379,8 @@ public final class MarginCalcResult implements ImmutableBean {
           return status;
         case 3575610:  // type
           return type;
+        case 3357091:  // mode
+          return mode;
         case 113107279:  // valuationDate
           return valuationDate;
         case -1287844769:  // reportingCurrency
@@ -389,6 +420,8 @@ public final class MarginCalcResult implements ImmutableBean {
           return ((MarginCalcResult) bean).getStatus();
         case 3575610:  // type
           return ((MarginCalcResult) bean).getType();
+        case 3357091:  // mode
+          return ((MarginCalcResult) bean).getMode();
         case 113107279:  // valuationDate
           return ((MarginCalcResult) bean).getValuationDate();
         case -1287844769:  // reportingCurrency
@@ -424,6 +457,7 @@ public final class MarginCalcResult implements ImmutableBean {
 
     private MarginCalcResultStatus status;
     private MarginCalcRequestType type;
+    private MarginCalcMode mode;
     private LocalDate valuationDate;
     private String reportingCurrency;
     private boolean applyClientMultiplier;
@@ -445,6 +479,8 @@ public final class MarginCalcResult implements ImmutableBean {
           return status;
         case 3575610:  // type
           return type;
+        case 3357091:  // mode
+          return mode;
         case 113107279:  // valuationDate
           return valuationDate;
         case -1287844769:  // reportingCurrency
@@ -471,6 +507,9 @@ public final class MarginCalcResult implements ImmutableBean {
           break;
         case 3575610:  // type
           this.type = (MarginCalcRequestType) newValue;
+          break;
+        case 3357091:  // mode
+          this.mode = (MarginCalcMode) newValue;
           break;
         case 113107279:  // valuationDate
           this.valuationDate = (LocalDate) newValue;
@@ -501,6 +540,7 @@ public final class MarginCalcResult implements ImmutableBean {
       return new MarginCalcResult(
           status,
           type,
+          mode,
           valuationDate,
           reportingCurrency,
           applyClientMultiplier,
@@ -512,10 +552,11 @@ public final class MarginCalcResult implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(288);
+      StringBuilder buf = new StringBuilder(320);
       buf.append("MarginCalcResult.Builder{");
       buf.append("status").append('=').append(JodaBeanUtils.toString(status)).append(',').append(' ');
       buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
+      buf.append("mode").append('=').append(JodaBeanUtils.toString(mode)).append(',').append(' ');
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("reportingCurrency").append('=').append(JodaBeanUtils.toString(reportingCurrency)).append(',').append(' ');
       buf.append("applyClientMultiplier").append('=').append(JodaBeanUtils.toString(applyClientMultiplier)).append(',').append(' ');
