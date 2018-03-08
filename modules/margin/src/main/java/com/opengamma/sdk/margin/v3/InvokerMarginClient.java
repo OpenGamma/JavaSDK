@@ -187,7 +187,9 @@ public final class InvokerMarginClient implements MarginClient {
   // avoid errors when processing errors
   private ErrorMessage parseError(Response response) throws IOException {
     try {
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), ErrorMessage.class);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
+          .jsonReader()
+          .read(response.body().string(), ErrorMessage.class);
     } catch (RuntimeException ex) {
       return ErrorMessage.of(response.code(), "Unexpected JSON error", ex.getMessage());
     }

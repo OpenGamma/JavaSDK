@@ -12,6 +12,7 @@ import java.io.UncheckedIOException;
 import java.util.Objects;
 
 import org.joda.beans.ser.JodaBeanSer;
+import org.joda.beans.ser.SerDeserializers;
 
 import com.opengamma.sdk.common.v3.ServiceInvoker;
 
@@ -77,7 +78,9 @@ public final class InvokerAuthClient implements AuthClient {
       if (!response.isSuccessful()) {
         throw new IllegalStateException("Authentication failed: " + response.code() + " for " + message);
       }
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), AccessTokenResult.class);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
+          .jsonReader()
+          .read(response.body().string(), AccessTokenResult.class);
 
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);

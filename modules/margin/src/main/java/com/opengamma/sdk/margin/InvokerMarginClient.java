@@ -21,6 +21,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.beans.ser.JodaBeanSer;
+import org.joda.beans.ser.SerDeserializers;
 
 import com.opengamma.sdk.common.ServiceInvoker;
 
@@ -85,7 +86,9 @@ final class InvokerMarginClient implements MarginClient {
         throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
             response.code() + ", message: " + errorMessage.getMessage());
       }
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), CcpsResult.class);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
+          .jsonReader()
+          .read(response.body().string(), CcpsResult.class);
 
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -132,7 +135,9 @@ final class InvokerMarginClient implements MarginClient {
         throw new IllegalStateException("Request failed. Reason: " + errorMessage.getReason() + ", status code: " +
             response.code() + ", message: " + errorMessage.getMessage());
       }
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), MarginCalcResult.class);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
+          .jsonReader()
+          .read(response.body().string(), MarginCalcResult.class);
 
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -163,7 +168,7 @@ final class InvokerMarginClient implements MarginClient {
   // avoid errors when processing errors
   private ErrorMessage parseError(Response response) throws IOException {
     try {
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), ErrorMessage.class);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT).jsonReader().read(response.body().string(), ErrorMessage.class);
     } catch (RuntimeException ex) {
       return ErrorMessage.of(response.code(), "Unexpected JSON error", ex.getMessage());
     }
