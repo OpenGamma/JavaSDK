@@ -60,34 +60,54 @@ public class StressTest {
           MarginCalcRequestType.STANDARD,
           true);
 
-      Queue<CompletableFuture<MarginCalcResult>> list = new ConcurrentLinkedQueue<>();
+      Queue<String> ids = new ConcurrentLinkedQueue<>();
+      Queue<String> submissionErrors = new ConcurrentLinkedQueue<>();
 
       new ForkJoinPool(1000).submit(() -> {
-        IntStream.range(0, 10).parallel().forEach((id) -> {
-          for (int j = 0 ; j < 10000; j++) {
-            CompletableFuture<MarginCalcResult> future = client.calculateAsync(chosenCCP, request);
-            list.add(future);
-
-            if (j % 100 == 0) {
-              System.out.println("Submitted " + j + " requests, sleeping 1 seconds");
+        IntStream.range(0, 100).parallel().forEach((id) -> {
+          try {
+            for (int j = 0; j < 100; j++) {
               try {
+                String calcId = client.createCalculation(chosenCCP, request);
+                ids.add(calcId);
+              } catch (Exception e) {
+                submissionErrors.add(e.getMessage());
+                System.out.println("Submitter backing off 1 sec, because of: " + e.getMessage());
                 Thread.sleep(1000);
-              } catch (InterruptedException e) {
-                System.out.println("Error!!!!!!!");
+              }
+
+              if (j % 5 == 0) {
+                System.out.println("Submitted " + j + " requests, sleeping 1 seconds");
+                Thread.sleep(1000);
               }
             }
+          } catch (Exception e) {
+            submissionErrors.add("COMPLETE SUBMITTER FAILURE: " + e.getMessage());
           }
         });
       });
 
-      Thread.sleep(1000 * 60 * 10);
+      System.out.println("SLEEPING Waiting for submit");
+      Thread.sleep(1000 * 60 * 60);
+
+      System.out.println("SLEEPING Waiting for calcs");
+      Thread.sleep(1000 * 60 * 5);
+
+      System.out.println("Checking calcs");
       int successful = 0;
       int failed = 0;
       int uncompleted = 0;
       List<String> failures = new LinkedList<>();
 
-      for (CompletableFuture<MarginCalcResult> result : list) {
-        MarginCalcResult marginCalcResult = result.getNow(null);
+      for (String id : ids) {
+        MarginCalcResult marginCalcResult;
+        try {
+          marginCalcResult = client.getCalculation(chosenCCP, id);
+        } catch (Exception e) {
+          uncompleted ++;
+          continue;
+        }
+
         if (marginCalcResult == null) {
           uncompleted ++;
           continue;
@@ -108,12 +128,16 @@ public class StressTest {
         }
       }
 
-      System.out.println("RESULTS");
+      System.out.println("SUBMISSION ERRORS");
+      submissionErrors.forEach(System.out::println);
+
+      System.out.println("CALC FAILURES");
       failures.forEach(System.out::println);
 
       System.out.println("Failed: " + failed);
       System.out.println("Uncompleted: " + uncompleted);
       System.out.println("Successful: " + successful);
+      System.out.println("Submission errors: " + submissionErrors.size());
     }
   }
 

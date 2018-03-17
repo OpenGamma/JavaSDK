@@ -238,9 +238,9 @@ public final class ServiceInvokerBuilder {
     @Override
     public Response intercept(Chain chain) throws IOException {
       Request request = chain.request();
-      log.debug("Call service: {} {}", request.method(), request.url());
+      //log.debug("Call service: {} {}", request.method(), request.url());
       Response response = chain.proceed(request);
-      log.debug("Service responded: {}", response.code());
+      //log.debug("Service responded: {}", response.code());
       return response;
     }
   }
