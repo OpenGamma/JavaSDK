@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import com.opengamma.sdk.common.ServiceInvoker;
@@ -32,6 +33,7 @@ import com.opengamma.sdk.margin.MarginCalcResultStatus;
 import com.opengamma.sdk.margin.MarginClient;
 import com.opengamma.sdk.margin.MarginError;
 import com.opengamma.sdk.margin.PortfolioDataFile;
+import com.sun.org.apache.xerces.internal.xs.StringList;
 
 import okhttp3.HttpUrl;
 
@@ -76,7 +78,7 @@ public class StressTest {
                 Thread.sleep(1000);
               }
 
-              if (j % 5 == 0) {
+              if (j != 0 && j % 5 == 0) {
                 System.out.println("Submitted " + j + " requests, sleeping 1 seconds");
                 Thread.sleep(1000);
               }
@@ -85,48 +87,47 @@ public class StressTest {
             submissionErrors.add("COMPLETE SUBMITTER FAILURE: " + e.getMessage());
           }
         });
-      });
+      }).join();
 
-      System.out.println("SLEEPING Waiting for submit");
-      Thread.sleep(1000 * 60 * 60);
-
-      System.out.println("SLEEPING Waiting for calcs");
+      System.out.println("Waiting for calcs to finish");
       Thread.sleep(1000 * 60 * 5);
 
       System.out.println("Checking calcs");
-      int successful = 0;
-      int failed = 0;
-      int uncompleted = 0;
-      List<String> failures = new LinkedList<>();
+      final AtomicInteger successful = new AtomicInteger();
+      final AtomicInteger failed = new AtomicInteger();
+      final AtomicInteger uncompleted = new AtomicInteger();
+      final Queue<String> failures = new ConcurrentLinkedQueue<>();
 
-      for (String id : ids) {
-        MarginCalcResult marginCalcResult;
-        try {
-          marginCalcResult = client.getCalculation(chosenCCP, id);
-        } catch (Exception e) {
-          uncompleted ++;
-          continue;
-        }
-
-        if (marginCalcResult == null) {
-          uncompleted ++;
-          continue;
-        }
-
-        MarginCalcResultStatus status = marginCalcResult.getStatus();
-        if (status.equals(MarginCalcResultStatus.PENDING)) {
-          uncompleted++;
-        }
-        else if (!marginCalcResult.getFailures().isEmpty()) {
-          failed ++;
-          for (MarginError marginError : marginCalcResult.getFailures()) {
-            failures.add(marginError.getMessage());
+      new ForkJoinPool(100).submit(() -> {
+        ids.stream().parallel().forEach(id -> {
+          MarginCalcResult marginCalcResult;
+          try {
+            marginCalcResult = client.getCalculation(chosenCCP, id);
+          } catch (Exception e) {
+            uncompleted.incrementAndGet();
+            return;
           }
-        }
-        else {
-          successful ++;
-        }
-      }
+
+          if (marginCalcResult == null) {
+            uncompleted.incrementAndGet();
+            return;
+          }
+
+          MarginCalcResultStatus status = marginCalcResult.getStatus();
+          if (status.equals(MarginCalcResultStatus.PENDING)) {
+            uncompleted.incrementAndGet();
+          }
+          else if (!marginCalcResult.getFailures().isEmpty()) {
+            failed.incrementAndGet();
+            for (MarginError marginError : marginCalcResult.getFailures()) {
+              failures.add(marginError.getMessage());
+            }
+          }
+          else {
+            successful.incrementAndGet();
+          }
+        });
+      }).join();
 
       System.out.println("SUBMISSION ERRORS");
       submissionErrors.forEach(System.out::println);
@@ -134,9 +135,10 @@ public class StressTest {
       System.out.println("CALC FAILURES");
       failures.forEach(System.out::println);
 
-      System.out.println("Failed: " + failed);
-      System.out.println("Uncompleted: " + uncompleted);
-      System.out.println("Successful: " + successful);
+      System.out.println("Submitted: " + ids.size());
+      System.out.println("Failed: " + failed.intValue());
+      System.out.println("Uncompleted: " + uncompleted.intValue());
+      System.out.println("Successful: " + successful.intValue());
       System.out.println("Submission errors: " + submissionErrors.size());
     }
   }
