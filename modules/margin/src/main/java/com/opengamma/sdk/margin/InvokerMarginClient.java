@@ -203,6 +203,7 @@ final class InvokerMarginClient implements MarginClient {
       try {
         Thread.sleep(POLL_WAIT);
       } catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
         throw new RuntimeException(ex);
       }
       result = getCalculation(ccp, calcId);
