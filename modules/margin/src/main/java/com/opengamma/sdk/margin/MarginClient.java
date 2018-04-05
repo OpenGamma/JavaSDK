@@ -83,6 +83,10 @@ public interface MarginClient {
   //-------------------------------------------------------------------------
   /**
    * High-level call to submit a portfolio for parsing, validation and IM calculation.
+   * <p>
+   * If the thread is interrupted while this method is blocked, then a runtime exception
+   * is thrown, but with the interrupt flag set.
+   * For additional control, use {@link #calculateAsync(Ccp, MarginCalcRequest)}.
    *
    * @param ccp  the CCP to use
    * @param request  the calculation request
