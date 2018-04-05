@@ -101,6 +101,9 @@ public interface MarginClient {
    * performing the work on a background thread.
    * <p>
    * This will use the executor from the service invoker to perform the background work.
+   * <p>
+   * Callers should consider whether to use {@link CompletableFuture#get(long, java.util.concurrent.TimeUnit)}
+   * to enforce a time out on the calculation.
    *
    * @param ccp  the CCP to use
    * @param request  the calculation request

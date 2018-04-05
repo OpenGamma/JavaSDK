@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.AfterMethod;
@@ -346,6 +347,41 @@ public class MarginClientTest {
     assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
     assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
     assertEquals(result.getValuationDate(), VAL_DATE);
+  }
+
+  public void test_calculateAsync_createError() throws Exception {
+    server.enqueue(new MockResponse()
+        .setResponseCode(500));
+
+    // call server
+    ServiceInvoker invoker = createInvoker();
+    MarginClient client = MarginClient.of(invoker);
+
+    CompletableFuture<MarginCalcResult> future = client.calculateAsync(Ccp.LCH, REQUEST);
+    assertThrows(CompletionException.class, () -> future.join());
+    assertEquals(server.getRequestCount(), 1);
+  }
+
+  public void test_calculateAsync_pollingError() throws Exception {
+    server.enqueue(new MockResponse()
+        .setResponseCode(202)
+        .setHeader("Location", server.url("/ccps/lch/calculations/789"))
+        .setBody(RESPONSE_CALC_POST));
+    server.enqueue(new MockResponse()
+        .setHeader("Content-Type", "application/xml")
+        .setBody(RESPONSE_CALC_GET_PENDING));
+    server.enqueue(new MockResponse()
+        .setResponseCode(500));
+    server.enqueue(new MockResponse()
+        .setBody(RESPONSE_DELETE));
+
+    // call server
+    ServiceInvoker invoker = createInvoker();
+    MarginClient client = MarginClient.of(invoker);
+
+    CompletableFuture<MarginCalcResult> future = client.calculateAsync(Ccp.LCH, REQUEST);
+    assertThrows(CompletionException.class, () -> future.join());
+    assertEquals(server.getRequestCount(), 4);
   }
 
   private ServiceInvoker createInvoker() {

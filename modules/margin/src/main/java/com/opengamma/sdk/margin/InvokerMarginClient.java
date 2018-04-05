@@ -11,19 +11,20 @@ import static com.opengamma.sdk.margin.MarginOperation.DELETE_CALCULATION;
 import static com.opengamma.sdk.margin.MarginOperation.GET_CALCULATION;
 import static com.opengamma.sdk.margin.MarginOperation.GET_CCP_INFO;
 import static com.opengamma.sdk.margin.MarginOperation.LIST_CCPS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.joda.beans.ser.JodaBeanSer;
 import org.joda.beans.ser.SerDeserializers;
@@ -43,10 +44,6 @@ final class InvokerMarginClient implements MarginClient {
    * Sleep for 500ms between polls.
    */
   private static final long POLL_WAIT = 500;
-  /**
-   * Timeout for polling the result.
-   */
-  private static final TemporalAmount POLL_TIMEOUT = Duration.ofMinutes(30);
   /**
    * HTTP header.
    */
@@ -219,38 +216,38 @@ final class InvokerMarginClient implements MarginClient {
 
   @Override
   public CompletableFuture<MarginCalcResult> calculateAsync(Ccp ccp, MarginCalcRequest request) {
-    CompletableFuture<MarginCalcResult> resultPromise = new CompletableFuture<>();
-
-    Runnable r = () -> {
-      String calcId = createCalculation(ccp, request);
-      Instant timeout = Instant.now().plus(POLL_TIMEOUT);
+    ScheduledExecutorService executorService = invoker.getExecutor();
+    // async function to create the calculation
+    Supplier<String> createFn = () -> createCalculation(ccp, request);
+    // async function to poll for results
+    Function<String, CompletableFuture<MarginCalcResult>> pollingFn = id -> {
+      // manually manage the result future and polling
+      CompletableFuture<MarginCalcResult> resultFuture = new CompletableFuture<>();
+      // polling task must catch exceptions, otherwise it will poll forever
       Runnable pollTask = () -> {
-        MarginCalcResult calcResult = getCalculation(ccp, calcId);
-        if (calcResult.getStatus() == MarginCalcResultStatus.COMPLETED) {
-          resultPromise.complete(calcResult);
-          return;
-        }
-        if (Instant.now().isAfter(timeout)) {
-          resultPromise.completeExceptionally(new MarginException("Timed out while polling margin service", "Time Out"));
-          return;
+        try {
+          MarginCalcResult calcResult = getCalculation(ccp, id);
+          if (calcResult.getStatus() == MarginCalcResultStatus.COMPLETED) {
+            resultFuture.complete(calcResult);
+          }
+        } catch (RuntimeException ex) {
+          resultFuture.completeExceptionally(ex);
         }
       };
-      ScheduledFuture<?> scheduledTask =
-          invoker.getExecutor().scheduleWithFixedDelay(pollTask, POLL_WAIT, POLL_WAIT, TimeUnit.MILLISECONDS);
-      resultPromise.whenComplete((res, ex) -> {
+      ScheduledFuture<?> scheduledTask = executorService.scheduleWithFixedDelay(pollTask, POLL_WAIT, POLL_WAIT, MILLISECONDS);
+      // stop the scheduled job and cleanup server state quietly
+      BiConsumer<MarginCalcResult, Throwable> cleanupFn = (result, resultEx) -> {
         scheduledTask.cancel(true);
-        // cleanup server state quietly
         try {
-          deleteCalculation(ccp, calcId);
-        } catch (RuntimeException ex2) {
+          deleteCalculation(ccp, id);
+        } catch (RuntimeException ex) {
           // ignore
         }
-
-      });
+      };
+      return resultFuture.whenComplete(cleanupFn);
     };
-    invoker.getExecutor().execute(r);
 
-    return resultPromise;
+    return CompletableFuture.supplyAsync(createFn, executorService).thenCompose(pollingFn);
   }
 
   //-------------------------------------------------------------------------
