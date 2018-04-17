@@ -24,6 +24,14 @@ For example, to access the SDK for the margin service, use:
 <dependency>
   <groupId>com.opengamma.sdk</groupId>
   <artifactId>sdk-margin</artifactId>
-  <version>3.0.0-M1</version>
+  <version>3.0.1</version>
 </dependency>
 ```
+
+v3.0.1
+------
+The asynchronous margin calculation methods have been rewritten.
+
+v3.0.0
+------
+The SDK packages are restructured to a design suitable for the long term.
