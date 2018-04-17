@@ -28,10 +28,12 @@ For example, to access the SDK for the margin service, use:
 </dependency>
 ```
 
-v3.0.1
-------
-The asynchronous margin calculation methods have been rewritten.
+## Releases
 
-v3.0.0
-------
-The SDK packages are restructured to a design suitable for the long term.
+### v3.0.1
+* Bug fix: The asynchronous margin calculation methods were rewritten.
+* Bug fix: If an interrupt happens while blocked, the interrupt flag will now be set.
+* The dependencies and build script were updated.
+
+### v3.0.0
+* The SDK packages are restructured to a design suitable for the long term.
