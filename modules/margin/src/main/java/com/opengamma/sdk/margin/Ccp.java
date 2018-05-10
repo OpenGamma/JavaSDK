@@ -29,8 +29,12 @@ public enum Ccp {
   SIMM,
   /** JSCC. */
   JSCC,
+  /** JSCC SPAN */
+  JSCC_SPAN,
   /** CME_SPAN. */
-  CME_SPAN;
+  CME_SPAN,
+  /** CME_APPROX*/
+  CME_APPROX;
 
   @FromString
   public static final Ccp of(String str) {
