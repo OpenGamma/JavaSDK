@@ -31,12 +31,12 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 public final class MarginSummary implements ImmutableBean {
 
   /**
-   * The margin in the reporting currency.
+   * The total margin, expressed in the reporting currency.
    */
   @PropertyDefinition
   private final double margin;
   /**
-   * The breakdown of the initial margin.
+   * The CCP-specific breakdown of the initial margin.
    */
   @PropertyDefinition(validate = "notNull")
   private final List<NamedValue> marginDetails;
@@ -83,7 +83,7 @@ public final class MarginSummary implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the margin in the reporting currency.
+   * Gets the total margin, expressed in the reporting currency.
    * @return the value of the property
    */
   public double getMargin() {
@@ -92,7 +92,7 @@ public final class MarginSummary implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the breakdown of the initial margin.
+   * Gets the CCP-specific breakdown of the initial margin.
    * @return the value of the property, not null
    */
   public List<NamedValue> getMarginDetails() {
