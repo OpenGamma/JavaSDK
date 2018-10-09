@@ -59,6 +59,33 @@
   </dependencies>
 
   <!-- ==================================================================== -->
+  <profiles>
+    <profile>
+      <activation>
+        <property>
+          <name>integrationTest</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+  
+  <!-- ==================================================================== -->
   <properties>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma SDK - Margin</windowtitle>
