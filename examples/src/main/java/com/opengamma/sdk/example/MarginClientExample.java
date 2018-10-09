@@ -30,7 +30,9 @@ import com.opengamma.sdk.margin.PortfolioDataFile;
 public class MarginClientExample {
 
   // credentials must be set to use the example
-  private static final Credentials CREDENTIALS = Credentials.ofApiKey("ABC", "123");
+  private static final String DEV_ID = "PLEASE-CONTACT-OPENGAMMA";
+  private static final String DEV_SECRET = "123";
+  private static final Credentials CREDENTIALS = Credentials.ofApiKey(DEV_ID, DEV_SECRET);
 
   // the file to upload
   private static final Path LCH_FILE = Paths.get("src/main/resources/com/opengamma/sdk/example/lch-trades.txt");
@@ -64,12 +66,12 @@ public class MarginClientExample {
 
       // make the call and view the result
       MarginCalcResult result = client.calculate(chosenCCP, request);
-      System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(result));
+      System.out.println(JodaBeanSer.PRETTY.simpleJsonWriter().write(result));
 
       // make the what-if call and view the result (the difference in margin numbers)
       MarginWhatIfCalcResult whatIfResult =
           client.calculateWhatIf(Ccp.LCH, request, Collections.singletonList(PortfolioDataFile.of(LCH_FILE)));
-      System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(whatIfResult));
+      System.out.println(JodaBeanSer.PRETTY.simpleJsonWriter().write(whatIfResult));
     }
   }
 

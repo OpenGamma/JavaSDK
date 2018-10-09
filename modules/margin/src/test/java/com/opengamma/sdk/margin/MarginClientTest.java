@@ -177,14 +177,12 @@ public class MarginClientTest {
     assertEquals(result.getValuationDate(), VAL_DATE);
   }
 
-  /**
-   * This method handles two concurrent HTTP requests, and has to define the {@link MockWebServer} instance in a different way.
-   * For any what-if scenario request, the sequence of HTTP requests should look like this:
-   * * POST - /margin/v1/ccps/lch/calculations - base portfolios
-   * * POST - /margin/v1/ccps/lch/calculations - delta portfolios
-   * * (for each portfolio) GET - /margin/v1/ccps/lch/calculations/[calcID] - until the status is COMPLETED.
-   * * (for each portfolio) DELETE - /margin/v1/ccps/lch/calculations/[calcID]
-   */
+  // This method handles two concurrent HTTP requests, thus defines the MockWebServer in a different way.
+  // For any what-if scenario request, the sequence of HTTP requests should look like this:
+  // * POST - /margin/v1/ccps/lch/calculations - base portfolios
+  // * POST - /margin/v1/ccps/lch/calculations - delta portfolios
+  // * (for each portfolio) GET - /margin/v1/ccps/lch/calculations/[calcID] - until the status is COMPLETED.
+  // * (for each portfolio) DELETE - /margin/v1/ccps/lch/calculations/[calcID]
   public void test_calculate_whatif() throws Exception {
     Dispatcher webServerDispatcher = new Dispatcher() {
       boolean firstRequestSubmitted = false;

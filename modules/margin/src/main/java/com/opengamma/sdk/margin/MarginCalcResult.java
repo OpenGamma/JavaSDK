@@ -43,12 +43,12 @@ public final class MarginCalcResult implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final MarginCalcRequestType type;
   /**
-   * The mode of the calculation.
+   * The mode of the calculation - SPOT or FORWARD.
    */
   @PropertyDefinition(validate = "notNull")
   private final MarginCalcMode mode;
   /**
-   * The valuation date for which the portfolio will be processed.
+   * The valuation date of the calculation.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate valuationDate;
@@ -58,7 +58,7 @@ public final class MarginCalcResult implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final String reportingCurrency;
   /**
-   * Whether to apply the client multiplier, as specified in the request.
+   * Whether to apply the client multiplier.
    */
   @PropertyDefinition(validate = "notNull")
   private final boolean applyClientMultiplier;
@@ -180,7 +180,7 @@ public final class MarginCalcResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the mode of the calculation.
+   * Gets the mode of the calculation - SPOT or FORWARD.
    * @return the value of the property, not null
    */
   public MarginCalcMode getMode() {
@@ -189,7 +189,7 @@ public final class MarginCalcResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the valuation date for which the portfolio will be processed.
+   * Gets the valuation date of the calculation.
    * @return the value of the property, not null
    */
   public LocalDate getValuationDate() {
@@ -207,7 +207,7 @@ public final class MarginCalcResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets whether to apply the client multiplier, as specified in the request.
+   * Gets whether to apply the client multiplier.
    * @return the value of the property, not null
    */
   public boolean isApplyClientMultiplier() {
