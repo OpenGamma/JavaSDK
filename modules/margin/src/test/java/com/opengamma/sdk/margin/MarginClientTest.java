@@ -13,6 +13,8 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -37,8 +39,11 @@ public class MarginClientTest {
 
   private static final Credentials CREDENTIALS = Credentials.ofApiKey("user", "password");
   private static final LocalDate VAL_DATE = LocalDate.of(2017, 6, 1);
-  private static final MarginCalcRequest REQUEST =
-      MarginCalcRequest.of(VAL_DATE, "GBP", Collections.emptyList(), MarginCalcRequestType.STANDARD, false);
+  private static final MarginCalcRequest REQUEST = MarginCalcRequest.builder()
+      .calculationTypes(MarginCalcType.MARGIN)
+      .valuationDate(VAL_DATE)
+      .reportingCurrency("GBP")
+      .build();
 
   private static final String RESPONSE_LIST_CCPS = JodaBeanSer.PRETTY.simpleJsonWriter()
       .write(CcpsResult.of(Arrays.asList("LCH", "RUBBISH")));
@@ -48,41 +53,52 @@ public class MarginClientTest {
           Collections.singletonList(VAL_DATE),
           "GBP",
           Collections.singletonList("GBP"),
-          Collections.singletonList("GBP")));
+          Collections.singletonList("GBP"),
+          new HashSet<>(Arrays.asList(MarginCalcType.PORTFOLIO_SUMMARY, MarginCalcType.MARGIN)),
+          new HashSet<>(Arrays.asList(MarginCalcMode.SPOT))));
 
   private static final String RESPONSE_CALC_POST = "";
   private static final String RESPONSE_CALC_GET_PENDING = JodaBeanSer.PRETTY.simpleJsonWriter().write(
       MarginCalcResult.of(
           MarginCalcResultStatus.PENDING,
-          MarginCalcRequestType.STANDARD,
+          set(MarginCalcType.MARGIN),
           MarginCalcMode.SPOT,
           VAL_DATE,
           "GBP",
+          "GBP",
           true,
           Collections.emptyList(),
+          null,
+          null,
           null,
           Collections.emptyList()));
   private static final String RESPONSE_CALC_GET_COMPLETE = JodaBeanSer.PRETTY.simpleJsonWriter().write(
       MarginCalcResult.of(
           MarginCalcResultStatus.COMPLETED,
-          MarginCalcRequestType.STANDARD,
+          set(MarginCalcType.MARGIN),
           MarginCalcMode.SPOT,
           VAL_DATE,
           "GBP",
+          "GBP",
           true,
           Collections.singletonList(PortfolioItemSummary.of("1", "SWAP", "MySwap")),
-          MarginSummary.of(125d, Collections.emptyList()),
+          MarginSummary.of(125d, Collections.emptyList(), MarginBreakdown.of(125d, 125d, 0, 0)),
+          null,
+          null,
           Collections.emptyList()));
   private static final String RESPONSE_CALC_WHATIF_GET_COMPLETE = JodaBeanSer.PRETTY.simpleJsonWriter().write(
       MarginCalcResult.of(
           MarginCalcResultStatus.COMPLETED,
-          MarginCalcRequestType.STANDARD,
+          set(MarginCalcType.MARGIN),
           MarginCalcMode.SPOT,
           VAL_DATE,
           "GBP",
+          "GBP",
           true,
           Collections.singletonList(PortfolioItemSummary.of("1", "SWAP", "MySwap")),
-          MarginSummary.of(260d, Collections.emptyList()),
+          MarginSummary.of(260d, Collections.emptyList(), MarginBreakdown.of(260d, 260d, 0, 0)),
+          null,
+          null,
           Collections.emptyList()));
   private static final String RESPONSE_DELETE = "";
   private static final String RESPONSE_ERROR = JodaBeanSer.PRETTY.simpleJsonWriter().write(
@@ -154,6 +170,7 @@ public class MarginClientTest {
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("deprecation")
   public void test_calculate() throws Exception {
     server.enqueue(new MockResponse()
         .setResponseCode(202)
@@ -174,6 +191,7 @@ public class MarginClientTest {
     MarginCalcResult result = client.calculate(Ccp.LCH, REQUEST);
     assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
     assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
+    assertEquals(result.getCalculationTypes(), set(MarginCalcType.MARGIN));
     assertEquals(result.getValuationDate(), VAL_DATE);
   }
 
@@ -183,6 +201,7 @@ public class MarginClientTest {
   // * POST - /margin/v1/ccps/lch/calculations - delta portfolios
   // * (for each portfolio) GET - /margin/v1/ccps/lch/calculations/[calcID] - until the status is COMPLETED.
   // * (for each portfolio) DELETE - /margin/v1/ccps/lch/calculations/[calcID]
+  @SuppressWarnings("deprecation")
   public void test_calculate_whatif() throws Exception {
     Dispatcher webServerDispatcher = new Dispatcher() {
       boolean firstRequestSubmitted = false;
@@ -249,6 +268,7 @@ public class MarginClientTest {
     MarginWhatIfCalcResult result = client.calculateWhatIf(Ccp.LCH, REQUEST, Collections.singletonList(lchPortfolioFile)); //Using the same portfolio for delta as well
     assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
     assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
+    assertEquals(result.getCalculationTypes(), set(MarginCalcType.MARGIN));
     assertEquals(result.getValuationDate(), VAL_DATE);
 
     assertEquals(result.getBaseSummary().getMargin(), 125.0); //Hard coded result, not relevant for portfolio
@@ -322,6 +342,7 @@ public class MarginClientTest {
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("deprecation")
   public void test_calculateAsync() throws Exception {
     server.enqueue(new MockResponse()
         .setResponseCode(202)
@@ -344,6 +365,7 @@ public class MarginClientTest {
     MarginCalcResult result = future.join();
     assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
     assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
+    assertEquals(result.getCalculationTypes(), set(MarginCalcType.MARGIN));
     assertEquals(result.getValuationDate(), VAL_DATE);
   }
 
@@ -387,6 +409,11 @@ public class MarginClientTest {
         .serviceUrl(server.url("/"))
         .authClientFactory(inv -> new TestingAuthClient())
         .build();
+  }
+
+  @SafeVarargs
+  private static final <T> Set<T> set(T... array) {
+    return new HashSet<>(Arrays.asList(array));
   }
 
 }

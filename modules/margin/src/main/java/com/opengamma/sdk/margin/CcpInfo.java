@@ -9,9 +9,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -53,6 +55,43 @@ public final class CcpInfo implements ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final List<String> calculationCurrencies;
+  /**
+   * The list of calculation types that are supported.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Set<MarginCalcType> calculationTypes;
+  /**
+   * The list of calculation modes that the calculation can be performed in.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Set<MarginCalcMode> calculationModes;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance.
+   * 
+   * @param valuationDates  the valuation dates
+   * @param defaultCurrency  the default currency
+   * @param reportingCurrencies  the reporting currencies
+   * @param calculationCurrencies  the calculation currencies
+   * @return the instance
+   * @deprecated Use the 6-arg version of this method
+   *   (it is intended that the SDK creates instances of this class, your code should only create instances in tests)
+   */
+  @Deprecated
+  public static CcpInfo of(
+      List<LocalDate> valuationDates,
+      String defaultCurrency,
+      List<String> reportingCurrencies,
+      List<String> calculationCurrencies) {
+    return new CcpInfo(
+        valuationDates,
+        defaultCurrency,
+        reportingCurrencies,
+        calculationCurrencies,
+        new HashSet<>(),
+        new HashSet<>());
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -87,33 +126,45 @@ public final class CcpInfo implements ImmutableBean {
    * @param defaultCurrency  the value of the property, not blank
    * @param reportingCurrencies  the value of the property, not null
    * @param calculationCurrencies  the value of the property, not null
+   * @param calculationTypes  the value of the property, not null
+   * @param calculationModes  the value of the property, not null
    * @return the instance
    */
   public static CcpInfo of(
       List<LocalDate> valuationDates,
       String defaultCurrency,
       List<String> reportingCurrencies,
-      List<String> calculationCurrencies) {
+      List<String> calculationCurrencies,
+      Set<MarginCalcType> calculationTypes,
+      Set<MarginCalcMode> calculationModes) {
     return new CcpInfo(
       valuationDates,
       defaultCurrency,
       reportingCurrencies,
-      calculationCurrencies);
+      calculationCurrencies,
+      calculationTypes,
+      calculationModes);
   }
 
   private CcpInfo(
       List<LocalDate> valuationDates,
       String defaultCurrency,
       List<String> reportingCurrencies,
-      List<String> calculationCurrencies) {
+      List<String> calculationCurrencies,
+      Set<MarginCalcType> calculationTypes,
+      Set<MarginCalcMode> calculationModes) {
     JodaBeanUtils.notNull(valuationDates, "valuationDates");
     JodaBeanUtils.notBlank(defaultCurrency, "defaultCurrency");
     JodaBeanUtils.notNull(reportingCurrencies, "reportingCurrencies");
     JodaBeanUtils.notNull(calculationCurrencies, "calculationCurrencies");
+    JodaBeanUtils.notNull(calculationTypes, "calculationTypes");
+    JodaBeanUtils.notNull(calculationModes, "calculationModes");
     this.valuationDates = Collections.unmodifiableList(new ArrayList<>(valuationDates));
     this.defaultCurrency = defaultCurrency;
     this.reportingCurrencies = Collections.unmodifiableList(new ArrayList<>(reportingCurrencies));
     this.calculationCurrencies = Collections.unmodifiableList(new ArrayList<>(calculationCurrencies));
+    this.calculationTypes = Collections.unmodifiableSet(new HashSet<>(calculationTypes));
+    this.calculationModes = Collections.unmodifiableSet(new HashSet<>(calculationModes));
   }
 
   @Override
@@ -159,6 +210,24 @@ public final class CcpInfo implements ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the list of calculation types that are supported.
+   * @return the value of the property, not null
+   */
+  public Set<MarginCalcType> getCalculationTypes() {
+    return calculationTypes;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the list of calculation modes that the calculation can be performed in.
+   * @return the value of the property, not null
+   */
+  public Set<MarginCalcMode> getCalculationModes() {
+    return calculationModes;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -169,7 +238,9 @@ public final class CcpInfo implements ImmutableBean {
       return JodaBeanUtils.equal(valuationDates, other.valuationDates) &&
           JodaBeanUtils.equal(defaultCurrency, other.defaultCurrency) &&
           JodaBeanUtils.equal(reportingCurrencies, other.reportingCurrencies) &&
-          JodaBeanUtils.equal(calculationCurrencies, other.calculationCurrencies);
+          JodaBeanUtils.equal(calculationCurrencies, other.calculationCurrencies) &&
+          JodaBeanUtils.equal(calculationTypes, other.calculationTypes) &&
+          JodaBeanUtils.equal(calculationModes, other.calculationModes);
     }
     return false;
   }
@@ -181,17 +252,21 @@ public final class CcpInfo implements ImmutableBean {
     hash = hash * 31 + JodaBeanUtils.hashCode(defaultCurrency);
     hash = hash * 31 + JodaBeanUtils.hashCode(reportingCurrencies);
     hash = hash * 31 + JodaBeanUtils.hashCode(calculationCurrencies);
+    hash = hash * 31 + JodaBeanUtils.hashCode(calculationTypes);
+    hash = hash * 31 + JodaBeanUtils.hashCode(calculationModes);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("CcpInfo{");
     buf.append("valuationDates").append('=').append(valuationDates).append(',').append(' ');
     buf.append("defaultCurrency").append('=').append(defaultCurrency).append(',').append(' ');
     buf.append("reportingCurrencies").append('=').append(reportingCurrencies).append(',').append(' ');
-    buf.append("calculationCurrencies").append('=').append(JodaBeanUtils.toString(calculationCurrencies));
+    buf.append("calculationCurrencies").append('=').append(calculationCurrencies).append(',').append(' ');
+    buf.append("calculationTypes").append('=').append(calculationTypes).append(',').append(' ');
+    buf.append("calculationModes").append('=').append(JodaBeanUtils.toString(calculationModes));
     buf.append('}');
     return buf.toString();
   }
@@ -230,6 +305,18 @@ public final class CcpInfo implements ImmutableBean {
     private final MetaProperty<List<String>> calculationCurrencies = DirectMetaProperty.ofImmutable(
         this, "calculationCurrencies", CcpInfo.class, (Class) List.class);
     /**
+     * The meta-property for the {@code calculationTypes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<MarginCalcType>> calculationTypes = DirectMetaProperty.ofImmutable(
+        this, "calculationTypes", CcpInfo.class, (Class) Set.class);
+    /**
+     * The meta-property for the {@code calculationModes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<MarginCalcMode>> calculationModes = DirectMetaProperty.ofImmutable(
+        this, "calculationModes", CcpInfo.class, (Class) Set.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -237,7 +324,9 @@ public final class CcpInfo implements ImmutableBean {
         "valuationDates",
         "defaultCurrency",
         "reportingCurrencies",
-        "calculationCurrencies");
+        "calculationCurrencies",
+        "calculationTypes",
+        "calculationModes");
 
     /**
      * Restricted constructor.
@@ -256,6 +345,10 @@ public final class CcpInfo implements ImmutableBean {
           return reportingCurrencies;
         case 830379032:  // calculationCurrencies
           return calculationCurrencies;
+        case 755457840:  // calculationTypes
+          return calculationTypes;
+        case 748683751:  // calculationModes
+          return calculationModes;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -287,6 +380,10 @@ public final class CcpInfo implements ImmutableBean {
           return ((CcpInfo) bean).getReportingCurrencies();
         case 830379032:  // calculationCurrencies
           return ((CcpInfo) bean).getCalculationCurrencies();
+        case 755457840:  // calculationTypes
+          return ((CcpInfo) bean).getCalculationTypes();
+        case 748683751:  // calculationModes
+          return ((CcpInfo) bean).getCalculationModes();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -312,6 +409,8 @@ public final class CcpInfo implements ImmutableBean {
     private String defaultCurrency;
     private List<String> reportingCurrencies = Collections.emptyList();
     private List<String> calculationCurrencies = Collections.emptyList();
+    private Set<MarginCalcType> calculationTypes = Collections.emptySet();
+    private Set<MarginCalcMode> calculationModes = Collections.emptySet();
 
     /**
      * Restricted constructor.
@@ -331,6 +430,10 @@ public final class CcpInfo implements ImmutableBean {
           return reportingCurrencies;
         case 830379032:  // calculationCurrencies
           return calculationCurrencies;
+        case 755457840:  // calculationTypes
+          return calculationTypes;
+        case 748683751:  // calculationModes
+          return calculationModes;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -352,6 +455,12 @@ public final class CcpInfo implements ImmutableBean {
         case 830379032:  // calculationCurrencies
           this.calculationCurrencies = (List<String>) newValue;
           break;
+        case 755457840:  // calculationTypes
+          this.calculationTypes = (Set<MarginCalcType>) newValue;
+          break;
+        case 748683751:  // calculationModes
+          this.calculationModes = (Set<MarginCalcMode>) newValue;
+          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -364,18 +473,22 @@ public final class CcpInfo implements ImmutableBean {
           valuationDates,
           defaultCurrency,
           reportingCurrencies,
-          calculationCurrencies);
+          calculationCurrencies,
+          calculationTypes,
+          calculationModes);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("CcpInfo.Builder{");
       buf.append("valuationDates").append('=').append(JodaBeanUtils.toString(valuationDates)).append(',').append(' ');
       buf.append("defaultCurrency").append('=').append(JodaBeanUtils.toString(defaultCurrency)).append(',').append(' ');
       buf.append("reportingCurrencies").append('=').append(JodaBeanUtils.toString(reportingCurrencies)).append(',').append(' ');
-      buf.append("calculationCurrencies").append('=').append(JodaBeanUtils.toString(calculationCurrencies));
+      buf.append("calculationCurrencies").append('=').append(JodaBeanUtils.toString(calculationCurrencies)).append(',').append(' ');
+      buf.append("calculationTypes").append('=').append(JodaBeanUtils.toString(calculationTypes)).append(',').append(' ');
+      buf.append("calculationModes").append('=').append(JodaBeanUtils.toString(calculationModes));
       buf.append('}');
       return buf.toString();
     }

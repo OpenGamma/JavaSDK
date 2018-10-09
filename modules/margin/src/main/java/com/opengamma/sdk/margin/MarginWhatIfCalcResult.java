@@ -8,9 +8,11 @@ package com.opengamma.sdk.margin;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
@@ -29,7 +31,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 /**
  * Result from the service.
  */
-@BeanDefinition(builderScope = "private", metaScope = "private", factoryName = "of")
+@BeanDefinition(builderScope = "private", metaScope = "private")
 public final class MarginWhatIfCalcResult implements ImmutableBean {
 
   /**
@@ -38,10 +40,13 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final MarginCalcResultStatus status;
   /**
-   * The type of calculation.
+   * The types of calculation that were performed.
+   * <p>
+   * The types may differ from the requested calculation types if the user does not have
+   * the necessary permission for the calculation, or the CCP does not support it.
    */
   @PropertyDefinition(validate = "notNull")
-  private final MarginCalcRequestType type;
+  private final Set<MarginCalcType> calculationTypes;
   /**
    * The valuation date for which the portfolio will be processed.
    */
@@ -84,7 +89,7 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
    * Creates a new instance of {@link MarginWhatIfCalcResult} with the given details.
    *
    * @param status  the request status, as an instance of {@link MarginCalcResultStatus}
-   * @param type  the type of request, as an instance of {@link MarginCalcRequestType}
+   * @param types  the types of calculation that were performed
    * @param valuationDate  the valuation date for which the portfolio will be processed
    * @param reportingCurrency  the reporting currency, as an ISO 4217 three letter currency code
    * @param portfolioItems  the summary of the portfolio items, may be empty
@@ -95,7 +100,7 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
    */
   public static MarginWhatIfCalcResult of(
       MarginCalcResultStatus status,
-      MarginCalcRequestType type,
+      Set<MarginCalcType> types,
       LocalDate valuationDate,
       String reportingCurrency,
       List<PortfolioItemSummary> portfolioItems,
@@ -111,13 +116,20 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
         .map(namedValue -> NamedValue.of(
             namedValue.getKey(), combinedSummaryDetails.get(namedValue.getKey()) - namedValue.getValue()))
         .collect(Collectors.toList());
+    MarginBreakdown baseBrk = baseSummary.getBreakdown();
+    MarginBreakdown combinedBrk = combinedSummary.getBreakdown();
+    MarginBreakdown diffBreakdown = MarginBreakdown.of(
+        combinedBrk.getTotalMargin() - baseBrk.getTotalMargin(),
+        combinedBrk.getBaseMargin() - baseBrk.getBaseMargin(),
+        combinedBrk.getAddOns() - baseBrk.getAddOns(),
+        combinedBrk.getNetLiquidatingValue() - baseBrk.getNetLiquidatingValue());
 
     double marginDifference = combinedSummary.getMargin() - baseSummary.getMargin();
-    MarginSummary deltaSummary = MarginSummary.of(marginDifference, deltaDetails);
+    MarginSummary deltaSummary = MarginSummary.of(marginDifference, deltaDetails, diffBreakdown);
 
     return new MarginWhatIfCalcResult(
         status,
-        type,
+        types,
         valuationDate,
         reportingCurrency,
         portfolioItems,
@@ -125,6 +137,104 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
         deltaSummary,
         combinedSummary,
         failures);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance.
+   * 
+   * @param status  the request status, as an instance of {@link MarginCalcResultStatus}
+   * @param type  the type of request, as an instance of {@link MarginCalcRequestType}
+   * @param valuationDate  the valuation date for which the portfolio will be processed
+   * @param reportingCurrency  the reporting currency, as an ISO 4217 three letter currency code
+   * @param portfolioItems  the summary of the portfolio items, may be empty
+   * @param baseSummary  the details of the base portfolio margin calculation
+   * @param combinedSummary  the details of the combined (base + delta) portfolios margin calculation
+   * @param deltaSummary  the details of the delta portfolio margin calculation
+   * @param failures  the list of failures that occurred, may be empty
+   * @return the instance
+   * @deprecated Use the version of this method taking {@code MarginCalcType}
+   *   (it is intended that the SDK creates instances of this class, your code should only create instances in tests)
+   */
+  @Deprecated
+  public static MarginWhatIfCalcResult of(
+      MarginCalcResultStatus status,
+      MarginCalcRequestType type,
+      LocalDate valuationDate,
+      String reportingCurrency,
+      List<PortfolioItemSummary> portfolioItems,
+      MarginSummary baseSummary,
+      MarginSummary combinedSummary,
+      MarginSummary deltaSummary,
+      List<MarginError> failures) {
+    return new MarginWhatIfCalcResult(
+        status,
+        type.toCalculationTypes(),
+        valuationDate,
+        reportingCurrency,
+        portfolioItems,
+        baseSummary,
+        combinedSummary,
+        deltaSummary,
+        failures);
+  }
+
+  /**
+   * Creates a new instance of {@link MarginWhatIfCalcResult} with the given details.
+   *
+   * @param status  the request status, as an instance of {@link MarginCalcResultStatus}
+   * @param type  the type of request, as an instance of {@link MarginCalcRequestType}
+   * @param valuationDate  the valuation date for which the portfolio will be processed
+   * @param reportingCurrency  the reporting currency, as an ISO 4217 three letter currency code
+   * @param portfolioItems  the summary of the portfolio items, may be empty
+   * @param baseSummary  the details of the base portfolio margin calculation
+   * @param combinedSummary  the details of the combined (base + delta) portfolios margin calculation
+   * @param failures  the list of failures that occurred, may be empty
+   * @return a new instance of {@link MarginWhatIfCalcResult}
+   * @deprecated Use the version of this method taking {@code MarginCalcType}
+   *   (it is intended that the SDK creates instances of this class, your code should only create instances in tests)
+   */
+  @Deprecated
+  public static MarginWhatIfCalcResult of(
+      MarginCalcResultStatus status,
+      MarginCalcRequestType type,
+      LocalDate valuationDate,
+      String reportingCurrency,
+      List<PortfolioItemSummary> portfolioItems,
+      MarginSummary baseSummary,
+      MarginSummary combinedSummary,
+      List<MarginError> failures) {
+
+    return of(
+        status,
+        type.toCalculationTypes(),
+        valuationDate,
+        reportingCurrency,
+        portfolioItems,
+        baseSummary,
+        combinedSummary,
+        failures);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the type of the calculation request.
+   * 
+   * @return the type
+   * @deprecated Use {@link #getCalculationTypes()} instead
+   */
+  @Deprecated
+  public MarginCalcRequestType getType() {
+    // this is provided to retain backwards compatibility of the REST API
+    // if the types contains neither MARGIN nor PORTFOLIO_SUMMARY then the caller
+    // must be using the newer form of the API, but we have to return a value to avoid NPE
+    boolean margin = calculationTypes.contains(MarginCalcType.MARGIN);
+    boolean summary = calculationTypes.contains(MarginCalcType.PORTFOLIO_SUMMARY);
+    if (margin) {
+      return summary ? MarginCalcRequestType.FULL : MarginCalcRequestType.STANDARD;
+    } else {
+      return summary ? MarginCalcRequestType.PARSE_INPUTS : MarginCalcRequestType.STANDARD;
+    }
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -140,44 +250,9 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
     MetaBean.register(MarginWhatIfCalcResult.Meta.INSTANCE);
   }
 
-  /**
-   * Obtains an instance.
-   * @param status  the value of the property, not null
-   * @param type  the value of the property, not null
-   * @param valuationDate  the value of the property, not null
-   * @param reportingCurrency  the value of the property, not null
-   * @param portfolioItems  the value of the property, not null
-   * @param baseSummary  the value of the property
-   * @param combinedSummary  the value of the property
-   * @param deltaSummary  the value of the property
-   * @param failures  the value of the property, not null
-   * @return the instance
-   */
-  public static MarginWhatIfCalcResult of(
-      MarginCalcResultStatus status,
-      MarginCalcRequestType type,
-      LocalDate valuationDate,
-      String reportingCurrency,
-      List<PortfolioItemSummary> portfolioItems,
-      MarginSummary baseSummary,
-      MarginSummary combinedSummary,
-      MarginSummary deltaSummary,
-      List<MarginError> failures) {
-    return new MarginWhatIfCalcResult(
-      status,
-      type,
-      valuationDate,
-      reportingCurrency,
-      portfolioItems,
-      baseSummary,
-      combinedSummary,
-      deltaSummary,
-      failures);
-  }
-
   private MarginWhatIfCalcResult(
       MarginCalcResultStatus status,
-      MarginCalcRequestType type,
+      Set<MarginCalcType> calculationTypes,
       LocalDate valuationDate,
       String reportingCurrency,
       List<PortfolioItemSummary> portfolioItems,
@@ -186,13 +261,13 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
       MarginSummary deltaSummary,
       List<MarginError> failures) {
     JodaBeanUtils.notNull(status, "status");
-    JodaBeanUtils.notNull(type, "type");
+    JodaBeanUtils.notNull(calculationTypes, "calculationTypes");
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
     JodaBeanUtils.notNull(reportingCurrency, "reportingCurrency");
     JodaBeanUtils.notNull(portfolioItems, "portfolioItems");
     JodaBeanUtils.notNull(failures, "failures");
     this.status = status;
-    this.type = type;
+    this.calculationTypes = Collections.unmodifiableSet(new HashSet<>(calculationTypes));
     this.valuationDate = valuationDate;
     this.reportingCurrency = reportingCurrency;
     this.portfolioItems = Collections.unmodifiableList(new ArrayList<>(portfolioItems));
@@ -218,11 +293,14 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of calculation.
+   * Gets the types of calculation that were performed.
+   * <p>
+   * The types may differ from the requested calculation types if the user does not have
+   * the necessary permission for the calculation, or the CCP does not support it.
    * @return the value of the property, not null
    */
-  public MarginCalcRequestType getType() {
-    return type;
+  public Set<MarginCalcType> getCalculationTypes() {
+    return calculationTypes;
   }
 
   //-----------------------------------------------------------------------
@@ -298,7 +376,7 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       MarginWhatIfCalcResult other = (MarginWhatIfCalcResult) obj;
       return JodaBeanUtils.equal(status, other.status) &&
-          JodaBeanUtils.equal(type, other.type) &&
+          JodaBeanUtils.equal(calculationTypes, other.calculationTypes) &&
           JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
           JodaBeanUtils.equal(reportingCurrency, other.reportingCurrency) &&
           JodaBeanUtils.equal(portfolioItems, other.portfolioItems) &&
@@ -314,7 +392,7 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(status);
-    hash = hash * 31 + JodaBeanUtils.hashCode(type);
+    hash = hash * 31 + JodaBeanUtils.hashCode(calculationTypes);
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(reportingCurrency);
     hash = hash * 31 + JodaBeanUtils.hashCode(portfolioItems);
@@ -330,7 +408,7 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
     StringBuilder buf = new StringBuilder(320);
     buf.append("MarginWhatIfCalcResult{");
     buf.append("status").append('=').append(status).append(',').append(' ');
-    buf.append("type").append('=').append(type).append(',').append(' ');
+    buf.append("calculationTypes").append('=').append(calculationTypes).append(',').append(' ');
     buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
     buf.append("reportingCurrency").append('=').append(reportingCurrency).append(',').append(' ');
     buf.append("portfolioItems").append('=').append(portfolioItems).append(',').append(' ');
@@ -358,10 +436,11 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
     private final MetaProperty<MarginCalcResultStatus> status = DirectMetaProperty.ofImmutable(
         this, "status", MarginWhatIfCalcResult.class, MarginCalcResultStatus.class);
     /**
-     * The meta-property for the {@code type} property.
+     * The meta-property for the {@code calculationTypes} property.
      */
-    private final MetaProperty<MarginCalcRequestType> type = DirectMetaProperty.ofImmutable(
-        this, "type", MarginWhatIfCalcResult.class, MarginCalcRequestType.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<MarginCalcType>> calculationTypes = DirectMetaProperty.ofImmutable(
+        this, "calculationTypes", MarginWhatIfCalcResult.class, (Class) Set.class);
     /**
      * The meta-property for the {@code valuationDate} property.
      */
@@ -405,7 +484,7 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "status",
-        "type",
+        "calculationTypes",
         "valuationDate",
         "reportingCurrency",
         "portfolioItems",
@@ -425,8 +504,8 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case -892481550:  // status
           return status;
-        case 3575610:  // type
-          return type;
+        case 755457840:  // calculationTypes
+          return calculationTypes;
         case 113107279:  // valuationDate
           return valuationDate;
         case -1287844769:  // reportingCurrency
@@ -466,8 +545,8 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case -892481550:  // status
           return ((MarginWhatIfCalcResult) bean).getStatus();
-        case 3575610:  // type
-          return ((MarginWhatIfCalcResult) bean).getType();
+        case 755457840:  // calculationTypes
+          return ((MarginWhatIfCalcResult) bean).getCalculationTypes();
         case 113107279:  // valuationDate
           return ((MarginWhatIfCalcResult) bean).getValuationDate();
         case -1287844769:  // reportingCurrency
@@ -504,7 +583,7 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
   private static final class Builder extends DirectPrivateBeanBuilder<MarginWhatIfCalcResult> {
 
     private MarginCalcResultStatus status;
-    private MarginCalcRequestType type;
+    private Set<MarginCalcType> calculationTypes = Collections.emptySet();
     private LocalDate valuationDate;
     private String reportingCurrency;
     private List<PortfolioItemSummary> portfolioItems = Collections.emptyList();
@@ -525,8 +604,8 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case -892481550:  // status
           return status;
-        case 3575610:  // type
-          return type;
+        case 755457840:  // calculationTypes
+          return calculationTypes;
         case 113107279:  // valuationDate
           return valuationDate;
         case -1287844769:  // reportingCurrency
@@ -553,8 +632,8 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
         case -892481550:  // status
           this.status = (MarginCalcResultStatus) newValue;
           break;
-        case 3575610:  // type
-          this.type = (MarginCalcRequestType) newValue;
+        case 755457840:  // calculationTypes
+          this.calculationTypes = (Set<MarginCalcType>) newValue;
           break;
         case 113107279:  // valuationDate
           this.valuationDate = (LocalDate) newValue;
@@ -587,7 +666,7 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
     public MarginWhatIfCalcResult build() {
       return new MarginWhatIfCalcResult(
           status,
-          type,
+          calculationTypes,
           valuationDate,
           reportingCurrency,
           portfolioItems,
@@ -603,7 +682,7 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
       StringBuilder buf = new StringBuilder(320);
       buf.append("MarginWhatIfCalcResult.Builder{");
       buf.append("status").append('=').append(JodaBeanUtils.toString(status)).append(',').append(' ');
-      buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
+      buf.append("calculationTypes").append('=').append(JodaBeanUtils.toString(calculationTypes)).append(',').append(' ');
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("reportingCurrency").append('=').append(JodaBeanUtils.toString(reportingCurrency)).append(',').append(' ');
       buf.append("portfolioItems").append('=').append(JodaBeanUtils.toString(portfolioItems)).append(',').append(' ');

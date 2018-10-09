@@ -40,6 +40,23 @@ public final class CcpsResult implements ImmutableBean {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the list of available CCPs, may be empty.
+   * 
+   * @return the list of available CCPs
+   */
+  public List<Ccp> getCcps() {
+    List<Ccp> ccps = new ArrayList<>();
+    for (String name : ccpNames) {
+      try {
+        ccps.add(Ccp.of(name));
+      } catch (RuntimeException ex) {
+        // ignore, server may be newer than client
+      }
+    }
+    return ccps;
+  }
+
+  /**
    * Checks if the CCP is available.
    * 
    * @param ccpName  the CCP to check
