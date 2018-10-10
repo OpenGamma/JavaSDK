@@ -5,9 +5,15 @@
  */
 package com.opengamma.sdk.margin;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * The type of margin calculation to perform.
+ * 
+ * @deprecated Conceptually replaced by {@link MarginCalcType}
  */
+@Deprecated
 public enum MarginCalcRequestType {
 
   /**
@@ -28,5 +34,17 @@ public enum MarginCalcRequestType {
    * Margin, portfolio summary, parsing errors and calculation errors will be returned.
    */
   FULL;
+
+  // converts the type to MarginCalcType
+  Set<MarginCalcType> toCalculationTypes() {
+    HashSet<MarginCalcType> types = new HashSet<>();
+    if (this == MarginCalcRequestType.PARSE_INPUTS || this == MarginCalcRequestType.FULL) {
+      types.add(MarginCalcType.PORTFOLIO_SUMMARY);
+    }
+    if (this == MarginCalcRequestType.STANDARD || this == MarginCalcRequestType.FULL) {
+      types.add(MarginCalcType.MARGIN);
+    }
+    return types;
+  }
 
 }

@@ -15,6 +15,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -40,6 +41,13 @@ import okhttp3.Response;
  */
 final class InvokerMarginClient implements MarginClient {
 
+  /**
+   * The serializer.
+   */
+  private static final JodaBeanSer SERIALIZER = JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT);
+  static {
+    SERIALIZER.getConverter().register(Period.class, new TenorStringConverter());
+  }
   /**
    * Sleep for 500ms between polls.
    */
@@ -82,9 +90,7 @@ final class InvokerMarginClient implements MarginClient {
       if (!response.isSuccessful()) {
         throw parseError(LIST_CCPS, response);
       }
-      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
-          .jsonReader()
-          .read(response.body().string(), CcpsResult.class);
+      return SERIALIZER.jsonReader().read(response.body().string(), CcpsResult.class);
 
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -103,9 +109,7 @@ final class InvokerMarginClient implements MarginClient {
       if (!response.isSuccessful()) {
         throw parseError(GET_CCP_INFO, response);
       }
-      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
-          .jsonReader()
-          .read(response.body().string(), CcpInfo.class);
+      return SERIALIZER.jsonReader().read(response.body().string(), CcpInfo.class);
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }
@@ -113,7 +117,7 @@ final class InvokerMarginClient implements MarginClient {
 
   @Override
   public String createCalculation(Ccp ccp, MarginCalcRequest calcRequest) {
-    String text = JodaBeanSer.COMPACT.jsonWriter().write(calcRequest, false);
+    String text = SERIALIZER.jsonWriter().write(calcRequest, false);
     RequestBody body = RequestBody.create(MEDIA_JSON, text);
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl().resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations"))
@@ -147,9 +151,10 @@ final class InvokerMarginClient implements MarginClient {
       if (!response.isSuccessful()) {
         throw parseError(GET_CALCULATION, response);
       }
-      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT)
-          .jsonReader()
-          .read(response.body().string(), MarginCalcResult.class);
+      SerDeserializers deser = MarginDetailDeserializer.of(ccp)
+          .map(ds -> new SerDeserializers(true, ds))
+          .orElse(SerDeserializers.LENIENT);
+      return SERIALIZER.withDeserializers(deser).jsonReader().read(response.body().string(), MarginCalcResult.class);
 
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -185,7 +190,7 @@ final class InvokerMarginClient implements MarginClient {
   // avoid errors when processing errors
   private ErrorMessage parseError(Response response) throws IOException {
     try {
-      return JodaBeanSer.COMPACT.jsonReader().read(response.body().string(), ErrorMessage.class);
+      return SERIALIZER.jsonReader().read(response.body().string(), ErrorMessage.class);
     } catch (RuntimeException ex) {
       return ErrorMessage.of(response.code(), "Unexpected JSON error", ex.getMessage());
     }
@@ -293,7 +298,7 @@ final class InvokerMarginClient implements MarginClient {
 
     return MarginWhatIfCalcResult.of(
         MarginCalcResultStatus.COMPLETED,
-        request.getType(),
+        request.getCalculationTypes(),
         deltaResult.getValuationDate(),
         deltaResult.getReportingCurrency(),
         deltaResult.getPortfolioItems(),
