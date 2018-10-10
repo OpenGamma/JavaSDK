@@ -72,7 +72,7 @@ public final class LchMarginDetail extends MarginDetail implements ImmutableBean
    */
   public Optional<LchMarginIndex> findIndex(String indexName) {
     return indices.stream()
-        .filter(val -> val.getIndexName().equals(indexName))
+        .filter(val -> val.getIndexName().equalsIgnoreCase(indexName))
         .findFirst();
   }
 
@@ -84,7 +84,7 @@ public final class LchMarginDetail extends MarginDetail implements ImmutableBean
    */
   public Optional<LchMarginScenario> findScenario(String scenarioId) {
     return scenarios.stream()
-        .filter(val -> val.getId().equals(scenarioId))
+        .filter(val -> val.getId().equalsIgnoreCase(scenarioId))
         .findFirst();
   }
 
