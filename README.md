@@ -24,7 +24,7 @@ For example, to access the SDK for the margin service, use:
 <dependency>
   <groupId>com.opengamma.sdk</groupId>
   <artifactId>sdk-margin</artifactId>
-  <version>3.0.1</version>
+  <version>3.1.0</version>
 </dependency>
 ```
 
