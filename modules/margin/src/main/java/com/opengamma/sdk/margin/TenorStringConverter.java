@@ -16,7 +16,7 @@ class TenorStringConverter implements TypedStringConverter<Period> {
 
   @Override
   public String convertToString(Period object) {
-    return object.toString().substring(1);
+    return object.toString();
   }
 
   @Override
