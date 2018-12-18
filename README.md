@@ -30,6 +30,10 @@ For example, to access the SDK for the margin service, use:
 
 ## Releases
 
+### v3.1.1
+
+* Bug fix: Periods were not being sent correctly to the server in some cases.
+
 ### v3.1.0
 
 * Major enhancement to the API for new functionality
