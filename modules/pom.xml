@@ -403,7 +403,7 @@
   <properties>
     <!-- Versions -->
     <assertj.version>3.11.1</assertj.version>
-    <joda-convert.version>2.1.1</joda-convert.version>
+    <joda-convert.version>2.2.0</joda-convert.version>
     <joda-beans.version>2.3</joda-beans.version>
     <slf4j.version>1.7.25</slf4j.version>
     <jcommander.version>1.72</jcommander.version>
