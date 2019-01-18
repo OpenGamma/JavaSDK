@@ -28,6 +28,19 @@ public interface MarginClient {
     return InvokerMarginClient.of(invoker);
   }
 
+  /**
+   * Obtains an instance, specifying the invoker to use.
+   * <p>
+   * The {@link ServiceInvoker} provides authentication.
+   *
+   * @param invoker  the service invoker
+   * @param retries  the number of times to retry a failed HTTP connection due to IO reasons (timeout, etc)
+   * @return the client
+   */
+  public static MarginClient of(ServiceInvoker invoker, int retries) {
+    return InvokerMarginClient.of(invoker, retries);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Lists the available CCPs.
@@ -39,16 +52,6 @@ public interface MarginClient {
   public abstract CcpsResult listCcps();
 
   /**
-   * Lists the available CCPs.
-   *
-   * @param retries the number of times to retry a call that failed due to IO or network errors
-   * @return the list of available CCPs
-   * @throws MarginException if unable to list the CCPS
-   * @throws UncheckedIOException if an IO error occurs
-   */
-  public abstract CcpsResult listCcps(int retries);
-
-  /**
    * Gets information about a single CCP.
    *
    * @param ccp  the CCP to lookup
@@ -57,17 +60,6 @@ public interface MarginClient {
    * @throws UncheckedIOException if an IO error occurs
    */
   public CcpInfo getCcpInfo(Ccp ccp);
-
-  /**
-   * Gets information about a single CCP.
-   *
-   * @param ccp  the CCP to lookup
-   * @param retries the number of times to retry a call that failed due to IO or network errors
-   * @return the information about the CCP
-   * @throws MarginException if unable to get the information
-   * @throws UncheckedIOException if an IO error occurs
-   */
-  public CcpInfo getCcpInfo(Ccp ccp, int retries);
 
   /**
    * Creates a margin calculation task.
@@ -81,18 +73,6 @@ public interface MarginClient {
   public abstract String createCalculation(Ccp ccp, MarginCalcRequest request);
 
   /**
-   * Creates a margin calculation task.
-   *
-   * @param ccp  the CCP to use
-   * @param request  the calculation request
-   * @param retries the number of times to retry a call that failed due to IO or network errors
-   * @return the calculation identifier
-   * @throws MarginException if unable to create the calculation
-   * @throws UncheckedIOException if an IO error occurs
-   */
-  public abstract String createCalculation(Ccp ccp, MarginCalcRequest request, int retries);
-
-  /**
    * Gets the result of a margin calculation task.
    *
    * @param ccp  the CCP to use
@@ -104,18 +84,6 @@ public interface MarginClient {
   public abstract MarginCalcResult getCalculation(Ccp ccp, String calcId);
 
   /**
-   * Gets the result of a margin calculation task.
-   *
-   * @param ccp  the CCP to use
-   * @param calcId  the calculation identifier
-   * @param retries the number of times to retry a call that failed due to IO or network errors
-   * @return the calculation result
-   * @throws MarginException if unable to get the calculation
-   * @throws UncheckedIOException if an IO error occurs
-   */
-  public abstract MarginCalcResult getCalculation(Ccp ccp, String calcId, int retries);
-
-  /**
    * Deletes a margin calculation task.
    *
    * @param ccp  the CCP to use
@@ -124,17 +92,6 @@ public interface MarginClient {
    * @throws UncheckedIOException if an IO error occurs
    */
   public abstract void deleteCalculation(Ccp ccp, String calcId);
-
-  /**
-   * Deletes a margin calculation task.
-   *
-   * @param ccp  the CCP to use
-   * @param calcId  the calculation identifier
-   * @param retries the number of times to retry a call that failed due to IO or network errors
-   * @throws MarginException if unable to delete the calculation
-   * @throws UncheckedIOException if an IO error occurs
-   */
-  public abstract void deleteCalculation(Ccp ccp, String calcId, int retries);
 
   //-------------------------------------------------------------------------
   /**
@@ -153,22 +110,6 @@ public interface MarginClient {
   public abstract MarginCalcResult calculate(Ccp ccp, MarginCalcRequest request);
 
   /**
-   * High-level call to submit a portfolio for parsing, validation and IM calculation.
-   * <p>
-   * If the thread is interrupted while this method is blocked, then a runtime exception
-   * is thrown, but with the interrupt flag set.
-   * For additional control, use {@link #calculateAsync(Ccp, MarginCalcRequest)}.
-   *
-   * @param ccp  the CCP to use
-   * @param request  the calculation request
-   * @param retries the number of times to retry a call that failed due to IO or network errors
-   * @return the detailed result of the calculation
-   * @throws MarginException if unable to calculate
-   * @throws UncheckedIOException if an IO error occurs
-   */
-  public abstract MarginCalcResult calculate(Ccp ccp, MarginCalcRequest request, int retries);
-
-  /**
    * High-level call to submit a portfolio for parsing, validation and IM calculation,
    * performing the work on a background thread.
    * <p>
@@ -183,23 +124,6 @@ public interface MarginClient {
    * @throws RuntimeException if unable to setup the async calculation
    */
   public abstract CompletableFuture<MarginCalcResult> calculateAsync(Ccp ccp, MarginCalcRequest request);
-
-  /**
-   * High-level call to submit a portfolio for parsing, validation and IM calculation,
-   * performing the work on a background thread.
-   * <p>
-   * This will use the executor from the service invoker to perform the background work.
-   * <p>
-   * Callers should consider whether to use {@link CompletableFuture#get(long, java.util.concurrent.TimeUnit)}
-   * to enforce a time out on the calculation.
-   *
-   * @param ccp  the CCP to use
-   * @param request  the calculation request
-   * @param retries the number of times to retry a call that failed due to IO or network errors
-   * @return the detailed result of the calculation, expressed via a future
-   * @throws RuntimeException if unable to setup the async calculation
-   */
-  public abstract CompletableFuture<MarginCalcResult> calculateAsync(Ccp ccp, MarginCalcRequest request, int retries);
 
   //-------------------------------------------------------------------------
   /**
@@ -220,26 +144,5 @@ public interface MarginClient {
       Ccp ccp,
       MarginCalcRequest request,
       List<PortfolioDataFile> deltaFiles);
-
-  /**
-   * High-level call to submit a base portfolio together with an extra set of trades,
-   * for parsing, validation and IM calculation.
-   * <p>
-   * This will return the margin summary for the base request, the combined request (base portfolio + delta portfolio),
-   * and the difference between the two.
-   *
-   * @param ccp  the CCP to use
-   * @param request  the calculation request
-   * @param deltaFiles  the portfolios representing the extra trades for the what-if scenario
-   * @param retries the number of times to retry a call that failed due to IO or network errors
-   * @return the detailed result of the calculation
-   * @throws MarginException if unable to calculate
-   * @throws UncheckedIOException if an IO error occurs
-   */
-  public abstract MarginWhatIfCalcResult calculateWhatIf(
-      Ccp ccp,
-      MarginCalcRequest request,
-      List<PortfolioDataFile> deltaFiles,
-      int retries);
 
 }

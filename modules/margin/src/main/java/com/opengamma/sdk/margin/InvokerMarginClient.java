@@ -62,6 +62,11 @@ final class InvokerMarginClient implements MarginClient {
    */
   private final ServiceInvoker invoker;
 
+  /**
+   * The number of times to retry a failed HTTP connection due to IO reasons (timeout, etc).
+   */
+  private final int retries;
+
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance.
@@ -70,21 +75,32 @@ final class InvokerMarginClient implements MarginClient {
    * @return the client
    */
   static InvokerMarginClient of(ServiceInvoker invoker) {
-    return new InvokerMarginClient(invoker);
+    return new InvokerMarginClient(invoker, 1);
   }
 
-  private InvokerMarginClient(ServiceInvoker invoker) {
+  /**
+   * Obtains an instance.
+   *
+   * @param invoker  the service invoker
+   * @param retries  the number of times to retry a failed HTTP connection due to IO reasons (timeout, etc)
+   * @return the client
+   */
+  static InvokerMarginClient of(ServiceInvoker invoker, int retries) {
+    return new InvokerMarginClient(invoker, retries);
+  }
+
+  private InvokerMarginClient(ServiceInvoker invoker, int retries) {
     this.invoker = Objects.requireNonNull(invoker, "invoker must not be null");
+    this.retries = retries;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public CcpsResult listCcps() {
-    return listCcps(1);
+    return listCcps(retries);
   }
 
-  @Override
-  public CcpsResult listCcps(int retries) {
+  private CcpsResult listCcps(int retries) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl().resolve("margin/v3/ccps"))
         .get()
@@ -108,11 +124,10 @@ final class InvokerMarginClient implements MarginClient {
 
   @Override
   public CcpInfo getCcpInfo(Ccp ccp) {
-    return getCcpInfo(ccp, 1);
+    return getCcpInfo(ccp, retries);
   }
 
-  @Override
-  public CcpInfo getCcpInfo(Ccp ccp, int retries) {
+  private CcpInfo getCcpInfo(Ccp ccp, int retries) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl().resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH)))
         .get()
@@ -135,11 +150,10 @@ final class InvokerMarginClient implements MarginClient {
 
   @Override
   public String createCalculation(Ccp ccp, MarginCalcRequest calcRequest) {
-    return createCalculation(ccp, calcRequest, 1);
+    return createCalculation(ccp, calcRequest, retries);
   }
 
-  @Override
-  public String createCalculation(Ccp ccp, MarginCalcRequest calcRequest, int retries) {
+  private String createCalculation(Ccp ccp, MarginCalcRequest calcRequest, int retries) {
     String text = SERIALIZER.jsonWriter().write(calcRequest, false);
     RequestBody body = RequestBody.create(MEDIA_JSON, text);
     Request request = new Request.Builder()
@@ -167,11 +181,10 @@ final class InvokerMarginClient implements MarginClient {
 
   @Override
   public MarginCalcResult getCalculation(Ccp ccp, String calcId) {
-    return getCalculation(ccp, calcId, 1);
+    return getCalculation(ccp, calcId, retries);
   }
 
-  @Override
-  public MarginCalcResult getCalculation(Ccp ccp, String calcId, int retries) {
+  private MarginCalcResult getCalculation(Ccp ccp, String calcId, int retries) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl()
             .resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
@@ -199,11 +212,10 @@ final class InvokerMarginClient implements MarginClient {
 
   @Override
   public void deleteCalculation(Ccp ccp, String calcId) {
-    deleteCalculation(ccp, calcId, 1);
+    deleteCalculation(ccp, calcId, retries);
   }
 
-  @Override
-  public void deleteCalculation(Ccp ccp, String calcId, int retries) {
+  private void deleteCalculation(Ccp ccp, String calcId, int retries) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl()
             .resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
@@ -244,11 +256,10 @@ final class InvokerMarginClient implements MarginClient {
   //-------------------------------------------------------------------------
   @Override
   public MarginCalcResult calculate(Ccp ccp, MarginCalcRequest request) {
-    return calculate(ccp, request, 1);
+    return calculate(ccp, request, retries);
   }
 
-  @Override
-  public MarginCalcResult calculate(Ccp ccp, MarginCalcRequest request, int retries) {
+  private MarginCalcResult calculate(Ccp ccp, MarginCalcRequest request, int retries) {
     String calcId = createCalculation(ccp, request, retries);
     MarginCalcResult result = getCalculation(ccp, calcId, retries);
     while (result.getStatus() == MarginCalcResultStatus.PENDING) {
@@ -271,11 +282,10 @@ final class InvokerMarginClient implements MarginClient {
 
   @Override
   public CompletableFuture<MarginCalcResult> calculateAsync(Ccp ccp, MarginCalcRequest request) {
-    return calculateAsync(ccp, request, 1);
+    return calculateAsync(ccp, request, retries);
   }
 
-  @Override
-  public CompletableFuture<MarginCalcResult> calculateAsync(Ccp ccp, MarginCalcRequest request, int retries) {
+  private CompletableFuture<MarginCalcResult> calculateAsync(Ccp ccp, MarginCalcRequest request, int retries) {
     ScheduledExecutorService executorService = invoker.getExecutor();
     // async function to create the calculation
     Supplier<String> createFn = () -> createCalculation(ccp, request, retries);
@@ -316,12 +326,10 @@ final class InvokerMarginClient implements MarginClient {
       Ccp ccp,
       MarginCalcRequest request,
       List<PortfolioDataFile> deltaFiles) {
-    return calculateWhatIf(ccp, request, deltaFiles, 1);
+    return calculateWhatIf(ccp, request, deltaFiles, retries);
   }
 
-
-  @Override
-  public MarginWhatIfCalcResult calculateWhatIf(
+  private MarginWhatIfCalcResult calculateWhatIf(
       Ccp ccp,
       MarginCalcRequest request,
       List<PortfolioDataFile> deltaFiles,

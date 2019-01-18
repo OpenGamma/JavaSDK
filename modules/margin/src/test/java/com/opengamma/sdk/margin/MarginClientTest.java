@@ -232,9 +232,9 @@ public class MarginClientTest {
         .setBody(RESPONSE_DELETE));
 
     ServiceInvoker invoker = createInvoker(1);
-    MarginClient client = MarginClient.of(invoker);
+    MarginClient client = MarginClient.of(invoker, 2);
 
-    MarginCalcResult result = client.calculate(Ccp.LCH, REQUEST, 2);
+    MarginCalcResult result = client.calculate(Ccp.LCH, REQUEST);
     assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
     assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
     assertEquals(result.getCalculationTypes(), set(MarginCalcType.MARGIN));
