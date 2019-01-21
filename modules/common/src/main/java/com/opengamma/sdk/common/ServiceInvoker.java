@@ -50,6 +50,8 @@ public final class ServiceInvoker implements AutoCloseable {
   private final OkHttpClient httpClient;
   /** Executor. */
   private final ScheduledExecutorService executor;
+  /** Times to retry */
+  private final int retries;
 
   //-------------------------------------------------------------------------
   /**
@@ -151,10 +153,11 @@ public final class ServiceInvoker implements AutoCloseable {
 
   //-------------------------------------------------------------------------
   // creates an instance
-  ServiceInvoker(HttpUrl serviceUrl, OkHttpClient httpClient, ScheduledExecutorService executor) {
+  ServiceInvoker(HttpUrl serviceUrl, OkHttpClient httpClient, ScheduledExecutorService executor, int retries) {
     this.serviceUrl = Objects.requireNonNull(serviceUrl, "serviceUrl must not be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient must not be null");
     this.executor = Objects.requireNonNull(executor, "executor must not be null");
+    this.retries = retries;
   }
 
   //-------------------------------------------------------------------------
@@ -183,6 +186,15 @@ public final class ServiceInvoker implements AutoCloseable {
    */
   public ScheduledExecutorService getExecutor() {
     return executor;
+  }
+
+  /**
+   * Gets the number of retries that the invoker should perform on network failures.
+   *
+   * @return the number of retries
+   */
+  public int getRetries() {
+    return retries;
   }
 
   //-------------------------------------------------------------------------

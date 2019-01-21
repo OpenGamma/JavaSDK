@@ -9,7 +9,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertThrows;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -204,12 +203,12 @@ public class MarginClientTest {
     server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
     server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
 
-    ServiceInvoker invoker = createInvoker(1);
+    ServiceInvoker invoker = createInvoker(1, 1);
     MarginClient client = MarginClient.of(invoker);
 
-    assertThrows(UncheckedIOException.class, () -> client.listCcps());
-    assertThrows(UncheckedIOException.class, () -> client.getCcpInfo(Ccp.LCH));
-    assertThrows(UncheckedIOException.class, () -> client.calculate(Ccp.LCH, REQUEST));
+    assertThrows(IllegalStateException.class, () -> client.listCcps());
+    assertThrows(IllegalStateException.class, () -> client.getCcpInfo(Ccp.LCH));
+    assertThrows(IllegalStateException.class, () -> client.calculate(Ccp.LCH, REQUEST));
   }
 
   @SuppressWarnings("deprecation")
@@ -231,8 +230,8 @@ public class MarginClientTest {
     server.enqueue(new MockResponse()
         .setBody(RESPONSE_DELETE));
 
-    ServiceInvoker invoker = createInvoker(1);
-    MarginClient client = MarginClient.of(invoker, 2);
+    ServiceInvoker invoker = createInvoker(1, 2);
+    MarginClient client = MarginClient.of(invoker);
 
     MarginCalcResult result = client.calculate(Ccp.LCH, REQUEST);
     assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
@@ -457,7 +456,7 @@ public class MarginClientTest {
         .build();
   }
 
-  private ServiceInvoker createInvoker(int timeoutInSeconds) {
+  private ServiceInvoker createInvoker(int timeoutInSeconds, int retries) {
     return ServiceInvoker.builder(CREDENTIALS)
         .serviceUrl(server.url("/"))
         .authClientFactory(inv -> new TestingAuthClient())
@@ -466,6 +465,7 @@ public class MarginClientTest {
             .readTimeout(timeoutInSeconds, TimeUnit.SECONDS)
             .writeTimeout(timeoutInSeconds, TimeUnit.SECONDS)
             .build())
+        .retries(retries)
         .build();
   }
 

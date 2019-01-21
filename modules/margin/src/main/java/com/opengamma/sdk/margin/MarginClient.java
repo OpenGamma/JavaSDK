@@ -28,19 +28,6 @@ public interface MarginClient {
     return InvokerMarginClient.of(invoker);
   }
 
-  /**
-   * Obtains an instance, specifying the invoker to use.
-   * <p>
-   * The {@link ServiceInvoker} provides authentication.
-   *
-   * @param invoker  the service invoker
-   * @param retries  the number of times to retry a failed HTTP connection due to IO reasons (timeout, etc)
-   * @return the client
-   */
-  public static MarginClient of(ServiceInvoker invoker, int retries) {
-    return InvokerMarginClient.of(invoker, retries);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Lists the available CCPs.

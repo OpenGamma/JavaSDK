@@ -62,11 +62,6 @@ final class InvokerMarginClient implements MarginClient {
    */
   private final ServiceInvoker invoker;
 
-  /**
-   * The number of times to retry a failed HTTP connection due to IO reasons (timeout, etc).
-   */
-  private final int retries;
-
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance.
@@ -75,32 +70,16 @@ final class InvokerMarginClient implements MarginClient {
    * @return the client
    */
   static InvokerMarginClient of(ServiceInvoker invoker) {
-    return new InvokerMarginClient(invoker, 1);
+    return new InvokerMarginClient(invoker);
   }
 
-  /**
-   * Obtains an instance.
-   *
-   * @param invoker  the service invoker
-   * @param retries  the number of times to retry a failed HTTP connection due to IO reasons (timeout, etc)
-   * @return the client
-   */
-  static InvokerMarginClient of(ServiceInvoker invoker, int retries) {
-    return new InvokerMarginClient(invoker, retries);
-  }
-
-  private InvokerMarginClient(ServiceInvoker invoker, int retries) {
+  private InvokerMarginClient(ServiceInvoker invoker) {
     this.invoker = Objects.requireNonNull(invoker, "invoker must not be null");
-    this.retries = retries;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public CcpsResult listCcps() {
-    return listCcps(retries);
-  }
-
-  private CcpsResult listCcps(int retries) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl().resolve("margin/v3/ccps"))
         .get()
@@ -114,20 +93,12 @@ final class InvokerMarginClient implements MarginClient {
       return SERIALIZER.jsonReader().read(response.body().string(), CcpsResult.class);
 
     } catch (IOException ex) {
-      if (retries == 1) {
-        throw new UncheckedIOException(ex);
-      } else {
-        return listCcps(--retries);
-      }
+      throw new UncheckedIOException(ex);
     }
   }
 
   @Override
   public CcpInfo getCcpInfo(Ccp ccp) {
-    return getCcpInfo(ccp, retries);
-  }
-
-  private CcpInfo getCcpInfo(Ccp ccp, int retries) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl().resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH)))
         .get()
@@ -140,20 +111,12 @@ final class InvokerMarginClient implements MarginClient {
       }
       return SERIALIZER.jsonReader().read(response.body().string(), CcpInfo.class);
     } catch (IOException ex) {
-      if (retries == 1) {
-        throw new UncheckedIOException(ex);
-      } else {
-        return getCcpInfo(ccp, --retries);
-      }
+      throw new UncheckedIOException(ex);
     }
   }
 
   @Override
   public String createCalculation(Ccp ccp, MarginCalcRequest calcRequest) {
-    return createCalculation(ccp, calcRequest, retries);
-  }
-
-  private String createCalculation(Ccp ccp, MarginCalcRequest calcRequest, int retries) {
     String text = SERIALIZER.jsonWriter().write(calcRequest, false);
     RequestBody body = RequestBody.create(MEDIA_JSON, text);
     Request request = new Request.Builder()
@@ -171,20 +134,12 @@ final class InvokerMarginClient implements MarginClient {
       return location.substring(location.lastIndexOf('/') + 1);
 
     } catch (IOException ex) {
-      if (retries == 1) {
-        throw new UncheckedIOException(ex);
-      } else {
-        return createCalculation(ccp, calcRequest, --retries);
-      }
+      throw new UncheckedIOException(ex);
     }
   }
 
   @Override
   public MarginCalcResult getCalculation(Ccp ccp, String calcId) {
-    return getCalculation(ccp, calcId, retries);
-  }
-
-  private MarginCalcResult getCalculation(Ccp ccp, String calcId, int retries) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl()
             .resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
@@ -202,20 +157,12 @@ final class InvokerMarginClient implements MarginClient {
       return SERIALIZER.withDeserializers(deser).jsonReader().read(response.body().string(), MarginCalcResult.class);
 
     } catch (IOException ex) {
-      if (retries == 1) {
-        throw new UncheckedIOException(ex);
-      } else {
-        return getCalculation(ccp, calcId, --retries);
-      }
+      throw new UncheckedIOException(ex);
     }
   }
 
   @Override
   public void deleteCalculation(Ccp ccp, String calcId) {
-    deleteCalculation(ccp, calcId, retries);
-  }
-
-  private void deleteCalculation(Ccp ccp, String calcId, int retries) {
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl()
             .resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations/" + calcId))
@@ -228,11 +175,7 @@ final class InvokerMarginClient implements MarginClient {
         throw parseError(DELETE_CALCULATION, response);
       }
     } catch (IOException ex) {
-      if (retries == 1) {
-        throw new UncheckedIOException(ex);
-      } else {
-        deleteCalculation(ccp, calcId, --retries);
-      }
+      throw new UncheckedIOException(ex);
     }
   }
 
@@ -256,12 +199,8 @@ final class InvokerMarginClient implements MarginClient {
   //-------------------------------------------------------------------------
   @Override
   public MarginCalcResult calculate(Ccp ccp, MarginCalcRequest request) {
-    return calculate(ccp, request, retries);
-  }
-
-  private MarginCalcResult calculate(Ccp ccp, MarginCalcRequest request, int retries) {
-    String calcId = createCalculation(ccp, request, retries);
-    MarginCalcResult result = getCalculation(ccp, calcId, retries);
+    String calcId = createCalculation(ccp, request);
+    MarginCalcResult result = getCalculation(ccp, calcId);
     while (result.getStatus() == MarginCalcResultStatus.PENDING) {
       try {
         Thread.sleep(POLL_WAIT);
@@ -269,11 +208,11 @@ final class InvokerMarginClient implements MarginClient {
         Thread.currentThread().interrupt();
         throw new RuntimeException(ex);
       }
-      result = getCalculation(ccp, calcId, retries);
+      result = getCalculation(ccp, calcId);
     }
     // cleanup server state quietly
     try {
-      deleteCalculation(ccp, calcId, retries);
+      deleteCalculation(ccp, calcId);
     } catch (RuntimeException ex) {
       // ignore
     }
@@ -282,13 +221,9 @@ final class InvokerMarginClient implements MarginClient {
 
   @Override
   public CompletableFuture<MarginCalcResult> calculateAsync(Ccp ccp, MarginCalcRequest request) {
-    return calculateAsync(ccp, request, retries);
-  }
-
-  private CompletableFuture<MarginCalcResult> calculateAsync(Ccp ccp, MarginCalcRequest request, int retries) {
     ScheduledExecutorService executorService = invoker.getExecutor();
     // async function to create the calculation
-    Supplier<String> createFn = () -> createCalculation(ccp, request, retries);
+    Supplier<String> createFn = () -> createCalculation(ccp, request);
     // async function to poll for results
     Function<String, CompletableFuture<MarginCalcResult>> pollingFn = id -> {
       // manually manage the result future and polling
@@ -296,7 +231,7 @@ final class InvokerMarginClient implements MarginClient {
       // polling task must catch exceptions, otherwise it will poll forever
       Runnable pollTask = () -> {
         try {
-          MarginCalcResult calcResult = getCalculation(ccp, id, retries);
+          MarginCalcResult calcResult = getCalculation(ccp, id);
           if (calcResult.getStatus() == MarginCalcResultStatus.COMPLETED) {
             resultFuture.complete(calcResult);
           }
@@ -309,7 +244,7 @@ final class InvokerMarginClient implements MarginClient {
       BiConsumer<MarginCalcResult, Throwable> cleanupFn = (result, resultEx) -> {
         scheduledTask.cancel(true);
         try {
-          deleteCalculation(ccp, id, retries);
+          deleteCalculation(ccp, id);
         } catch (RuntimeException ex) {
           // ignore
         }
@@ -326,16 +261,8 @@ final class InvokerMarginClient implements MarginClient {
       Ccp ccp,
       MarginCalcRequest request,
       List<PortfolioDataFile> deltaFiles) {
-    return calculateWhatIf(ccp, request, deltaFiles, retries);
-  }
 
-  private MarginWhatIfCalcResult calculateWhatIf(
-      Ccp ccp,
-      MarginCalcRequest request,
-      List<PortfolioDataFile> deltaFiles,
-      int retries) {
-
-    String baseCalcId = createCalculation(ccp, request, retries);
+    String baseCalcId = createCalculation(ccp, request);
     ArrayList<PortfolioDataFile> combinedPortfolioData = new ArrayList<>();
     combinedPortfolioData.addAll(request.getPortfolioData());
     combinedPortfolioData.addAll(deltaFiles);
@@ -344,9 +271,9 @@ final class InvokerMarginClient implements MarginClient {
         .portfolioData(combinedPortfolioData)
         .build();
 
-    String deltaCalcId = createCalculation(ccp, secondRequest, retries);
-    MarginCalcResult baseResult = getCalculation(ccp, baseCalcId, retries);
-    MarginCalcResult deltaResult = getCalculation(ccp, deltaCalcId, retries);
+    String deltaCalcId = createCalculation(ccp, secondRequest);
+    MarginCalcResult baseResult = getCalculation(ccp, baseCalcId);
+    MarginCalcResult deltaResult = getCalculation(ccp, deltaCalcId);
     while (MarginCalcResultStatus.PENDING.equals(baseResult.getStatus()) ||
         MarginCalcResultStatus.PENDING.equals(deltaResult.getStatus())) {
       try {
@@ -355,16 +282,16 @@ final class InvokerMarginClient implements MarginClient {
         throw new RuntimeException(ex);
       }
       if (MarginCalcResultStatus.PENDING.equals(baseResult.getStatus())) {
-        baseResult = getCalculation(ccp, baseCalcId, retries);
+        baseResult = getCalculation(ccp, baseCalcId);
       }
       if (MarginCalcResultStatus.PENDING.equals(deltaResult.getStatus())) {
-        deltaResult = getCalculation(ccp, deltaCalcId, retries);
+        deltaResult = getCalculation(ccp, deltaCalcId);
       }
     }
     // cleanup server state quietly
     try {
-      deleteCalculation(ccp, baseCalcId, retries);
-      deleteCalculation(ccp, deltaCalcId, retries);
+      deleteCalculation(ccp, baseCalcId);
+      deleteCalculation(ccp, deltaCalcId);
     } catch (RuntimeException ex) {
       // ignore
     }

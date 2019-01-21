@@ -77,6 +77,8 @@ public final class ServiceInvokerBuilder {
   private ScheduledExecutorService executorService;
   /** The auth client factory. */
   private Function<ServiceInvoker, AuthClient> authClientFactory;
+  /** Times to retry */
+  private int retries = 1;
 
   //-------------------------------------------------------------------------
   /**
@@ -121,6 +123,19 @@ public final class ServiceInvokerBuilder {
    */
   public ServiceInvokerBuilder httpClient(OkHttpClient httpClient) {
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient must not be null");
+    return this;
+  }
+
+  /**
+   * Sets the number of retries for HTTP request that failed due to system/network issues.
+   * <p>
+   * This allows the client to cope with intermittent network failures, such as timeouts.
+   *
+   * @param retries  how many times to retry
+   * @return this builder, for method chaining
+   */
+  public ServiceInvokerBuilder retries(int retries) {
+    this.retries = retries;
     return this;
   }
 
@@ -201,13 +216,16 @@ public final class ServiceInvokerBuilder {
     }
     // setup HttpClient
     TokenInterceptor tokenInterceptor = new TokenInterceptor();
+    RetryInterceptor retryInterceptor = new RetryInterceptor();
+    retryInterceptor.init(retries);
     httpClient = httpClient.newBuilder()
         .addInterceptor(tokenInterceptor)
         .addInterceptor(new UserAgentHeaderInterceptor())
+        .addInterceptor(retryInterceptor)
         .build();
     // setup instance, creating a pure immutable ServiceInvoker, then using it
     // care should be taken when altering this code to ensure Java Memory Model semantics are considered
-    ServiceInvoker invoker = new ServiceInvoker(serviceUrl, httpClient, executorService);
+    ServiceInvoker invoker = new ServiceInvoker(serviceUrl, httpClient, executorService, retries);
     tokenInterceptor.init(authClientFactory.apply(invoker), credentials);
     return invoker;
   }
@@ -254,6 +272,41 @@ public final class ServiceInvokerBuilder {
           .header("User-Agent", USER_AGENT)
           .build();
       return chain.proceed(modifiedRequest);
+    }
+  }
+
+  //an interceptor that handles retries on System/network related exceptions (eg. timeout)
+  private static class RetryInterceptor implements Interceptor {
+    /** Times to retry */
+    private int retryCount;
+
+    // initializes the state, to ensure that ServiceInvoker is pure immutable wrt Java Memory Model
+    void init(int retryCount) {
+      this.retryCount = retryCount;
+    }
+
+    @Override
+    public Response intercept(Chain chain) {
+      Request request = chain.request();
+      Response response = performRequest(chain, request);
+      int retries = 1;
+      while (response == null && retries < retryCount) {
+        retries++;
+        response = performRequest(chain, request);
+      }
+      if (response == null) {
+        throw new IllegalStateException("Failed to perform request to given URL after " + retries + " retries: " + request.url().toString());
+      }
+      return response;
+    }
+
+    private Response performRequest(Chain chain, Request request) {
+      Response response = null;
+      try {
+        response = chain.proceed(request);
+      } catch (IOException ignored) {
+      }
+      return response;
     }
   }
 
