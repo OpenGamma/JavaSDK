@@ -278,7 +278,7 @@ public final class ServiceInvokerBuilder {
   //an interceptor that handles retries on System/network related exceptions (eg. timeout)
   private static class RetryInterceptor implements Interceptor {
     /** Times to retry */
-    private int retryCount;
+    private final int retryCount;
 
     private RetryInterceptor(int retryCount) {
       this.retryCount = retryCount;
