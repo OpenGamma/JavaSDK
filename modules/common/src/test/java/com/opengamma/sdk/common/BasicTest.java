@@ -38,7 +38,7 @@ public class BasicTest {
         .authClientFactory(inv -> mockAuth)
         .build();
     assertEquals(invoker.getServiceUrl(), SERVICE_URL);
-    assertEquals(invoker.getHttpClient().interceptors().size(), 3);
+    assertEquals(invoker.getHttpClient().interceptors().size(), 4);
     assertEquals(invoker.getHttpClient().followRedirects(), true);
     assertEquals(invoker.getExecutor().isShutdown(), false);
     invoker.close();
@@ -53,7 +53,7 @@ public class BasicTest {
         .authClientFactory(inv -> mockAuth)
         .build()) {
       assertEquals(invoker.getServiceUrl(), SERVICE_URL);
-      assertEquals(invoker.getHttpClient().interceptors().size(), 4);  // logging, user-agent & auth plus one from test
+      assertEquals(invoker.getHttpClient().interceptors().size(), 5);  // logging, user-agent & auth& retry plus one from test
       assertEquals(invoker.getHttpClient().followRedirects(), false);
     }
   }
@@ -65,7 +65,7 @@ public class BasicTest {
         .authClientFactory(inv -> mockAuth)
         .build()) {
       assertEquals(invoker.getServiceUrl(), SERVICE_URL);
-      assertEquals(invoker.getHttpClient().interceptors().size(), 2);  // user-agent & auth
+      assertEquals(invoker.getHttpClient().interceptors().size(), 3);  // user-agent & auth & retry
     }
   }
 

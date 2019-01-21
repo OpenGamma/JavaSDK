@@ -9,6 +9,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertThrows;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
 
 import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.AfterMethod;
@@ -26,10 +28,12 @@ import org.testng.annotations.Test;
 import com.opengamma.sdk.common.ServiceInvoker;
 import com.opengamma.sdk.common.auth.Credentials;
 
+import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import okhttp3.mockwebserver.SocketPolicy;
 
 /**
  * Test.
@@ -186,6 +190,47 @@ public class MarginClientTest {
         .setBody(RESPONSE_DELETE));
 
     ServiceInvoker invoker = createInvoker();
+    MarginClient client = MarginClient.of(invoker);
+
+    MarginCalcResult result = client.calculate(Ccp.LCH, REQUEST);
+    assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
+    assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
+    assertEquals(result.getCalculationTypes(), set(MarginCalcType.MARGIN));
+    assertEquals(result.getValuationDate(), VAL_DATE);
+  }
+
+  public void test_calculate_with_retries_failing() throws Exception {
+    server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
+    server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
+    server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
+
+    ServiceInvoker invoker = createInvoker(1, 1);
+    MarginClient client = MarginClient.of(invoker);
+    assertThrows(UncheckedIOException.class, () -> client.listCcps());
+    assertThrows(UncheckedIOException.class, () -> client.getCcpInfo(Ccp.LCH));
+    assertThrows(UncheckedIOException.class, () -> client.calculate(Ccp.LCH, REQUEST));
+  }
+
+  @SuppressWarnings("deprecation")
+  public void test_calculate_with_retries_succeeding() throws Exception {
+    server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
+    server.enqueue(new MockResponse()
+        .setResponseCode(202)
+        .setHeader("Location", server.url("/ccps/lch/calculations/789"))
+        .setBody(RESPONSE_CALC_POST));
+    server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
+    server.enqueue(new MockResponse()
+        .setHeader("Content-Type", "application/xml")
+        .setBody(RESPONSE_CALC_GET_PENDING));
+    server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
+    server.enqueue(new MockResponse()
+        .setHeader("Content-Type", "application/xml")
+        .setBody(RESPONSE_CALC_GET_COMPLETE));
+    server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
+    server.enqueue(new MockResponse()
+        .setBody(RESPONSE_DELETE));
+
+    ServiceInvoker invoker = createInvoker(1, 2);
     MarginClient client = MarginClient.of(invoker);
 
     MarginCalcResult result = client.calculate(Ccp.LCH, REQUEST);
@@ -408,6 +453,19 @@ public class MarginClientTest {
     return ServiceInvoker.builder(CREDENTIALS)
         .serviceUrl(server.url("/"))
         .authClientFactory(inv -> new TestingAuthClient())
+        .build();
+  }
+
+  private ServiceInvoker createInvoker(int timeoutInSeconds, int retries) {
+    return ServiceInvoker.builder(CREDENTIALS)
+        .serviceUrl(server.url("/"))
+        .authClientFactory(inv -> new TestingAuthClient())
+        .httpClient(new OkHttpClient().newBuilder()
+            .connectTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+            .readTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+            .writeTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+            .build())
+        .retries(retries)
         .build();
   }
 
