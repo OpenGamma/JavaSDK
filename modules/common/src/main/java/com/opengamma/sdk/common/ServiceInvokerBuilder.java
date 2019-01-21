@@ -298,7 +298,7 @@ public final class ServiceInvokerBuilder {
           exception = e;
         }
       }
-      if (response == null && exception != null) {
+      if (response == null) {
         throw new IOException("Failed to perform request to given URL after " + retries + " retries: " + request.url().toString(), exception);
       }
       return response;
