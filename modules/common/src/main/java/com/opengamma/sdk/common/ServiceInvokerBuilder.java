@@ -225,7 +225,7 @@ public final class ServiceInvokerBuilder {
         .build();
     // setup instance, creating a pure immutable ServiceInvoker, then using it
     // care should be taken when altering this code to ensure Java Memory Model semantics are considered
-    ServiceInvoker invoker = new ServiceInvoker(serviceUrl, httpClient, executorService, retries);
+    ServiceInvoker invoker = new ServiceInvoker(serviceUrl, httpClient, executorService);
     tokenInterceptor.init(authClientFactory.apply(invoker), credentials);
     return invoker;
   }
