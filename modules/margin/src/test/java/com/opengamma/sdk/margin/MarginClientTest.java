@@ -9,6 +9,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertThrows;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -205,10 +206,9 @@ public class MarginClientTest {
 
     ServiceInvoker invoker = createInvoker(1, 1);
     MarginClient client = MarginClient.of(invoker);
-
-    assertThrows(IllegalStateException.class, () -> client.listCcps());
-    assertThrows(IllegalStateException.class, () -> client.getCcpInfo(Ccp.LCH));
-    assertThrows(IllegalStateException.class, () -> client.calculate(Ccp.LCH, REQUEST));
+    assertThrows(UncheckedIOException.class, () -> client.listCcps());
+    assertThrows(UncheckedIOException.class, () -> client.getCcpInfo(Ccp.LCH));
+    assertThrows(UncheckedIOException.class, () -> client.calculate(Ccp.LCH, REQUEST));
   }
 
   @SuppressWarnings("deprecation")

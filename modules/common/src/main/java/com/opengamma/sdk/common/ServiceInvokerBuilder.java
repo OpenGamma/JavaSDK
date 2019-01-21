@@ -6,6 +6,7 @@
 package com.opengamma.sdk.common;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Executors;
@@ -127,7 +128,7 @@ public final class ServiceInvokerBuilder {
   }
 
   /**
-   * Sets the number of retries for HTTP request that failed due to system/network issues.
+   * Sets the number of retries for HTTP requests that failed due to system/network issues.
    * <p>
    * This allows the client to cope with intermittent network failures, such as timeouts.
    *
@@ -216,8 +217,7 @@ public final class ServiceInvokerBuilder {
     }
     // setup HttpClient
     TokenInterceptor tokenInterceptor = new TokenInterceptor();
-    RetryInterceptor retryInterceptor = new RetryInterceptor();
-    retryInterceptor.init(retries);
+    RetryInterceptor retryInterceptor = new RetryInterceptor(retries);
     httpClient = httpClient.newBuilder()
         .addInterceptor(tokenInterceptor)
         .addInterceptor(new UserAgentHeaderInterceptor())
@@ -280,31 +280,26 @@ public final class ServiceInvokerBuilder {
     /** Times to retry */
     private int retryCount;
 
-    // initializes the state, to ensure that ServiceInvoker is pure immutable wrt Java Memory Model
-    void init(int retryCount) {
+    private RetryInterceptor(int retryCount) {
       this.retryCount = retryCount;
     }
 
     @Override
-    public Response intercept(Chain chain) {
+    public Response intercept(Chain chain) throws IOException {
       Request request = chain.request();
-      Response response = performRequest(chain, request);
-      int retries = 1;
+      Response response = null;
+      Exception exception = null;
+      int retries = 0;
       while (response == null && retries < retryCount) {
         retries++;
-        response = performRequest(chain, request);
+        try {
+          response = chain.proceed(request);
+        } catch (IOException | UncheckedIOException e) {
+          exception = e;
+        }
       }
-      if (response == null) {
-        throw new IllegalStateException("Failed to perform request to given URL after " + retries + " retries: " + request.url().toString());
-      }
-      return response;
-    }
-
-    private Response performRequest(Chain chain, Request request) {
-      Response response = null;
-      try {
-        response = chain.proceed(request);
-      } catch (IOException ignored) {
+      if (response == null && exception != null) {
+        throw new IOException("Failed to perform request to given URL after " + retries + " retries: " + request.url().toString(), exception);
       }
       return response;
     }
