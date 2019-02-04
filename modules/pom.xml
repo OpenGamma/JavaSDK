@@ -410,7 +410,7 @@
     <okhttp.version>3.12.1</okhttp.version>
     <okio.version>1.14.0</okio.version>
     <testng.version>6.14.2</testng.version>
-    <mockito.version>2.23.4</mockito.version>
+    <mockito.version>2.24.0</mockito.version>
     <logback-classic.version>1.2.3</logback-classic.version>
     <japicmp-maven-plugin.version>0.13.0</japicmp-maven-plugin.version>
     <!-- Properties for joda-beans-maven-plugin -->
