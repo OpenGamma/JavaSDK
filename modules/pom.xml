@@ -407,7 +407,7 @@
     <joda-beans.version>2.4.0</joda-beans.version>
     <slf4j.version>1.7.25</slf4j.version>
     <jcommander.version>1.72</jcommander.version>
-    <okhttp.version>3.12.1</okhttp.version>
+    <okhttp.version>3.13.1</okhttp.version>
     <okio.version>1.14.0</okio.version>
     <testng.version>6.14.2</testng.version>
     <mockito.version>2.24.0</mockito.version>
