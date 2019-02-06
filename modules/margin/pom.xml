@@ -22,7 +22,7 @@
     </dependency>
 
     <!-- Third party -->
-    <!-- MINIMAL DEPENDENCIES - NO GUAVA!-->
+    <!-- MINIMAL DEPENDENCIES - NO GUAVA! NO STRATA! -->
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp</artifactId>
@@ -112,6 +112,7 @@
   
   <!-- ==================================================================== -->
   <properties>
+    <jpms.module.name>com.opengamma.sdk.margin</jpms.module.name>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma SDK - Margin</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma SDK Margin</h1>]]></doctitle>

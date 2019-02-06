@@ -46,7 +46,7 @@ public interface MarginClient {
    * @throws MarginException if unable to get the information
    * @throws UncheckedIOException if an IO error occurs
    */
-  public CcpInfo getCcpInfo(Ccp ccp);
+  public abstract CcpInfo getCcpInfo(Ccp ccp);
 
   /**
    * Creates a margin calculation task.
