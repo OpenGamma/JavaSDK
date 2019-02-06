@@ -230,19 +230,23 @@ final class InvokerMarginClient implements MarginClient {
       CompletableFuture<MarginCalcResult> resultFuture = new CompletableFuture<>();
       // polling task must catch exceptions, otherwise it will poll forever
       Runnable pollTask = () -> {
-        try {
-          MarginCalcResult calcResult = getCalculation(ccp, id);
-          if (calcResult.getStatus() == MarginCalcResultStatus.COMPLETED) {
-            resultFuture.complete(calcResult);
+        // avoid potential race conditions during scheduled task cancellation by checking if we are done
+        if (!resultFuture.isDone()) {
+          try {
+            MarginCalcResult calcResult = getCalculation(ccp, id);
+            if (calcResult.getStatus() == MarginCalcResultStatus.COMPLETED) {
+              resultFuture.complete(calcResult);
+            }
+          } catch (RuntimeException ex) {
+            resultFuture.completeExceptionally(ex);
           }
-        } catch (RuntimeException ex) {
-          resultFuture.completeExceptionally(ex);
         }
       };
       ScheduledFuture<?> scheduledTask = executorService.scheduleWithFixedDelay(pollTask, POLL_WAIT, POLL_WAIT, MILLISECONDS);
       // stop the scheduled job and cleanup server state quietly
       BiConsumer<MarginCalcResult, Throwable> cleanupFn = (result, resultEx) -> {
-        scheduledTask.cancel(true);
+        // do not interrupt during cancellation, as that breaks delete calculation (in okio)
+        scheduledTask.cancel(false);
         try {
           deleteCalculation(ccp, id);
         } catch (RuntimeException ex) {
