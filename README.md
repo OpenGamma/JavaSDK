@@ -24,30 +24,10 @@ For example, to access the SDK for the margin service, use:
 <dependency>
   <groupId>com.opengamma.sdk</groupId>
   <artifactId>sdk-margin</artifactId>
-  <version>3.1.1</version>
+  <version>3.1.3</version>
 </dependency>
 ```
 
 ## Releases
 
-### v3.1.1
-
-* Bug fix: Periods were not being sent correctly to the server in some cases.
-
-### v3.1.0
-
-* Major enhancement to the API for new functionality
-* All users get a standardized breakdown of the margin number
-* Callers with the right permissions can now request margin detail and trade valuations
-* The existing `MarginCalcRequestType` has been replaced with `Set<MarginCalcType>`
- (but with backwards compatibility retained via deprecations)
-
-### v3.0.1
-
-* Bug fix: The asynchronous margin calculation methods were rewritten.
-* Bug fix: If an interrupt happens while blocked, the interrupt flag will now be set.
-* The dependencies and build script were updated.
-
-### v3.0.0
-
-* The SDK packages are restructured to a design suitable for the long term.
+See the [change log](CHANGELOG.md).
