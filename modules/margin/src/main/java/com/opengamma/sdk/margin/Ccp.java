@@ -19,6 +19,8 @@ public enum Ccp {
   EUREX,
   /** LCH. */
   LCH,
+  /** LCH CDS. */
+  LCH_CDS,
   /** CME. */
   CME,
   /** SIMM. */
