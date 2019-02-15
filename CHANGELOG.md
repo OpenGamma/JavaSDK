@@ -3,6 +3,12 @@ Change Log
 
 Changes to the SDK, listed in the style of [keepachangelog](https://keepachangelog.com/en/1.0.0/).
 
+## Version 3.1.4 - 2019-02-15
+
+### Added
+
+* Support for CDSClear Margin request
+
 ## Version 3.1.3 - 2019-02-07
 
 ### Task
