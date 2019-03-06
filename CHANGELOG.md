@@ -3,6 +3,13 @@ Change Log
 
 Changes to the SDK, listed in the style of [keepachangelog](https://keepachangelog.com/en/1.0.0/).
 
+## Version 3.2.1
+
+### Fixed
+
+* Fix what-if result object to return combined and delta margin in correct fields
+
+
 ## Version 3.2.0 - 2019-02-15
 
 ### Added

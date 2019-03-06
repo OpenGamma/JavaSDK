@@ -134,8 +134,8 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
         reportingCurrency,
         portfolioItems,
         baseSummary,
-        deltaSummary,
         combinedSummary,
+        deltaSummary,
         failures);
   }
 

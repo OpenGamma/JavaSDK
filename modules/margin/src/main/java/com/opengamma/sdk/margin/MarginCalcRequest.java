@@ -797,7 +797,6 @@ public final class MarginCalcRequest implements ImmutableBean {
      * If {@code PARSE_INPUTS} or {@code FULL} is set, the calculation types will include {@code PORTFOLIO_SUMMARY}.
      * If {@code STANDARD} or {@code FULL} is set, the calculation types will include {@code MARGIN}.
      * 
-     * @deprecated Use {@link #getCalculationTypes()} instead
      * @param type  the new value
      * @return this, for chaining, not null
      * @deprecated Use {@link #getCalculationTypes()} instead
