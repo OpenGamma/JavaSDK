@@ -5,6 +5,10 @@ Changes to the SDK, listed in the style of [keepachangelog](https://keepachangel
 
 ## Version 3.3.0
 
+### Added
+
+* Return bucketed delta/gamma by curve at the portfolio level
+
 ### Fixed
 
 * Fix what-if result object to return combined and delta margin in correct fields
