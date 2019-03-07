@@ -317,8 +317,8 @@ public class MarginClientTest {
     assertEquals(result.getValuationDate(), VAL_DATE);
 
     assertEquals(result.getBaseSummary().getMargin(), 125.0); //Hard coded result, not relevant for portfolio
-    assertEquals(result.getCombinedSummary().getMargin(), 135.0); //Hard coded result, not relevant for portfolio
-    assertEquals(result.getDeltaSummary().getMargin(), 260.0);
+    assertEquals(result.getCombinedSummary().getMargin(), 260.0); //Hard coded result, not relevant for portfolio
+    assertEquals(result.getDeltaSummary().getMargin(), 135.0);
   }
 
   public void test_calculate_postFail() throws Exception {
