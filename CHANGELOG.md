@@ -3,7 +3,11 @@ Change Log
 
 Changes to the SDK, listed in the style of [keepachangelog](https://keepachangelog.com/en/1.0.0/).
 
-## Version 3.2.1
+## Version 3.3.0
+
+### Added
+
+* Return bucketed delta/gamma by curve at the portfolio level
 
 ### Fixed
 

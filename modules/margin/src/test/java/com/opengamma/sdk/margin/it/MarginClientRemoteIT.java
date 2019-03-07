@@ -226,8 +226,11 @@ public class MarginClientRemoteIT {
     TradeValuations vals = result.getTradeValuations().get();
     assertTrue(vals.getTotalPresentValue() != 0);
     assertEquals(vals.getTotalDelta().isPresent(), true);
+    assertEquals(vals.getBucketedDelta().isPresent(), true);
     assertEquals(vals.getTotalGamma().isPresent(), false);
+    assertEquals(vals.getBucketedGamma().isPresent(), false);
     assertTrue(vals.getTotalDelta().getAsDouble() != 0);
+    assertEquals(vals.getBucketedDelta().get().size(), 3);
     assertEquals(vals.getTrades().size(), 4);
     TradeValuation val = vals.getTrades().get(0);
     assertEquals(val.getValue().isPresent(), true);
