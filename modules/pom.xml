@@ -395,7 +395,7 @@
     <logback.version>1.2.3</logback.version>
     <mockito.version>2.25.0</mockito.version>
     <slf4j.version>1.7.26</slf4j.version>
-    <okhttp.version>3.13.1</okhttp.version>
+    <okhttp.version>3.14.0</okhttp.version>
     <okio.version>1.17.3</okio.version>
     <testng.version>6.14.2</testng.version><!-- 6.14.3/6.14.4 do not work -->
     <!-- Properties for joda-beans-maven-plugin -->
