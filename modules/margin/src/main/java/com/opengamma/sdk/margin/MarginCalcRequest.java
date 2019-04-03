@@ -100,7 +100,7 @@ public final class MarginCalcRequest implements ImmutableBean {
   /**
    * To have self-referencing margin calculated correctly, we need to pass in (if specified) the clearing member code.
    */
-  @PropertyDefinition
+  @PropertyDefinition(get = "optional")
   private final String portfolioOwnerCode;
 
   //-------------------------------------------------------------------------
@@ -133,7 +133,8 @@ public final class MarginCalcRequest implements ImmutableBean {
         reportingCurrency,
         null,
         files,
-        fpmlPartySelectionRegex);
+        fpmlPartySelectionRegex,
+        null);
   }
 
   /**
@@ -166,7 +167,8 @@ public final class MarginCalcRequest implements ImmutableBean {
         reportingCurrency,
         null,
         files,
-        fpmlPartySelectionRegex);
+        fpmlPartySelectionRegex,
+        null);
   }
 
   /**
@@ -196,6 +198,7 @@ public final class MarginCalcRequest implements ImmutableBean {
         reportingCurrency,
         null,
         files,
+        null,
         null);
   }
 
@@ -234,6 +237,7 @@ public final class MarginCalcRequest implements ImmutableBean {
         reportingCurrency,
         null,
         files,
+        null,
         null);
   }
 
@@ -270,6 +274,7 @@ public final class MarginCalcRequest implements ImmutableBean {
         reportingCurrency,
         null,
         files,
+        null,
         null);
   }
 
@@ -301,7 +306,8 @@ public final class MarginCalcRequest implements ImmutableBean {
       String reportingCurrency,
       String calculationCurrency,
       List<PortfolioDataFile> portfolioData,
-      String fpmlPartySelectionRegex) {
+      String fpmlPartySelectionRegex,
+      String portfolioOwnerCode) {
     JodaBeanUtils.notNull(calculationTypes, "calculationTypes");
     JodaBeanUtils.notNull(mode, "mode");
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
@@ -459,10 +465,10 @@ public final class MarginCalcRequest implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets to have self-referencing margin calculated correctly, we need to pass in (if specified) the clearing member code.
-   * @return the value of the property
+   * @return the optional value of the property, not null
    */
-  public String getPortfolioOwnerCode() {
-    return portfolioOwnerCode;
+  public Optional<String> getPortfolioOwnerCode() {
+    return Optional.ofNullable(portfolioOwnerCode);
   }
 
   //-----------------------------------------------------------------------
@@ -677,7 +683,7 @@ public final class MarginCalcRequest implements ImmutableBean {
         case 527038456:  // fpmlPartySelectionRegex
           return ((MarginCalcRequest) bean).fpmlPartySelectionRegex;
         case 1108872920:  // portfolioOwnerCode
-          return ((MarginCalcRequest) bean).getPortfolioOwnerCode();
+          return ((MarginCalcRequest) bean).portfolioOwnerCode;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -731,7 +737,7 @@ public final class MarginCalcRequest implements ImmutableBean {
       this.calculationCurrency = beanToCopy.calculationCurrency;
       this.portfolioData = new ArrayList<>(beanToCopy.getPortfolioData());
       this.fpmlPartySelectionRegex = beanToCopy.fpmlPartySelectionRegex;
-      this.portfolioOwnerCode = beanToCopy.getPortfolioOwnerCode();
+      this.portfolioOwnerCode = beanToCopy.portfolioOwnerCode;
     }
 
     //-----------------------------------------------------------------------
@@ -820,7 +826,8 @@ public final class MarginCalcRequest implements ImmutableBean {
           reportingCurrency,
           calculationCurrency,
           portfolioData,
-          fpmlPartySelectionRegex);
+          fpmlPartySelectionRegex,
+          portfolioOwnerCode);
     }
 
     //-----------------------------------------------------------------------
