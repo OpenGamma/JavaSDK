@@ -97,6 +97,11 @@ public final class MarginCalcRequest implements ImmutableBean {
    */
   @PropertyDefinition(get = "optional")
   private final String fpmlPartySelectionRegex;
+  /**
+   * To have self-referencing margin calculated correctly, we need to pass in (if specified) the clearing member code.
+   */
+  @PropertyDefinition(get = "optional")
+  private final String portfolioOwnerCode;
 
   //-------------------------------------------------------------------------
   /**
@@ -128,7 +133,8 @@ public final class MarginCalcRequest implements ImmutableBean {
         reportingCurrency,
         null,
         files,
-        fpmlPartySelectionRegex);
+        fpmlPartySelectionRegex,
+        null);
   }
 
   /**
@@ -161,7 +167,8 @@ public final class MarginCalcRequest implements ImmutableBean {
         reportingCurrency,
         null,
         files,
-        fpmlPartySelectionRegex);
+        fpmlPartySelectionRegex,
+        null);
   }
 
   /**
@@ -191,6 +198,7 @@ public final class MarginCalcRequest implements ImmutableBean {
         reportingCurrency,
         null,
         files,
+        null,
         null);
   }
 
@@ -229,6 +237,7 @@ public final class MarginCalcRequest implements ImmutableBean {
         reportingCurrency,
         null,
         files,
+        null,
         null);
   }
 
@@ -265,6 +274,7 @@ public final class MarginCalcRequest implements ImmutableBean {
         reportingCurrency,
         null,
         files,
+        null,
         null);
   }
 
@@ -296,7 +306,8 @@ public final class MarginCalcRequest implements ImmutableBean {
       String reportingCurrency,
       String calculationCurrency,
       List<PortfolioDataFile> portfolioData,
-      String fpmlPartySelectionRegex) {
+      String fpmlPartySelectionRegex,
+      String portfolioOwnerCode) {
     JodaBeanUtils.notNull(calculationTypes, "calculationTypes");
     JodaBeanUtils.notNull(mode, "mode");
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
@@ -319,6 +330,7 @@ public final class MarginCalcRequest implements ImmutableBean {
     this.calculationCurrency = calculationCurrency;
     this.portfolioData = Collections.unmodifiableList(new ArrayList<>(portfolioData));
     this.fpmlPartySelectionRegex = fpmlPartySelectionRegex;
+    this.portfolioOwnerCode = portfolioOwnerCode;
   }
 
   //-------------------------------------------------------------------------
@@ -452,6 +464,15 @@ public final class MarginCalcRequest implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets to have self-referencing margin calculated correctly, we need to pass in (if specified) the clearing member code.
+   * @return the optional value of the property, not null
+   */
+  public Optional<String> getPortfolioOwnerCode() {
+    return Optional.ofNullable(portfolioOwnerCode);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -474,7 +495,8 @@ public final class MarginCalcRequest implements ImmutableBean {
           JodaBeanUtils.equal(reportingCurrency, other.reportingCurrency) &&
           JodaBeanUtils.equal(calculationCurrency, other.calculationCurrency) &&
           JodaBeanUtils.equal(portfolioData, other.portfolioData) &&
-          JodaBeanUtils.equal(fpmlPartySelectionRegex, other.fpmlPartySelectionRegex);
+          JodaBeanUtils.equal(fpmlPartySelectionRegex, other.fpmlPartySelectionRegex) &&
+          JodaBeanUtils.equal(portfolioOwnerCode, other.portfolioOwnerCode);
     }
     return false;
   }
@@ -491,12 +513,13 @@ public final class MarginCalcRequest implements ImmutableBean {
     hash = hash * 31 + JodaBeanUtils.hashCode(calculationCurrency);
     hash = hash * 31 + JodaBeanUtils.hashCode(portfolioData);
     hash = hash * 31 + JodaBeanUtils.hashCode(fpmlPartySelectionRegex);
+    hash = hash * 31 + JodaBeanUtils.hashCode(portfolioOwnerCode);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("MarginCalcRequest{");
     buf.append("calculationTypes").append('=').append(calculationTypes).append(',').append(' ');
     buf.append("mode").append('=').append(mode).append(',').append(' ');
@@ -505,7 +528,8 @@ public final class MarginCalcRequest implements ImmutableBean {
     buf.append("reportingCurrency").append('=').append(reportingCurrency).append(',').append(' ');
     buf.append("calculationCurrency").append('=').append(calculationCurrency).append(',').append(' ');
     buf.append("portfolioData").append('=').append(portfolioData).append(',').append(' ');
-    buf.append("fpmlPartySelectionRegex").append('=').append(JodaBeanUtils.toString(fpmlPartySelectionRegex));
+    buf.append("fpmlPartySelectionRegex").append('=').append(fpmlPartySelectionRegex).append(',').append(' ');
+    buf.append("portfolioOwnerCode").append('=').append(JodaBeanUtils.toString(portfolioOwnerCode));
     buf.append('}');
     return buf.toString();
   }
@@ -568,6 +592,11 @@ public final class MarginCalcRequest implements ImmutableBean {
     private final MetaProperty<String> fpmlPartySelectionRegex = DirectMetaProperty.ofImmutable(
         this, "fpmlPartySelectionRegex", MarginCalcRequest.class, String.class);
     /**
+     * The meta-property for the {@code portfolioOwnerCode} property.
+     */
+    private final MetaProperty<String> portfolioOwnerCode = DirectMetaProperty.ofImmutable(
+        this, "portfolioOwnerCode", MarginCalcRequest.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -580,7 +609,8 @@ public final class MarginCalcRequest implements ImmutableBean {
         "reportingCurrency",
         "calculationCurrency",
         "portfolioData",
-        "fpmlPartySelectionRegex");
+        "fpmlPartySelectionRegex",
+        "portfolioOwnerCode");
 
     /**
      * Restricted constructor.
@@ -609,6 +639,8 @@ public final class MarginCalcRequest implements ImmutableBean {
           return portfolioData;
         case 527038456:  // fpmlPartySelectionRegex
           return fpmlPartySelectionRegex;
+        case 1108872920:  // portfolioOwnerCode
+          return portfolioOwnerCode;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -650,6 +682,8 @@ public final class MarginCalcRequest implements ImmutableBean {
           return ((MarginCalcRequest) bean).getPortfolioData();
         case 527038456:  // fpmlPartySelectionRegex
           return ((MarginCalcRequest) bean).fpmlPartySelectionRegex;
+        case 1108872920:  // portfolioOwnerCode
+          return ((MarginCalcRequest) bean).portfolioOwnerCode;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -680,6 +714,7 @@ public final class MarginCalcRequest implements ImmutableBean {
     private String calculationCurrency;
     private List<PortfolioDataFile> portfolioData = Collections.emptyList();
     private String fpmlPartySelectionRegex;
+    private String portfolioOwnerCode;
 
     /**
      * Restricted constructor.
@@ -702,6 +737,7 @@ public final class MarginCalcRequest implements ImmutableBean {
       this.calculationCurrency = beanToCopy.calculationCurrency;
       this.portfolioData = new ArrayList<>(beanToCopy.getPortfolioData());
       this.fpmlPartySelectionRegex = beanToCopy.fpmlPartySelectionRegex;
+      this.portfolioOwnerCode = beanToCopy.portfolioOwnerCode;
     }
 
     //-----------------------------------------------------------------------
@@ -726,6 +762,8 @@ public final class MarginCalcRequest implements ImmutableBean {
           return portfolioData;
         case 527038456:  // fpmlPartySelectionRegex
           return fpmlPartySelectionRegex;
+        case 1108872920:  // portfolioOwnerCode
+          return portfolioOwnerCode;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -762,6 +800,9 @@ public final class MarginCalcRequest implements ImmutableBean {
         case 527038456:  // fpmlPartySelectionRegex
           this.fpmlPartySelectionRegex = (String) newValue;
           break;
+        case 1108872920:  // portfolioOwnerCode
+          this.portfolioOwnerCode = (String) newValue;
+          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -785,7 +826,8 @@ public final class MarginCalcRequest implements ImmutableBean {
           reportingCurrency,
           calculationCurrency,
           portfolioData,
-          fpmlPartySelectionRegex);
+          fpmlPartySelectionRegex,
+          portfolioOwnerCode);
     }
 
     //-----------------------------------------------------------------------
@@ -917,10 +959,20 @@ public final class MarginCalcRequest implements ImmutableBean {
       return this;
     }
 
+    /**
+     * Sets to have self-referencing margin calculated correctly, we need to pass in (if specified) the clearing member code.
+     * @param portfolioOwnerCode  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder portfolioOwnerCode(String portfolioOwnerCode) {
+      this.portfolioOwnerCode = portfolioOwnerCode;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(288);
+      StringBuilder buf = new StringBuilder(320);
       buf.append("MarginCalcRequest.Builder{");
       buf.append("calculationTypes").append('=').append(JodaBeanUtils.toString(calculationTypes)).append(',').append(' ');
       buf.append("mode").append('=').append(JodaBeanUtils.toString(mode)).append(',').append(' ');
@@ -929,7 +981,8 @@ public final class MarginCalcRequest implements ImmutableBean {
       buf.append("reportingCurrency").append('=').append(JodaBeanUtils.toString(reportingCurrency)).append(',').append(' ');
       buf.append("calculationCurrency").append('=').append(JodaBeanUtils.toString(calculationCurrency)).append(',').append(' ');
       buf.append("portfolioData").append('=').append(JodaBeanUtils.toString(portfolioData)).append(',').append(' ');
-      buf.append("fpmlPartySelectionRegex").append('=').append(JodaBeanUtils.toString(fpmlPartySelectionRegex));
+      buf.append("fpmlPartySelectionRegex").append('=').append(JodaBeanUtils.toString(fpmlPartySelectionRegex)).append(',').append(' ');
+      buf.append("portfolioOwnerCode").append('=').append(JodaBeanUtils.toString(portfolioOwnerCode));
       buf.append('}');
       return buf.toString();
     }
