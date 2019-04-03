@@ -330,7 +330,7 @@ public final class MarginCalcRequest implements ImmutableBean {
     this.calculationCurrency = calculationCurrency;
     this.portfolioData = Collections.unmodifiableList(new ArrayList<>(portfolioData));
     this.fpmlPartySelectionRegex = fpmlPartySelectionRegex;
-    this.portfolioOwnerCode = "";
+    this.portfolioOwnerCode = portfolioOwnerCode;
   }
 
   //-------------------------------------------------------------------------
