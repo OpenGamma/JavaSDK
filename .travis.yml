@@ -16,7 +16,7 @@ script:
 # build
   - mvn install -e -B -DintegrationTest -Ddist
 # deploy
-  - if [[ $TRAVIS_TAG =~ ^v.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -Ddist -DaltDeploymentRepository="og-public-release::default::https://api.bintray.com/maven/opengamma/releases/JavaSDK/" --settings .github/deploy-settings.xml; fi
+  - if [[ $TRAVIS_TAG =~ ^v.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -Ddist -DaltDeploymentRepository="og-public-release::https://api.bintray.com/maven/opengamma/releases/JavaSDK/" --settings .github/deploy-settings.xml; fi
 # secure keys for DEPLOY_USER, DEPLOY_PASSWORD, MARGIN_API_KEY, MARGIN_API_SECRET
 env:
   global:
