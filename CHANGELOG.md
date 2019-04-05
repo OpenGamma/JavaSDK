@@ -3,6 +3,16 @@ Change Log
 
 Changes to the SDK, listed in the style of [keepachangelog](https://keepachangelog.com/en/1.0.0/).
 
+## Version 3.4.0
+
+### Added 
+
+* Added a `portfolioOwnerCode` optional field  to the MarginCalcRequest
+
+### Task
+
+* Updated dependencies
+
 ## Version 3.3.0
 
 ### Added
