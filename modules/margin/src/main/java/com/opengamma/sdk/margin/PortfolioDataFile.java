@@ -36,6 +36,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
+import org.joda.beans.ser.JodaBeanSer;
 
 /**
  * Portfolio data to pass to the service.
@@ -86,6 +87,24 @@ public final class PortfolioDataFile implements ImmutableBean {
     }
     String base64Data = gzipBase64(path);
     return new PortfolioDataFile(filename + ".gz.base64", base64Data);
+  }
+
+  /**
+   * Obtains an instance from a bean.
+   * <p>
+   * The bean should be an instance of a Strata {@code CalculationTarget}, such as a trade or position.
+   * If a {@link PortfolioDataFile} is passed in, it is returned unaltered.
+   *
+   * @param bean the bean
+   * @return the instance
+   */
+  public static PortfolioDataFile of(Bean bean) {
+    if (bean instanceof PortfolioDataFile) {
+      return (PortfolioDataFile) bean;
+    } else {
+      String xml = JodaBeanSer.COMPACT.xmlWriter().write(bean);
+      return PortfolioDataFile.of(bean.getClass().getSimpleName() + ".xml", xml);
+    }
   }
 
   /**
