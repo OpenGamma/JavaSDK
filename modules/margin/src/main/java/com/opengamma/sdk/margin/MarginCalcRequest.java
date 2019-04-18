@@ -5,6 +5,8 @@
  */
 package com.opengamma.sdk.margin;
 
+import static java.util.stream.Collectors.toList;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +32,6 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.ser.JodaBeanSer;
 
 /**
  * Request to pass to the service.
@@ -279,16 +280,9 @@ public final class MarginCalcRequest implements ImmutableBean {
   }
 
   private static List<PortfolioDataFile> convertPortfolioData(List<? extends Bean> portfolioData) {
-    List<PortfolioDataFile> files = new ArrayList<>();
-    for (Bean bean : portfolioData) {
-      if (bean instanceof PortfolioDataFile) {
-        files.add((PortfolioDataFile) bean);
-      } else {
-        String xml = JodaBeanSer.COMPACT.xmlWriter().write(bean);
-        files.add(PortfolioDataFile.of(bean.getClass().getSimpleName() + ".xml", xml));
-      }
-    }
-    return files;
+    return portfolioData.stream()
+        .map(PortfolioDataFile::of)
+        .collect(toList());
   }
 
   @ImmutableDefaults

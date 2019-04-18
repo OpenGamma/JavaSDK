@@ -6,6 +6,7 @@
 package com.opengamma.sdk.margin;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,9 +21,9 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.joda.beans.Bean;
+import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
-
-import com.opengamma.sdk.margin.PortfolioDataFile;
 
 /**
  * Test {@link PortfolioDataFile}.
@@ -78,6 +79,21 @@ public class PortfolioDataFileTest {
     assertEquals(test.getData(), Base64.getEncoder().encodeToString(gzip(path)));
   }
 
+  //-------------------------------------------------------------------------
+  public void test_ofBean_unchanged() {
+    Bean bean = PortfolioDataFile.of("name.txt", "a=b");
+    PortfolioDataFile test = PortfolioDataFile.of(bean);
+    assertSame(test, bean);
+  }
+
+  public void test_ofBean_trade() {
+    Bean bean = TradeValue.of(1, "GBP", 2);
+    String xml = JodaBeanSer.COMPACT.xmlWriter().write(bean);
+    PortfolioDataFile test = PortfolioDataFile.of(bean);
+    assertEquals(test, PortfolioDataFile.of("TradeValue.xml", xml));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_ofCombined() {
     Path path1 = Paths.get("src/test/resources/simple.xml");
     Path path2 = Paths.get("src/test/resources/simple.xls");
