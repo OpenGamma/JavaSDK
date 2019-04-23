@@ -7,7 +7,7 @@ Changes to the SDK, listed in the style of [keepachangelog](https://keepachangel
 
 ### Added 
 
-* Added a mechanism to accept a Strata bean into a PortfolioDataFile
+* Added a mechanism to create a PortfolioDataFile instance from a Strata bean
 
 ### Task
 
