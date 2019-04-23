@@ -3,6 +3,16 @@ Change Log
 
 Changes to the SDK, listed in the style of [keepachangelog](https://keepachangelog.com/en/1.0.0/).
 
+## Version 3.5.0 - 2019-04-23
+
+### Added 
+
+* Added a mechanism to accept a Strata bean into a PortfolioDataFile
+
+### Task
+
+* Updated dependencies
+
 ## Version 3.4.0
 
 ### Added 
