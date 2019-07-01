@@ -66,8 +66,8 @@ public class MarginClientRemoteIT {
   //-------------------------------------------------------------------------
   @BeforeClass
   public void setUp() throws IOException {
-    String apiKey = System.getenv("MARGIN_API_KEY");
-    String secret = System.getenv("MARGIN_API_SECRET");
+    String apiKey = System.getenv("MARGIN_API_DEV_ID");
+    String secret = System.getenv("MARGIN_API_DEV_SECRET");
     Credentials credentials = Credentials.ofApiKey(apiKey, secret);
     invoker = ServiceInvoker.builder(credentials)
         .serviceUrl(HttpUrl.parse("https://api.dev.opengamma.com"))
