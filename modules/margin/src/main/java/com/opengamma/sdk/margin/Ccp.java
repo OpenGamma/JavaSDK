@@ -8,37 +8,44 @@ package com.opengamma.sdk.margin;
 import java.util.Locale;
 
 import org.joda.convert.FromString;
-import org.joda.convert.ToString;
 
 /**
  * Represents a CCP.
  */
-public enum Ccp {
+public class Ccp  {
 
   /** Eurex. */
-  EUREX,
+  public static final Ccp EUREX = new Ccp("EUREX");
   /** LCH. */
-  LCH,
+  public static final Ccp LCH = new Ccp("LCH");
   /** LCH CDS. */
-  LCH_CDS,
+  public static final Ccp LCH_CDS = new Ccp("LCH_CDS");
   /** CME. */
-  CME,
+  public static final Ccp CME = new Ccp("CME");
   /** SIMM. */
-  SIMM,
+  public static final Ccp SIMM = new Ccp("SIMM");
   /** JSCC. */
-  JSCC,
+  public static final Ccp JSCC = new Ccp("JSCC");
   /** CME_SPAN. */
-  CME_SPAN;
+  public static final Ccp CME_SPAN = new Ccp("CME_SPAN");
+
+  private final String ccpName;
+
+  private Ccp(String ccpName) {
+    this.ccpName = ccpName;
+  }
 
   @FromString
-  public static final Ccp of(String str) {
-    return valueOf(str.toUpperCase(Locale.ENGLISH));
+  public static Ccp of(String ccpName) {
+    return new Ccp(ccpName.toUpperCase(Locale.ENGLISH));
+  }
+
+  public String name() {
+    return this.toString();
   }
 
   @Override
-  @ToString
   public String toString() {
-    return super.toString().toLowerCase(Locale.ENGLISH);
+    return ccpName.toUpperCase(Locale.ENGLISH);
   }
-
 }
