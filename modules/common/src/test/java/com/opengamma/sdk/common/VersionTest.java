@@ -5,7 +5,7 @@
  */
 package com.opengamma.sdk.common;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 
 import org.testng.annotations.Test;
 
@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 public class VersionTest {
 
   public void test_version() {
-    assertEquals(Version.getVersionString().isEmpty(), false);
+    assertFalse(Version.getVersionString().isEmpty());
     // this line fails when tests are run in IntelliJ (works in Eclipse)
     // assertEquals(Version.getVersionString().contains("$"), false);
   }
