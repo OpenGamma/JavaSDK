@@ -5,14 +5,18 @@
  */
 package com.opengamma.sdk.margin;
 
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.joda.convert.FromString;
 
 /**
  * Represents a CCP.
  */
-public class Ccp  {
+public class Ccp implements Comparable<Ccp>, Serializable {
 
   /** Eurex. */
   public static final Ccp EUREX = new Ccp("EUREX");
@@ -55,6 +59,10 @@ public class Ccp  {
     return this.toString();
   }
 
+  public static List<Ccp> values() {
+    return Arrays.asList(EUREX, LCH, LCH_CDS, CME, SIMM, JSCC, CME_SPAN);
+  }
+
   /**
    * Returns an instance of {@link Ccp} corresponding to the given name.
    *
@@ -69,7 +77,29 @@ public class Ccp  {
   }
 
   @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Ccp ccp = (Ccp) o;
+    return Objects.equals(ccpName, ccp.ccpName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(ccpName);
+  }
+
+  @Override
   public String toString() {
     return ccpName.toUpperCase(Locale.ENGLISH);
+  }
+
+  @Override
+  public int compareTo(Ccp o) {
+    return this.name().compareTo(o.name());
   }
 }
