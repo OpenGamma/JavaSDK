@@ -6,8 +6,6 @@
 package com.opengamma.sdk.margin;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -59,8 +57,15 @@ public class Ccp implements Comparable<Ccp>, Serializable {
     return this.toString();
   }
 
-  public static List<Ccp> values() {
-    return Arrays.asList(EUREX, LCH, LCH_CDS, CME, SIMM, JSCC, CME_SPAN);
+  /**
+   * Returns all pre-defined CCPs.
+   *
+   * @deprecated there are no business cases that require this method, and it will be removed in a future version of the library.
+   * @return an array of CCPs
+   */
+  @Deprecated
+  public static Ccp[] values() {
+    return new Ccp[]{EUREX, LCH, LCH_CDS, CME, SIMM, JSCC, CME_SPAN};
   }
 
   /**
