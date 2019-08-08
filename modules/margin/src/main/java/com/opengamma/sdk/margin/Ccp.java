@@ -58,7 +58,7 @@ public class Ccp  {
   /**
    * Returns an instance of {@link Ccp} corresponding to the given name.
    *
-   * This method is added for backwards compatibility, and will be removed in a future version of the library.
+   * @deprecated This method is added for backwards compatibility, and will be removed in a future version of the library.
    * Please use `of()` instead
    * @param ccpName the name of the CCP
    * @return an instance of {@link Ccp}
