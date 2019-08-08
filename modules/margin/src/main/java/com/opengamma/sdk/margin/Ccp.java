@@ -100,7 +100,7 @@ public class Ccp implements Comparable<Ccp>, Serializable {
 
   @Override
   public String toString() {
-    return ccpName.toUpperCase(Locale.ENGLISH);
+    return ccpName.toLowerCase(Locale.ENGLISH);
   }
 
   @Override
