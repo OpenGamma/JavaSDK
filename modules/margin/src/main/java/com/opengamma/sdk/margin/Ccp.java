@@ -35,13 +35,37 @@ public class Ccp  {
     this.ccpName = ccpName;
   }
 
+  /**
+   * Returns an instance of {@link Ccp} corresponding to the given name.
+   *
+   * @param ccpName the name of the CCP
+   * @return an instance of {@link Ccp}
+   */
   @FromString
   public static Ccp of(String ccpName) {
     return new Ccp(ccpName.toUpperCase(Locale.ENGLISH));
   }
 
+  /**
+   * Returns the name of the Ccp.
+   *
+   * @return the name of the Ccp
+   */
   public String name() {
     return this.toString();
+  }
+
+  /**
+   * Returns an instance of {@link Ccp} corresponding to the given name.
+   *
+   * This method is added for backwards compatibility, and will be removed in a future version of the library.
+   * Please use `of()` instead
+   * @param ccpName the name of the CCP
+   * @return an instance of {@link Ccp}
+   */
+  @Deprecated
+  public static Ccp valueOf(String ccpName) {
+    return of(ccpName);
   }
 
   @Override
