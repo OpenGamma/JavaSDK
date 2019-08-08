@@ -54,7 +54,7 @@ public class Ccp implements Comparable<Ccp>, Serializable {
    * @return the name of the Ccp
    */
   public String name() {
-    return this.toString();
+    return this.ccpName;
   }
 
   /**

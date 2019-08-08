@@ -299,7 +299,7 @@ public final class ServiceInvokerBuilder {
         }
       }
       if (response == null) {
-        throw new IOException("Failed to perform request to given URL after " + retries + " retries: " + request.url().toString(), exception);
+        throw new IOException("Failed to perform " + request.method() + " request to given URL after " + retries + " retries: " + request.url().toString(), exception);
       }
       return response;
     }
