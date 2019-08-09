@@ -3,6 +3,17 @@ Change Log
 
 Changes to the SDK, listed in the style of [keepachangelog](https://keepachangelog.com/en/1.0.0/).
 
+## Version 3.6.0 - 2019-08-09
+
+### Added
+
+* Converted the CCP Enum into a Ccp class, allowing the client to specify CCPs that are not defined on the SDK.
+* Exposed additional CCPs and methodologies in the CCP class
+
+### Task
+
+* Updated dependencies
+
 ## Version 3.5.0 - 2019-04-23
 
 ### Added 
