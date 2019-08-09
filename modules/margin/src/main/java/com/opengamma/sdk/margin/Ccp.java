@@ -80,7 +80,8 @@ public class Ccp implements Comparable<Ccp>, Serializable {
    */
   @Deprecated
   public static Ccp[] values() {
-    return new Ccp[]{ASX_SPAN, BMD_SPAN, CBOE_SPAN, CDCC_SPAN, CME, CME_SPAN, ECC_SPAN, EUREX, LCH, LCH_CDS, HKEX_SPAN, ICE_SPAN, JCCH_SPAN, JSCC, JSCC_SPAN, LME_SPAN, MGE_SPAN, SGX_SPAN, SIMM, TIF_SPAN};
+    return new Ccp[]{ASX_SPAN, BMD_SPAN, CBOE_SPAN, CDCC_SPAN, CME, CME_SPAN, ECC_SPAN, EUREX, LCH, LCH_CDS, HKEX_SPAN,
+        ICE_SPAN, JCCH_SPAN, JSCC, JSCC_SPAN, LME_SPAN, MGE_SPAN, SGX_SPAN, SIMM, TIF_SPAN};
   }
 
   /**
