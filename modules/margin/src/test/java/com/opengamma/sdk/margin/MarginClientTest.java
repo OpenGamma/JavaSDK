@@ -6,7 +6,9 @@
 package com.opengamma.sdk.margin;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertThrows;
+import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -136,8 +138,8 @@ public class MarginClientTest {
     assertEquals(ccps.getCcpNames().size(), 2);
     assertEquals(ccps.getCcpNames().get(0), Ccp.LCH.name());
     assertEquals(ccps.getCcpNames().get(1), "RUBBISH");
-    assertEquals(ccps.isCcpAvailable(Ccp.LCH), true);
-    assertEquals(ccps.isCcpAvailable(Ccp.CME), false);
+    assertTrue(ccps.isCcpAvailable(Ccp.LCH));
+    assertFalse(ccps.isCcpAvailable(Ccp.CME));
   }
 
   public void test_getCcpInfo() {

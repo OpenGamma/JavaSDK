@@ -7,7 +7,9 @@ package com.opengamma.sdk.common;
 
 import static com.opengamma.sdk.common.ServiceInvoker.SERVICE_URL;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertThrows;
+import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -39,10 +41,10 @@ public class BasicTest {
         .build();
     assertEquals(invoker.getServiceUrl(), SERVICE_URL);
     assertEquals(invoker.getHttpClient().interceptors().size(), 4);
-    assertEquals(invoker.getHttpClient().followRedirects(), true);
-    assertEquals(invoker.getExecutor().isShutdown(), false);
+    assertTrue(invoker.getHttpClient().followRedirects());
+    assertFalse(invoker.getExecutor().isShutdown());
     invoker.close();
-    assertEquals(invoker.getExecutor().isShutdown(), true);
+    assertTrue(invoker.getExecutor().isShutdown());
   }
 
   public void testAuthGoodHttpFactory() {
@@ -54,7 +56,7 @@ public class BasicTest {
         .build()) {
       assertEquals(invoker.getServiceUrl(), SERVICE_URL);
       assertEquals(invoker.getHttpClient().interceptors().size(), 5);  // logging, user-agent & auth& retry plus one from test
-      assertEquals(invoker.getHttpClient().followRedirects(), false);
+      assertFalse(invoker.getHttpClient().followRedirects());
     }
   }
 

@@ -6,6 +6,7 @@
 package com.opengamma.sdk.margin.it;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
@@ -88,7 +89,7 @@ public class MarginClientRemoteIT {
     assertTrue(ccps.getCcpNames().contains(Ccp.LCH.toString()));
     assertTrue(ccps.getCcps().size() > 2);
     assertTrue(ccps.getCcps().contains(Ccp.LCH));
-    assertEquals(ccps.isCcpAvailable(Ccp.LCH), true);
+    assertTrue(ccps.isCcpAvailable(Ccp.LCH));
   }
 
   @Test(dependsOnMethods = "test_listCcps")
@@ -126,9 +127,9 @@ public class MarginClientRemoteIT {
     assertEquals(result.getCalculationCurrency(), "GBP");
     assertEquals(result.getMode(), MarginCalcMode.SPOT);
     assertEquals(result.getPortfolioItems().size(), 4);
-    assertEquals(result.getMargin().isPresent(), false);
-    assertEquals(result.getMarginDetail().isPresent(), false);
-    assertEquals(result.getTradeValuations().isPresent(), false);
+    assertFalse(result.getMargin().isPresent());
+    assertFalse(result.getMarginDetail().isPresent());
+    assertFalse(result.getTradeValuations().isPresent());
   }
 
   @Test(dependsOnMethods = "test_getCcpInfo")
@@ -149,9 +150,9 @@ public class MarginClientRemoteIT {
     assertEquals(result.getCalculationCurrency(), "GBP");
     assertEquals(result.getMode(), MarginCalcMode.SPOT);
     assertEquals(result.getPortfolioItems().size(), 0);
-    assertEquals(result.getMargin().isPresent(), true);
-    assertEquals(result.getMarginDetail().isPresent(), false);
-    assertEquals(result.getTradeValuations().isPresent(), false);
+    assertTrue(result.getMargin().isPresent());
+    assertFalse(result.getMarginDetail().isPresent());
+    assertFalse(result.getTradeValuations().isPresent());
 
     MarginSummary margin = result.getMargin().get();
     assertTrue(margin.getMargin() != 0);
@@ -180,9 +181,9 @@ public class MarginClientRemoteIT {
     assertEquals(result.getCalculationCurrency(), "GBP");
     assertEquals(result.getMode(), MarginCalcMode.SPOT);
     assertEquals(result.getPortfolioItems().size(), 0);
-    assertEquals(result.getMargin().isPresent(), false);
-    assertEquals(result.getMarginDetail().isPresent(), true);
-    assertEquals(result.getTradeValuations().isPresent(), false);
+    assertFalse(result.getMargin().isPresent());
+    assertTrue(result.getMarginDetail().isPresent());
+    assertFalse(result.getTradeValuations().isPresent());
 
     LchMarginDetail margin = (LchMarginDetail) result.getMarginDetail().get();
     assertEquals(margin.getCcp(), Ccp.LCH);
@@ -219,23 +220,23 @@ public class MarginClientRemoteIT {
     assertEquals(result.getCalculationCurrency(), "GBP");
     assertEquals(result.getMode(), MarginCalcMode.SPOT);
     assertEquals(result.getPortfolioItems().size(), 0);
-    assertEquals(result.getMargin().isPresent(), false);
-    assertEquals(result.getMarginDetail().isPresent(), false);
-    assertEquals(result.getTradeValuations().isPresent(), true);
+    assertFalse(result.getMargin().isPresent());
+    assertFalse(result.getMarginDetail().isPresent());
+    assertTrue(result.getTradeValuations().isPresent());
 
     TradeValuations vals = result.getTradeValuations().get();
     assertTrue(vals.getTotalPresentValue() != 0);
-    assertEquals(vals.getTotalDelta().isPresent(), true);
-    assertEquals(vals.getBucketedDelta().isPresent(), true);
-    assertEquals(vals.getTotalGamma().isPresent(), false);
-    assertEquals(vals.getBucketedGamma().isPresent(), false);
+    assertTrue(vals.getTotalDelta().isPresent());
+    assertTrue(vals.getBucketedDelta().isPresent());
+    assertFalse(vals.getTotalGamma().isPresent());
+    assertFalse(vals.getBucketedGamma().isPresent());
     assertTrue(vals.getTotalDelta().getAsDouble() != 0);
     assertEquals(vals.getBucketedDelta().get().size(), 3);
     assertEquals(vals.getTrades().size(), 4);
     TradeValuation val = vals.getTrades().get(0);
-    assertEquals(val.getValue().isPresent(), true);
-    assertEquals(val.getDelta().isPresent(), true);
-    assertEquals(val.getGamma().isPresent(), false);
+    assertTrue(val.getValue().isPresent());
+    assertTrue(val.getDelta().isPresent());
+    assertFalse(val.getGamma().isPresent());
     TradeValue value = val.getValue().get();
     assertTrue(value.getPresentValue() != 0);
     assertEquals(value.getTradeCurrency().length(), 3);
