@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Locale;
 import java.util.Objects;
 
+import org.joda.beans.JodaBeanUtils;
 import org.joda.convert.FromString;
 
 /**
@@ -33,35 +34,23 @@ public class Ccp implements Comparable<Ccp>, Serializable {
 
   private final String ccpName;
 
-  private Ccp(String ccpName) {
-    this.ccpName = ccpName;
-  }
-
   /**
-   * Returns an instance of {@link Ccp} corresponding to the given name.
+   * Returns an instance of {@code Ccp} corresponding to the given name.
    *
-   * @param ccpName the name of the CCP
-   * @return an instance of {@link Ccp}
+   * @param ccpName  the name of the CCP
+   * @return an instance of {@code Ccp}
    */
   @FromString
   public static Ccp of(String ccpName) {
+    JodaBeanUtils.notNull(ccpName, "ccpName");
     return new Ccp(ccpName.toUpperCase(Locale.ENGLISH));
-  }
-
-  /**
-   * Returns the name of the Ccp.
-   *
-   * @return the name of the Ccp
-   */
-  public String name() {
-    return this.ccpName;
   }
 
   /**
    * Returns all pre-defined CCPs.
    *
-   * @deprecated there are no business cases that require this method, and it will be removed in a future version of the library.
    * @return an array of CCPs
+   * @deprecated there are no business cases that require this method, and it will be removed in a future version of the library.
    */
   @Deprecated
   public static Ccp[] values() {
@@ -69,16 +58,38 @@ public class Ccp implements Comparable<Ccp>, Serializable {
   }
 
   /**
-   * Returns an instance of {@link Ccp} corresponding to the given name.
+   * Returns an instance of {@code Ccp} corresponding to the given name.
    *
+   * @param ccpName  the name of the CCP
+   * @return an instance of {@code Ccp}
    * @deprecated This method is added for backwards compatibility, and will be removed in a future version of the library.
    *  Please use `of()` instead
-   * @param ccpName the name of the CCP
-   * @return an instance of {@link Ccp}
    */
   @Deprecated
   public static Ccp valueOf(String ccpName) {
     return of(ccpName);
+  }
+
+  private Ccp(String ccpName) {
+    this.ccpName = ccpName;
+  }
+
+  private Ccp readResolve() {
+    return of(ccpName);
+  }
+
+  /**
+   * Returns the name of the CCP.
+   *
+   * @return the name of the CCP
+   */
+  public String name() {
+    return this.ccpName;
+  }
+
+  @Override
+  public int compareTo(Ccp o) {
+    return this.name().compareTo(o.name());
   }
 
   @Override
@@ -101,10 +112,5 @@ public class Ccp implements Comparable<Ccp>, Serializable {
   @Override
   public String toString() {
     return ccpName.toLowerCase(Locale.ENGLISH);
-  }
-
-  @Override
-  public int compareTo(Ccp o) {
-    return this.name().compareTo(o.name());
   }
 }
