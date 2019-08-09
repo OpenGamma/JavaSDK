@@ -18,7 +18,7 @@ import org.joda.convert.FromString;
 public class Ccp implements Comparable<Ccp>, Serializable {
 
   /** ASX (Australian Securities Exchange) SPAN. */
-  public static final Ccp ASX_SPAN= new Ccp("ASX_SPAN");
+  public static final Ccp ASX_SPAN = new Ccp("ASX_SPAN");
   /** BMD (Bursa Malaysia) SPAN. */
   public static final Ccp BMD_SPAN = new Ccp("BMD_SPAN");
   /** CBOE (Chicago Board Options Exchange) SPAN. */
@@ -46,13 +46,13 @@ public class Ccp implements Comparable<Ccp>, Serializable {
   /** JSCC (Japan Securities Clearing Corp). */
   public static final Ccp JSCC = new Ccp("JSCC");
   /** JSCC (Japan Securities Clearing Corp) SPAN. */
-  public static final Ccp JSCC_SPAN= new Ccp("JSCC_SPAN");
+  public static final Ccp JSCC_SPAN = new Ccp("JSCC_SPAN");
   /** LME (London Metal Exchange) SPAN. */
   public static final Ccp LME_SPAN = new Ccp("LME_SPAN");
   /** MGE (Minneapolis Grain Exchange) SPAN. */
   public static final Ccp MGE_SPAN = new Ccp("MGE_SPAN");
   /** SGX (Singapore Exchange) SPAN. */
-  public static final Ccp SGX_SPAN= new Ccp("SGX_SPAN");
+  public static final Ccp SGX_SPAN = new Ccp("SGX_SPAN");
   /** SIMM. */
   public static final Ccp SIMM = new Ccp("SIMM");
   /** TIF (Tokyo Financial Exchange) SPAN. */
