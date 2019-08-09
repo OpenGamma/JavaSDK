@@ -230,7 +230,7 @@ public class MarginClientTest {
     server.enqueue(new MockResponse()
         .setBody(RESPONSE_DELETE));
 
-    ServiceInvoker invoker = createInvoker(1, 2);
+    ServiceInvoker invoker = createInvoker(1, 3);
     MarginClient client = MarginClient.of(invoker);
 
     MarginCalcResult result = client.calculate(Ccp.LCH, REQUEST);
