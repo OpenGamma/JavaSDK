@@ -17,20 +17,46 @@ import org.joda.convert.FromString;
  */
 public class Ccp implements Comparable<Ccp>, Serializable {
 
+  /** ASX (Australian Securities Exchange) SPAN. */
+  public static final Ccp ASX_SPAN = new Ccp("ASX_SPAN");
+  /** BMD (Bursa Malaysia) SPAN. */
+  public static final Ccp BMD_SPAN = new Ccp("BMD_SPAN");
+  /** CBOE (Chicago Board Options Exchange) SPAN. */
+  public static final Ccp CBOE_SPAN = new Ccp("CBOE_SPAN");
+  /** CDCC (Canadian Derivatives Clearing Corporation) SPAN. */
+  public static final Ccp CDCC_SPAN = new Ccp("CDCC_SPAN");
+  /** CME (Chicago Mercantile Exchange). */
+  public static final Ccp CME = new Ccp("CME");
+  /** CME (Chicago Mercantile Exchange) SPAN. */
+  public static final Ccp CME_SPAN = new Ccp("CME_SPAN");
+  /** ECC (European Commodity Clearing) SPAN. */
+  public static final Ccp ECC_SPAN = new Ccp("ECC_SPAN");
   /** Eurex. */
   public static final Ccp EUREX = new Ccp("EUREX");
   /** LCH. */
   public static final Ccp LCH = new Ccp("LCH");
   /** LCH CDS. */
   public static final Ccp LCH_CDS = new Ccp("LCH_CDS");
-  /** CME. */
-  public static final Ccp CME = new Ccp("CME");
+  /** HKEX (Hong Kong Exchange) SPAN. */
+  public static final Ccp HKEX_SPAN = new Ccp("HKEX_SPAN");
+  /** ICE (Intercontinental Exchange) SPAN. */
+  public static final Ccp ICE_SPAN = new Ccp("ICE_SPAN");
+  /** JCCH (Japan Commodity Clearing House) SPAN. */
+  public static final Ccp JCCH_SPAN = new Ccp("JCCH_SPAN");
+  /** JSCC (Japan Securities Clearing Corp). */
+  public static final Ccp JSCC = new Ccp("JSCC");
+  /** JSCC (Japan Securities Clearing Corp) SPAN. */
+  public static final Ccp JSCC_SPAN = new Ccp("JSCC_SPAN");
+  /** LME (London Metal Exchange) SPAN. */
+  public static final Ccp LME_SPAN = new Ccp("LME_SPAN");
+  /** MGE (Minneapolis Grain Exchange) SPAN. */
+  public static final Ccp MGE_SPAN = new Ccp("MGE_SPAN");
+  /** SGX (Singapore Exchange) SPAN. */
+  public static final Ccp SGX_SPAN = new Ccp("SGX_SPAN");
   /** SIMM. */
   public static final Ccp SIMM = new Ccp("SIMM");
-  /** JSCC. */
-  public static final Ccp JSCC = new Ccp("JSCC");
-  /** CME_SPAN. */
-  public static final Ccp CME_SPAN = new Ccp("CME_SPAN");
+  /** TIF (Tokyo Financial Exchange) SPAN. */
+  public static final Ccp TIF_SPAN = new Ccp("TIF_SPAN");
 
   private final String ccpName;
 
@@ -54,7 +80,8 @@ public class Ccp implements Comparable<Ccp>, Serializable {
    */
   @Deprecated
   public static Ccp[] values() {
-    return new Ccp[]{EUREX, LCH, LCH_CDS, CME, SIMM, JSCC, CME_SPAN};
+    return new Ccp[]{ASX_SPAN, BMD_SPAN, CBOE_SPAN, CDCC_SPAN, CME, CME_SPAN, ECC_SPAN, EUREX, LCH, LCH_CDS, HKEX_SPAN,
+        ICE_SPAN, JCCH_SPAN, JSCC, JSCC_SPAN, LME_SPAN, MGE_SPAN, SGX_SPAN, SIMM, TIF_SPAN};
   }
 
   /**
