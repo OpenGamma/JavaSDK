@@ -390,7 +390,7 @@
   <properties>
     <!-- Versions -->
     <assertj.version>3.13.2</assertj.version>
-    <jcommander.version>1.72</jcommander.version><!-- 1.73/1.74 do not work -->
+    <jcommander.version>1.78</jcommander.version><!-- 1.73/1.74 do not work -->
     <joda-convert.version>2.2.1</joda-convert.version>
     <joda-beans.version>2.7.1</joda-beans.version>
     <joda.beans.version>2.6.2</joda.beans.version>
