@@ -17,6 +17,8 @@ import org.joda.beans.ser.SerDeserializerProvider;
  */
 final class MarginDetailDeserializer extends DefaultDeserializer implements SerDeserializerProvider {
 
+  private static final String LCH = "LCH";
+  
   /**
    * The type of the detail.
    */
@@ -24,7 +26,8 @@ final class MarginDetailDeserializer extends DefaultDeserializer implements SerD
 
   // converts a CCP to a deserializer instance
   static Optional<MarginDetailDeserializer> of(Ccp ccp) {
-    if (ccp == Ccp.LCH) {
+    if (ccp.name().contains(LCH)) {
+      // Any LCH variants use the LCH Margin Detail deserializer
       return Optional.of(new MarginDetailDeserializer(LchMarginDetail.meta()));
     } else {
       return Optional.empty();
