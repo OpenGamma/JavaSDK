@@ -58,6 +58,8 @@ public class Ccp implements Comparable<Ccp>, Serializable {
   /** TIF (Tokyo Financial Exchange) SPAN. */
   public static final Ccp TIF_SPAN = new Ccp("TIF_SPAN");
 
+  private static final long serialVersionUID = 1L;
+
   private final String ccpName;
 
   /**
@@ -101,7 +103,7 @@ public class Ccp implements Comparable<Ccp>, Serializable {
     this.ccpName = ccpName;
   }
 
-  private Ccp readResolve() {
+  private Object readResolve() {
     return of(ccpName);
   }
 
