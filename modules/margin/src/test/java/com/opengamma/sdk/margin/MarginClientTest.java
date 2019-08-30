@@ -5,10 +5,8 @@
  */
 package com.opengamma.sdk.margin;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertThrows;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -23,9 +21,9 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.beans.ser.JodaBeanSer;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.sdk.common.ServiceInvoker;
 import com.opengamma.sdk.common.auth.Credentials;
@@ -40,7 +38,6 @@ import okhttp3.mockwebserver.SocketPolicy;
 /**
  * Test.
  */
-@Test
 public class MarginClientTest {
 
   private static final Credentials CREDENTIALS = Credentials.ofApiKey("user", "password");
@@ -113,18 +110,19 @@ public class MarginClientTest {
   private MockWebServer server;
 
   //-------------------------------------------------------------------------
-  @BeforeMethod
+  @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
     server.start();
   }
 
-  @AfterMethod
+  @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_listCcps() {
     server.enqueue(new MockResponse()
         .setHeader("Content-Type", "application/json")
@@ -135,13 +133,14 @@ public class MarginClientTest {
     MarginClient client = MarginClient.of(invoker);
 
     CcpsResult ccps = client.listCcps();
-    assertEquals(ccps.getCcpNames().size(), 2);
-    assertEquals(ccps.getCcpNames().get(0), Ccp.LCH.name());
-    assertEquals(ccps.getCcpNames().get(1), "RUBBISH");
-    assertTrue(ccps.isCcpAvailable(Ccp.LCH));
-    assertFalse(ccps.isCcpAvailable(Ccp.CME));
+    assertThat(ccps.getCcpNames()).hasSize(2);
+    assertThat(ccps.getCcpNames().get(0)).isEqualTo(Ccp.LCH.name());
+    assertThat(ccps.getCcpNames().get(1)).isEqualTo("RUBBISH");
+    assertThat(ccps.isCcpAvailable(Ccp.LCH)).isTrue();
+    assertThat(ccps.isCcpAvailable(Ccp.CME)).isFalse();
   }
 
+  @Test
   public void test_getCcpInfo() {
     server.enqueue(new MockResponse()
         .setHeader("Content-Type", "application/json")
@@ -155,13 +154,14 @@ public class MarginClientTest {
     String expectedCurrency = "GBP";
 
     CcpInfo ccpInfo = client.getCcpInfo(Ccp.LCH);
-    assertEquals(ccpInfo.getCalculationCurrencies(), Collections.singletonList(expectedCurrency));
-    assertEquals(ccpInfo.getReportingCurrencies(), Collections.singletonList(expectedCurrency));
-    assertEquals(ccpInfo.getDefaultCurrency(), expectedCurrency);
-    assertEquals(ccpInfo.getValuationDates(), Collections.singletonList(expectedValuationDate));
-    assertEquals(ccpInfo.getLatestValuationDate(), expectedValuationDate);
+    assertThat(ccpInfo.getCalculationCurrencies()).isEqualTo(Collections.singletonList(expectedCurrency));
+    assertThat(ccpInfo.getReportingCurrencies()).isEqualTo(Collections.singletonList(expectedCurrency));
+    assertThat(ccpInfo.getDefaultCurrency()).isEqualTo(expectedCurrency);
+    assertThat(ccpInfo.getValuationDates()).isEqualTo(Collections.singletonList(expectedValuationDate));
+    assertThat(ccpInfo.getLatestValuationDate()).isEqualTo(expectedValuationDate);
   }
 
+  @Test
   public void test_listCcps_fail() throws Exception {
     server.enqueue(new MockResponse()
         .setResponseCode(500)
@@ -172,10 +172,11 @@ public class MarginClientTest {
     ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
-    assertThrows(IllegalStateException.class, () -> client.listCcps());
+    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> client.listCcps());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   @SuppressWarnings("deprecation")
   public void test_calculate() throws Exception {
     server.enqueue(new MockResponse()
@@ -195,12 +196,13 @@ public class MarginClientTest {
     MarginClient client = MarginClient.of(invoker);
 
     MarginCalcResult result = client.calculate(Ccp.LCH, REQUEST);
-    assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
-    assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
-    assertEquals(result.getCalculationTypes(), set(MarginCalcType.MARGIN));
-    assertEquals(result.getValuationDate(), VAL_DATE);
+    assertThat(result.getStatus()).isEqualTo(MarginCalcResultStatus.COMPLETED);
+    assertThat(result.getType()).isEqualTo(MarginCalcRequestType.STANDARD);
+    assertThat(result.getCalculationTypes()).isEqualTo(set(MarginCalcType.MARGIN));
+    assertThat(result.getValuationDate()).isEqualTo(VAL_DATE);
   }
 
+  @Test
   public void test_calculate_with_retries_failing() throws Exception {
     server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
     server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
@@ -208,11 +210,12 @@ public class MarginClientTest {
 
     ServiceInvoker invoker = createInvoker(1, 1);
     MarginClient client = MarginClient.of(invoker);
-    assertThrows(UncheckedIOException.class, () -> client.listCcps());
-    assertThrows(UncheckedIOException.class, () -> client.getCcpInfo(Ccp.LCH));
-    assertThrows(UncheckedIOException.class, () -> client.calculate(Ccp.LCH, REQUEST));
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> client.listCcps());
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> client.getCcpInfo(Ccp.LCH));
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> client.calculate(Ccp.LCH, REQUEST));
   }
 
+  @Test
   @SuppressWarnings("deprecation")
   public void test_calculate_with_retries_succeeding() throws Exception {
     server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
@@ -236,10 +239,10 @@ public class MarginClientTest {
     MarginClient client = MarginClient.of(invoker);
 
     MarginCalcResult result = client.calculate(Ccp.LCH, REQUEST);
-    assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
-    assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
-    assertEquals(result.getCalculationTypes(), set(MarginCalcType.MARGIN));
-    assertEquals(result.getValuationDate(), VAL_DATE);
+    assertThat(result.getStatus()).isEqualTo(MarginCalcResultStatus.COMPLETED);
+    assertThat(result.getType()).isEqualTo(MarginCalcRequestType.STANDARD);
+    assertThat(result.getCalculationTypes()).isEqualTo(set(MarginCalcType.MARGIN));
+    assertThat(result.getValuationDate()).isEqualTo(VAL_DATE);
   }
 
   // This method handles two concurrent HTTP requests, thus defines the MockWebServer in a different way.
@@ -248,6 +251,7 @@ public class MarginClientTest {
   // * POST - /margin/v1/ccps/lch/calculations - delta portfolios
   // * (for each portfolio) GET - /margin/v1/ccps/lch/calculations/[calcID] - until the status is COMPLETED.
   // * (for each portfolio) DELETE - /margin/v1/ccps/lch/calculations/[calcID]
+  @Test
   @SuppressWarnings("deprecation")
   public void test_calculate_whatif() throws Exception {
     Dispatcher webServerDispatcher = new Dispatcher() {
@@ -313,16 +317,17 @@ public class MarginClientTest {
     MarginCalcRequest.of(VAL_DATE, "GBP", Collections.singletonList(lchPortfolioFile));
 
     MarginWhatIfCalcResult result = client.calculateWhatIf(Ccp.LCH, REQUEST, Collections.singletonList(lchPortfolioFile)); //Using the same portfolio for delta as well
-    assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
-    assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
-    assertEquals(result.getCalculationTypes(), set(MarginCalcType.MARGIN));
-    assertEquals(result.getValuationDate(), VAL_DATE);
+    assertThat(result.getStatus()).isEqualTo(MarginCalcResultStatus.COMPLETED);
+    assertThat(result.getType()).isEqualTo(MarginCalcRequestType.STANDARD);
+    assertThat(result.getCalculationTypes()).isEqualTo(set(MarginCalcType.MARGIN));
+    assertThat(result.getValuationDate()).isEqualTo(VAL_DATE);
 
-    assertEquals(result.getBaseSummary().getMargin(), 125.0); //Hard coded result, not relevant for portfolio
-    assertEquals(result.getCombinedSummary().getMargin(), 260.0); //Hard coded result, not relevant for portfolio
-    assertEquals(result.getDeltaSummary().getMargin(), 135.0);
+    assertThat(result.getBaseSummary().getMargin()).isEqualTo(125.0); //Hard coded result, not relevant for portfolio
+    assertThat(result.getCombinedSummary().getMargin()).isEqualTo(260.0); //Hard coded result, not relevant for portfolio
+    assertThat(result.getDeltaSummary().getMargin()).isEqualTo(135.0);
   }
 
+  @Test
   public void test_calculate_postFail() throws Exception {
     server.enqueue(new MockResponse()
         .setResponseCode(500)
@@ -333,9 +338,10 @@ public class MarginClientTest {
     ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
-    assertThrows(IllegalStateException.class, () -> client.calculate(Ccp.LCH, REQUEST));
+    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> client.calculate(Ccp.LCH, REQUEST));
   }
 
+  @Test
   public void test_calculate_getFail() throws Exception {
     server.enqueue(new MockResponse()
         .setResponseCode(202)
@@ -350,9 +356,10 @@ public class MarginClientTest {
     ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
-    assertThrows(IllegalStateException.class, () -> client.calculate(Ccp.LCH, REQUEST));
+    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> client.calculate(Ccp.LCH, REQUEST));
   }
 
+  @Test
   public void test_calculate_deleteFail() throws Exception {
     server.enqueue(new MockResponse()
         .setResponseCode(202)
@@ -375,6 +382,7 @@ public class MarginClientTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_delete_fail() throws Exception {
     server.enqueue(new MockResponse()
         .setResponseCode(500)
@@ -385,10 +393,11 @@ public class MarginClientTest {
     ServiceInvoker invoker = createInvoker();
     MarginClient client = MarginClient.of(invoker);
 
-    assertThrows(IllegalStateException.class, () -> client.deleteCalculation(Ccp.LCH, "789"));
+    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> client.deleteCalculation(Ccp.LCH, "789"));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   @SuppressWarnings("deprecation")
   public void test_calculateAsync() throws Exception {
     server.enqueue(new MockResponse()
@@ -410,12 +419,13 @@ public class MarginClientTest {
 
     CompletableFuture<MarginCalcResult> future = client.calculateAsync(Ccp.LCH, REQUEST);
     MarginCalcResult result = future.join();
-    assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
-    assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
-    assertEquals(result.getCalculationTypes(), set(MarginCalcType.MARGIN));
-    assertEquals(result.getValuationDate(), VAL_DATE);
+    assertThat(result.getStatus()).isEqualTo(MarginCalcResultStatus.COMPLETED);
+    assertThat(result.getType()).isEqualTo(MarginCalcRequestType.STANDARD);
+    assertThat(result.getCalculationTypes()).isEqualTo(set(MarginCalcType.MARGIN));
+    assertThat(result.getValuationDate()).isEqualTo(VAL_DATE);
   }
 
+  @Test
   public void test_calculateAsync_createError() throws Exception {
     server.enqueue(new MockResponse()
         .setResponseCode(500));
@@ -425,10 +435,11 @@ public class MarginClientTest {
     MarginClient client = MarginClient.of(invoker);
 
     CompletableFuture<MarginCalcResult> future = client.calculateAsync(Ccp.LCH, REQUEST);
-    assertThrows(CompletionException.class, () -> future.join());
-    assertEquals(server.getRequestCount(), 1);
+    assertThatExceptionOfType(CompletionException.class).isThrownBy(() -> future.join());
+    assertThat(server.getRequestCount()).isEqualTo(1);
   }
 
+  @Test
   public void test_calculateAsync_pollingError() throws Exception {
     server.enqueue(new MockResponse()
         .setResponseCode(202)
@@ -447,8 +458,8 @@ public class MarginClientTest {
     MarginClient client = MarginClient.of(invoker);
 
     CompletableFuture<MarginCalcResult> future = client.calculateAsync(Ccp.LCH, REQUEST);
-    assertThrows(CompletionException.class, () -> future.join());
-    assertEquals(server.getRequestCount(), 4);
+    assertThatExceptionOfType(CompletionException.class).isThrownBy(() -> future.join());
+    assertThat(server.getRequestCount()).isEqualTo(4);
   }
 
   private ServiceInvoker createInvoker() {

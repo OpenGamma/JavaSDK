@@ -5,12 +5,11 @@
  */
 package com.opengamma.sdk.common;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.sdk.common.auth.Credentials;
 
@@ -23,12 +22,11 @@ import okhttp3.mockwebserver.MockWebServer;
 /**
  * Test {@link ServiceInvoker}.
  */
-@Test
 public class ServiceInvokerTest {
 
   private MockWebServer server;
 
-  @BeforeMethod
+  @BeforeEach
   public void setUp() throws Exception {
     server = new MockWebServer();
     server.start(18080);
@@ -46,7 +44,7 @@ public class ServiceInvokerTest {
     server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
   }
 
-  @AfterMethod
+  @AfterEach
   public void tearDown() throws Exception {
     server.shutdown();
   }
@@ -63,9 +61,9 @@ public class ServiceInvokerTest {
           .get()
           .build();
       Response response = invoker.getHttpClient().newCall(request).execute();
-      assertEquals(response.code(), 200);
-      assertEquals(response.message(), "OK");
-      assertTrue(response.isSuccessful());
+      assertThat(response.code()).isEqualTo(200);
+      assertThat(response.message()).isEqualTo("OK");
+      assertThat(response.isSuccessful()).isTrue();
     }
   }
 }

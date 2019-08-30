@@ -205,6 +205,13 @@
 
       <!-- Testing -->
       <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit5.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
         <version>${assertj.version}</version>
@@ -218,11 +225,6 @@
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>mockwebserver</artifactId>
         <version>${okhttp.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.testng</groupId>
-        <artifactId>testng</artifactId>
-        <version>${testng.version}</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
@@ -394,12 +396,12 @@
     <joda-convert.version>2.2.1</joda-convert.version>
     <joda-beans.version>2.7.1</joda-beans.version>
     <joda.beans.version>2.6.2</joda.beans.version>
+    <junit5.version>5.5.1</junit5.version>
     <logback.version>1.2.3</logback.version>
     <mockito.version>3.0.0</mockito.version>
     <slf4j.version>1.7.28</slf4j.version>
     <okhttp.version>3.14.2</okhttp.version>
     <okio.version>1.17.4</okio.version>
-    <testng.version>6.14.2</testng.version><!-- 6.14.3/6.14.4 do not work -->
     <!-- Properties for joda-beans-maven-plugin -->
     <!-- Lock in JDK config (not Guava) and stick with older version -->
     <joda-beans-maven-plugin.version>1.1</joda-beans-maven-plugin.version>

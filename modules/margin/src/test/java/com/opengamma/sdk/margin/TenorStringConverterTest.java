@@ -5,23 +5,23 @@
  */
 package com.opengamma.sdk.margin;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Period;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test lenient period converter.
  */
-@Test
 public class TenorStringConverterTest {
 
+  @Test
   public void test() {
     TenorStringConverter test = new TenorStringConverter();
-    assertEquals(test.convertFromString(Period.class, "P3M"), Period.ofMonths(3));
-    assertEquals(test.convertFromString(Period.class, "3M"), Period.ofMonths(3));
-    assertEquals(test.convertToString(Period.ofMonths(3)), "P3M");
+    assertThat(test.convertFromString(Period.class, "P3M")).isEqualTo(Period.ofMonths(3));
+    assertThat(test.convertFromString(Period.class, "3M")).isEqualTo(Period.ofMonths(3));
+    assertThat(test.convertToString(Period.ofMonths(3))).isEqualTo("P3M");
   }
 
 }
