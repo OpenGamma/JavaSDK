@@ -3,6 +3,17 @@ Change Log
 
 Changes to the SDK, listed in the style of [keepachangelog](https://keepachangelog.com/en/1.0.0/).
 
+## Version 3.6.1 - 2019-08-30
+
+### Fixed
+
+* Fix LCH margin detail in response following change to CCP class
+
+### Task
+
+* Updated dependencies
+
+
 ## Version 3.6.0 - 2019-08-09
 
 ### Added
