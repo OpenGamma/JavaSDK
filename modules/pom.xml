@@ -398,7 +398,7 @@
     <mockito.version>3.0.0</mockito.version>
     <slf4j.version>1.7.28</slf4j.version>
     <okhttp.version>3.14.2</okhttp.version>
-    <okio.version>1.17.3</okio.version>
+    <okio.version>1.17.4</okio.version>
     <testng.version>6.14.2</testng.version><!-- 6.14.3/6.14.4 do not work -->
     <!-- Properties for joda-beans-maven-plugin -->
     <!-- Lock in JDK config (not Guava) and stick with older version -->
