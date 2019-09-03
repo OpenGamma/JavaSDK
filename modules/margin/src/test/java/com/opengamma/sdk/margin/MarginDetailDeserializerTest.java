@@ -5,10 +5,9 @@
  */
 package com.opengamma.sdk.margin;
 
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link MarginDetailDeserializer}.
@@ -17,13 +16,13 @@ public class MarginDetailDeserializerTest {
 
   @Test
   public void testSupportedCcp() {
-    assertTrue(MarginDetailDeserializer.of(Ccp.LCH).isPresent());
-    assertTrue(MarginDetailDeserializer.of(Ccp.of("LCH_TEST")).isPresent());
+    assertThat(MarginDetailDeserializer.of(Ccp.LCH).isPresent()).isTrue();
+    assertThat(MarginDetailDeserializer.of(Ccp.of("LCH_TEST")).isPresent()).isTrue();
   }
 
   @Test
   public void testUnsupportedCcp() {
-    assertFalse(MarginDetailDeserializer.of(Ccp.EUREX).isPresent());
-    assertFalse(MarginDetailDeserializer.of(Ccp.of("UNKNOWN")).isPresent());
+    assertThat(MarginDetailDeserializer.of(Ccp.EUREX).isPresent()).isFalse();
+    assertThat(MarginDetailDeserializer.of(Ccp.of("UNKNOWN")).isPresent()).isFalse();
   }
 }

@@ -6,18 +6,17 @@
 package com.opengamma.sdk.margin;
 
 import static com.opengamma.sdk.margin.MarginCalcRequestType.PARSE_INPUTS;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Arrays;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class MarginCalcRequestTest {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2017, 6, 1);
@@ -25,6 +24,7 @@ public class MarginCalcRequestTest {
       PortfolioDataFile.of(Paths.get("src/test/resources/lch-trades.txt"));
 
   //-------------------------------------------------------------------------
+  @Test
   @SuppressWarnings("deprecation")
   public void test_of3() {
     MarginCalcRequest test = MarginCalcRequest.of(VAL_DATE, "GBP", Arrays.asList(PORTFOLIO));
@@ -35,10 +35,11 @@ public class MarginCalcRequestTest {
         .reportingCurrency("GBP")
         .portfolioData(PORTFOLIO)
         .build();
-    assertEquals(test, expected);
-    assertEquals(test.getType(), MarginCalcRequestType.STANDARD);
+    assertThat(test).isEqualTo(expected);
+    assertThat(test.getType()).isEqualTo(MarginCalcRequestType.STANDARD);
   }
 
+  @Test
   @SuppressWarnings("deprecation")
   public void test_of4() {
     MarginCalcRequest test = MarginCalcRequest.of(VAL_DATE, "GBP", Arrays.asList(PORTFOLIO), "MYPARTY");
@@ -50,10 +51,11 @@ public class MarginCalcRequestTest {
         .portfolioData(PORTFOLIO)
         .fpmlPartySelectionRegex("MYPARTY")
         .build();
-    assertEquals(test, expected);
-    assertEquals(test.getType(), MarginCalcRequestType.STANDARD);
+    assertThat(test).isEqualTo(expected);
+    assertThat(test.getType()).isEqualTo(MarginCalcRequestType.STANDARD);
   }
 
+  @Test
   @SuppressWarnings("deprecation")
   public void test_of5() {
     MarginCalcRequest test = MarginCalcRequest.of(VAL_DATE, "GBP", Arrays.asList(PORTFOLIO), PARSE_INPUTS, true);
@@ -65,8 +67,8 @@ public class MarginCalcRequestTest {
         .applyClientMultiplier(true)
         .portfolioData(PORTFOLIO)
         .build();
-    assertEquals(test, expected);
-    assertEquals(test.getType(), MarginCalcRequestType.PARSE_INPUTS);
+    assertThat(test).isEqualTo(expected);
+    assertThat(test.getType()).isEqualTo(MarginCalcRequestType.PARSE_INPUTS);
   }
 
 }

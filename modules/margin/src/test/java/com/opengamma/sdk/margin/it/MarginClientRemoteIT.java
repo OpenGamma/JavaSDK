@@ -5,9 +5,9 @@
  */
 package com.opengamma.sdk.margin.it;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -17,9 +17,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import com.opengamma.sdk.common.ServiceInvoker;
 import com.opengamma.sdk.common.auth.Credentials;
@@ -51,8 +56,9 @@ import okhttp3.HttpUrl;
  * Run as a formal integration test via maven failsafe.
  * Requires two environment variables, hence is run via a maven profile.
  */
-@Test
 @SuppressWarnings("deprecation")
+@TestInstance(Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MarginClientRemoteIT {
   // this test uses TestNG dependsOn so the individual tests are linked
   // this allows the latest valuation date to be tested without repeatedly calling getCcpInfo remotely
@@ -65,7 +71,7 @@ public class MarginClientRemoteIT {
   private LocalDate valDate;
 
   //-------------------------------------------------------------------------
-  @BeforeClass
+  @BeforeAll
   public void setUp() throws IOException {
     String apiKey = System.getenv("MARGIN_API_DEV_ID");
     String secret = System.getenv("MARGIN_API_DEV_SECRET");
@@ -76,42 +82,48 @@ public class MarginClientRemoteIT {
     marginClient = MarginClient.of(invoker);
   }
 
-  @AfterClass
+  @AfterAll
   public void tearDown() throws IOException {
-    invoker.close();
+    if (invoker != null) {
+      invoker.close();
+    }
     marginClient = null;
   }
 
   //-------------------------------------------------------------------------
+  @Test
+  @Order(1)
   public void test_listCcps() {
     CcpsResult ccps = marginClient.listCcps();
-    assertTrue(ccps.getCcpNames().size() > 2);
-    assertTrue(ccps.getCcpNames().contains(Ccp.LCH.toString()));
-    assertTrue(ccps.getCcps().size() > 2);
-    assertTrue(ccps.getCcps().contains(Ccp.LCH));
-    assertTrue(ccps.isCcpAvailable(Ccp.LCH));
+    assertThat(ccps.getCcpNames().size() > 2).isTrue();
+    assertThat(ccps.getCcpNames().contains(Ccp.LCH.toString())).isTrue();
+    assertThat(ccps.getCcps().size() > 2).isTrue();
+    assertThat(ccps.getCcps().contains(Ccp.LCH)).isTrue();
+    assertThat(ccps.isCcpAvailable(Ccp.LCH)).isTrue();
   }
 
-  @Test(dependsOnMethods = "test_listCcps")
+  @Test
+  @Order(2)
   public void test_getCcpInfo() {
     CcpInfo ccpInfo = marginClient.getCcpInfo(Ccp.LCH);
-    assertTrue(ccpInfo.getReportingCurrencies().contains("GBP"));
-    assertTrue(ccpInfo.getCalculationCurrencies().contains("GBP"));
-    assertEquals(ccpInfo.getDefaultCurrency(), "GBP");
-    assertTrue(ccpInfo.getValuationDates().size() > 1);
-    assertTrue(ccpInfo.getCalculationTypes().contains(MarginCalcType.PORTFOLIO_SUMMARY));
-    assertTrue(ccpInfo.getCalculationTypes().contains(MarginCalcType.MARGIN));
-    assertTrue(ccpInfo.getCalculationTypes().contains(MarginCalcType.MARGIN_DETAIL));
-    assertTrue(ccpInfo.getCalculationTypes().contains(MarginCalcType.PRESENT_VALUE));
-    assertTrue(ccpInfo.getCalculationTypes().contains(MarginCalcType.DELTA));
-    assertTrue(ccpInfo.getCalculationTypes().contains(MarginCalcType.GAMMA));
+    assertThat(ccpInfo.getReportingCurrencies().contains("GBP")).isTrue();
+    assertThat(ccpInfo.getCalculationCurrencies().contains("GBP")).isTrue();
+    assertThat(ccpInfo.getDefaultCurrency()).isEqualTo("GBP");
+    assertThat(ccpInfo.getValuationDates().size() > 1).isTrue();
+    assertThat(ccpInfo.getCalculationTypes().contains(MarginCalcType.PORTFOLIO_SUMMARY)).isTrue();
+    assertThat(ccpInfo.getCalculationTypes().contains(MarginCalcType.MARGIN)).isTrue();
+    assertThat(ccpInfo.getCalculationTypes().contains(MarginCalcType.MARGIN_DETAIL)).isTrue();
+    assertThat(ccpInfo.getCalculationTypes().contains(MarginCalcType.PRESENT_VALUE)).isTrue();
+    assertThat(ccpInfo.getCalculationTypes().contains(MarginCalcType.DELTA)).isTrue();
+    assertThat(ccpInfo.getCalculationTypes().contains(MarginCalcType.GAMMA)).isTrue();
     valDate = ccpInfo.getLatestValuationDate();
   }
 
   //-------------------------------------------------------------------------
-  @Test(dependsOnMethods = "test_getCcpInfo")
+  @Test
+  @Order(10)
   public void test_calculate_portfolioSummary() throws Exception {
-    assert valDate != null;
+    assumeTrue(valDate != null);
     MarginCalcRequest request = MarginCalcRequest.builder()
         .calculationTypes(MarginCalcType.PORTFOLIO_SUMMARY)
         .valuationDate(valDate)
@@ -119,22 +131,23 @@ public class MarginClientRemoteIT {
         .portfolioData(PORTFOLIO)
         .build();
     MarginCalcResult result = marginClient.calculate(Ccp.LCH, request);
-    assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
-    assertEquals(result.getType(), MarginCalcRequestType.PARSE_INPUTS);
-    assertEquals(result.getCalculationTypes(), set(MarginCalcType.PORTFOLIO_SUMMARY));
-    assertEquals(result.getValuationDate(), valDate);
-    assertEquals(result.getReportingCurrency(), "GBP");
-    assertEquals(result.getCalculationCurrency(), "GBP");
-    assertEquals(result.getMode(), MarginCalcMode.SPOT);
-    assertEquals(result.getPortfolioItems().size(), 4);
-    assertFalse(result.getMargin().isPresent());
-    assertFalse(result.getMarginDetail().isPresent());
-    assertFalse(result.getTradeValuations().isPresent());
+    assertThat(result.getStatus()).isEqualTo(MarginCalcResultStatus.COMPLETED);
+    assertThat(result.getType()).isEqualTo(MarginCalcRequestType.PARSE_INPUTS);
+    assertThat(result.getCalculationTypes()).isEqualTo(set(MarginCalcType.PORTFOLIO_SUMMARY));
+    assertThat(result.getValuationDate()).isEqualTo(valDate);
+    assertThat(result.getReportingCurrency()).isEqualTo("GBP");
+    assertThat(result.getCalculationCurrency()).isEqualTo("GBP");
+    assertThat(result.getMode()).isEqualTo(MarginCalcMode.SPOT);
+    assertThat(result.getPortfolioItems()).hasSize(4);
+    assertThat(result.getMargin().isPresent()).isFalse();
+    assertThat(result.getMarginDetail().isPresent()).isFalse();
+    assertThat(result.getTradeValuations().isPresent()).isFalse();
   }
 
-  @Test(dependsOnMethods = "test_getCcpInfo")
+  @Test
+  @Order(10)
   public void test_calculate_margin() throws Exception {
-    assert valDate != null;
+    assumeTrue(valDate != null);
     MarginCalcRequest request = MarginCalcRequest.builder()
         .calculationTypes(MarginCalcType.MARGIN)
         .valuationDate(valDate)
@@ -142,30 +155,31 @@ public class MarginClientRemoteIT {
         .portfolioData(PORTFOLIO)
         .build();
     MarginCalcResult result = marginClient.calculate(Ccp.LCH, request);
-    assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
-    assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
-    assertEquals(result.getCalculationTypes(), set(MarginCalcType.MARGIN));
-    assertEquals(result.getValuationDate(), valDate);
-    assertEquals(result.getReportingCurrency(), "GBP");
-    assertEquals(result.getCalculationCurrency(), "GBP");
-    assertEquals(result.getMode(), MarginCalcMode.SPOT);
-    assertEquals(result.getPortfolioItems().size(), 0);
-    assertTrue(result.getMargin().isPresent());
-    assertFalse(result.getMarginDetail().isPresent());
-    assertFalse(result.getTradeValuations().isPresent());
+    assertThat(result.getStatus()).isEqualTo(MarginCalcResultStatus.COMPLETED);
+    assertThat(result.getType()).isEqualTo(MarginCalcRequestType.STANDARD);
+    assertThat(result.getCalculationTypes()).isEqualTo(set(MarginCalcType.MARGIN));
+    assertThat(result.getValuationDate()).isEqualTo(valDate);
+    assertThat(result.getReportingCurrency()).isEqualTo("GBP");
+    assertThat(result.getCalculationCurrency()).isEqualTo("GBP");
+    assertThat(result.getMode()).isEqualTo(MarginCalcMode.SPOT);
+    assertThat(result.getPortfolioItems()).hasSize(0);
+    assertThat(result.getMargin().isPresent()).isTrue();
+    assertThat(result.getMarginDetail().isPresent()).isFalse();
+    assertThat(result.getTradeValuations().isPresent()).isFalse();
 
     MarginSummary margin = result.getMargin().get();
-    assertTrue(margin.getMargin() != 0);
-    assertTrue(margin.getMarginDetails().size() > 2);
-    assertEquals(margin.getBreakdown().getTotalMargin(), margin.getMargin(), 1e-8);
-    assertTrue(margin.getBreakdown().getBaseMargin() != 0);
-    assertTrue(margin.getBreakdown().getAddOns() != 0);
-    assertEquals(margin.getBreakdown().getNetLiquidatingValue(), 0, 1e-8);
+    assertThat(margin.getMargin() != 0).isTrue();
+    assertThat(margin.getMarginDetails().size() > 2).isTrue();
+    assertThat(margin.getBreakdown().getTotalMargin()).isCloseTo(margin.getMargin(), offset(1e-8));
+    assertThat(margin.getBreakdown().getBaseMargin() != 0).isTrue();
+    assertThat(margin.getBreakdown().getAddOns() != 0).isTrue();
+    assertThat(margin.getBreakdown().getNetLiquidatingValue()).isCloseTo(0, offset(1e-8));
   }
 
-  @Test(dependsOnMethods = "test_getCcpInfo")
+  @Test
+  @Order(10)
   public void test_calculate_marginDetail() throws Exception {
-    assert valDate != null;
+    assumeTrue(valDate != null);
     MarginCalcRequest request = MarginCalcRequest.builder()
         .calculationTypes(MarginCalcType.MARGIN_DETAIL)
         .valuationDate(valDate)
@@ -173,38 +187,39 @@ public class MarginClientRemoteIT {
         .portfolioData(PORTFOLIO)
         .build();
     MarginCalcResult result = marginClient.calculate(Ccp.LCH, request);
-    assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
-    assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
-    assertEquals(result.getCalculationTypes(), set(MarginCalcType.MARGIN_DETAIL));
-    assertEquals(result.getValuationDate(), valDate);
-    assertEquals(result.getReportingCurrency(), "GBP");
-    assertEquals(result.getCalculationCurrency(), "GBP");
-    assertEquals(result.getMode(), MarginCalcMode.SPOT);
-    assertEquals(result.getPortfolioItems().size(), 0);
-    assertFalse(result.getMargin().isPresent());
-    assertTrue(result.getMarginDetail().isPresent());
-    assertFalse(result.getTradeValuations().isPresent());
+    assertThat(result.getStatus()).isEqualTo(MarginCalcResultStatus.COMPLETED);
+    assertThat(result.getType()).isEqualTo(MarginCalcRequestType.STANDARD);
+    assertThat(result.getCalculationTypes()).isEqualTo(set(MarginCalcType.MARGIN_DETAIL));
+    assertThat(result.getValuationDate()).isEqualTo(valDate);
+    assertThat(result.getReportingCurrency()).isEqualTo("GBP");
+    assertThat(result.getCalculationCurrency()).isEqualTo("GBP");
+    assertThat(result.getMode()).isEqualTo(MarginCalcMode.SPOT);
+    assertThat(result.getPortfolioItems()).hasSize(0);
+    assertThat(result.getMargin().isPresent()).isFalse();
+    assertThat(result.getMarginDetail().isPresent()).isTrue();
+    assertThat(result.getTradeValuations().isPresent()).isFalse();
 
     LchMarginDetail margin = (LchMarginDetail) result.getMarginDetail().get();
-    assertEquals(margin.getCcp(), Ccp.LCH);
-    assertTrue(margin.getTotalMargin() != 0);
-    assertEquals(margin.getBaseScenarioIds().size(), 6);
-    assertTrue(margin.getIndices().size() > 2);
+    assertThat(margin.getCcp()).isEqualTo(Ccp.LCH);
+    assertThat(margin.getTotalMargin() != 0).isTrue();
+    assertThat(margin.getBaseScenarioIds()).hasSize(6);
+    assertThat(margin.getIndices().size() > 2).isTrue();
     LchMarginIndex index = margin.getIndices().get(0);
-    assertTrue(index.getIndexName().length() > 4);
-    assertTrue(index.getDiversifiedBaseMargin() != 0);
-    assertTrue(index.getUndiversifiedBaseMargin() != 0);
-    assertEquals(index.getIndexScenarioIds().size(), 6);
-    assertTrue(margin.getScenarios().size() >= 6);
+    assertThat(index.getIndexName().length() > 4).isTrue();
+    assertThat(index.getDiversifiedBaseMargin() != 0).isTrue();
+    assertThat(index.getUndiversifiedBaseMargin() != 0).isTrue();
+    assertThat(index.getIndexScenarioIds()).hasSize(6);
+    assertThat(margin.getScenarios().size() >= 6).isTrue();
     LchMarginScenario scenario = margin.getScenarios().get(0);
-    assertTrue(scenario.getId().length() > 0);
-    assertTrue(scenario.getScaledPortfolioPnl() != 0);
-    assertTrue(scenario.getUnscaledPortfolioPnl() != 0);
+    assertThat(scenario.getId().length() > 0).isTrue();
+    assertThat(scenario.getScaledPortfolioPnl() != 0).isTrue();
+    assertThat(scenario.getUnscaledPortfolioPnl() != 0).isTrue();
   }
 
-  @Test(dependsOnMethods = "test_getCcpInfo")
+  @Test
+  @Order(10)
   public void test_calculate_pv() throws Exception {
-    assert valDate != null;
+    assumeTrue(valDate != null);
     MarginCalcRequest request = MarginCalcRequest.builder()
         .calculationTypes(MarginCalcType.PRESENT_VALUE, MarginCalcType.DELTA)
         .valuationDate(valDate)
@@ -212,44 +227,44 @@ public class MarginClientRemoteIT {
         .portfolioData(PORTFOLIO)
         .build();
     MarginCalcResult result = marginClient.calculate(Ccp.LCH, request);
-    assertEquals(result.getStatus(), MarginCalcResultStatus.COMPLETED);
-    assertEquals(result.getType(), MarginCalcRequestType.STANDARD);
-    assertEquals(result.getCalculationTypes(), set(MarginCalcType.PRESENT_VALUE, MarginCalcType.DELTA));
-    assertEquals(result.getValuationDate(), valDate);
-    assertEquals(result.getReportingCurrency(), "GBP");
-    assertEquals(result.getCalculationCurrency(), "GBP");
-    assertEquals(result.getMode(), MarginCalcMode.SPOT);
-    assertEquals(result.getPortfolioItems().size(), 0);
-    assertFalse(result.getMargin().isPresent());
-    assertFalse(result.getMarginDetail().isPresent());
-    assertTrue(result.getTradeValuations().isPresent());
+    assertThat(result.getStatus()).isEqualTo(MarginCalcResultStatus.COMPLETED);
+    assertThat(result.getType()).isEqualTo(MarginCalcRequestType.STANDARD);
+    assertThat(result.getCalculationTypes()).isEqualTo(set(MarginCalcType.PRESENT_VALUE, MarginCalcType.DELTA));
+    assertThat(result.getValuationDate()).isEqualTo(valDate);
+    assertThat(result.getReportingCurrency()).isEqualTo("GBP");
+    assertThat(result.getCalculationCurrency()).isEqualTo("GBP");
+    assertThat(result.getMode()).isEqualTo(MarginCalcMode.SPOT);
+    assertThat(result.getPortfolioItems()).hasSize(0);
+    assertThat(result.getMargin().isPresent()).isFalse();
+    assertThat(result.getMarginDetail().isPresent()).isFalse();
+    assertThat(result.getTradeValuations().isPresent()).isTrue();
 
     TradeValuations vals = result.getTradeValuations().get();
-    assertTrue(vals.getTotalPresentValue() != 0);
-    assertTrue(vals.getTotalDelta().isPresent());
-    assertTrue(vals.getBucketedDelta().isPresent());
-    assertFalse(vals.getTotalGamma().isPresent());
-    assertFalse(vals.getBucketedGamma().isPresent());
-    assertTrue(vals.getTotalDelta().getAsDouble() != 0);
-    assertEquals(vals.getBucketedDelta().get().size(), 3);
-    assertEquals(vals.getTrades().size(), 4);
+    assertThat(vals.getTotalPresentValue() != 0).isTrue();
+    assertThat(vals.getTotalDelta().isPresent()).isTrue();
+    assertThat(vals.getBucketedDelta().isPresent()).isTrue();
+    assertThat(vals.getTotalGamma().isPresent()).isFalse();
+    assertThat(vals.getBucketedGamma().isPresent()).isFalse();
+    assertThat(vals.getTotalDelta().getAsDouble() != 0).isTrue();
+    assertThat(vals.getBucketedDelta().get()).hasSize(3);
+    assertThat(vals.getTrades()).hasSize(4);
     TradeValuation val = vals.getTrades().get(0);
-    assertTrue(val.getValue().isPresent());
-    assertTrue(val.getDelta().isPresent());
-    assertFalse(val.getGamma().isPresent());
+    assertThat(val.getValue().isPresent()).isTrue();
+    assertThat(val.getDelta().isPresent()).isTrue();
+    assertThat(val.getGamma().isPresent()).isFalse();
     TradeValue value = val.getValue().get();
-    assertTrue(value.getPresentValue() != 0);
-    assertEquals(value.getTradeCurrency().length(), 3);
-    assertTrue(value.getPresentValueTradeCurrency() != 0);
+    assertThat(value.getPresentValue() != 0).isTrue();
+    assertThat(value.getTradeCurrency().length()).isEqualTo(3);
+    assertThat(value.getPresentValueTradeCurrency() != 0).isTrue();
     TradeSensitivity delta = val.getDelta().get();
-    assertTrue(delta.getSensitivity() != 0);
-    assertTrue(delta.getCurveSensitivity().size() > 0);
+    assertThat(delta.getSensitivity() != 0).isTrue();
+    assertThat(delta.getCurveSensitivity().size() > 0).isTrue();
     TradeCurveSensitivity curve = delta.getCurveSensitivity().get(0);
-    assertEquals(curve.getCurrency().length(), 3);
-    assertTrue(curve.getCurveName().length() > 4);
-    assertTrue(curve.getSensitivity() != 0);
-    assertTrue(curve.getTenorSensitivity().size() > 4);
-    assertTrue(curve.getTenorSensitivity().get(Period.ofMonths(12)) != 0);
+    assertThat(curve.getCurrency().length()).isEqualTo(3);
+    assertThat(curve.getCurveName().length() > 4).isTrue();
+    assertThat(curve.getSensitivity() != 0).isTrue();
+    assertThat(curve.getTenorSensitivity().size() > 4).isTrue();
+    assertThat(curve.getTenorSensitivity().get(Period.ofMonths(12)) != 0).isTrue();
   }
 
   //-------------------------------------------------------------------------

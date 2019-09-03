@@ -5,18 +5,18 @@
  */
 package com.opengamma.sdk.common;
 
-import static org.testng.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link Version}.
  */
-@Test
 public class VersionTest {
 
+  @Test
   public void test_version() {
-    assertFalse(Version.getVersionString().isEmpty());
+    assertThat(Version.getVersionString().isEmpty()).isFalse();
     // this line fails when tests are run in IntelliJ (works in Eclipse)
     // assertEquals(Version.getVersionString().contains("$"), false);
   }
