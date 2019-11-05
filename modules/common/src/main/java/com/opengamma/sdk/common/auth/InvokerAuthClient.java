@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Objects;
 
+import okhttp3.HttpUrl;
 import org.joda.beans.ser.JodaBeanSer;
 
 import com.opengamma.sdk.common.ServiceInvoker;
@@ -70,7 +71,7 @@ public final class InvokerAuthClient implements AuthClient {
       Credentials credentials) {
 
     Request request = new Request.Builder()
-        .url(invoker.getServiceUrl().resolve(url))
+        .url(HttpUrl.parse("https://api.opengamma.com/auth/v3/token"))
         .post(formBody)
         .header("Content-Type", MEDIA_JSON.toString())
         .header("Accept", MEDIA_JSON.toString())

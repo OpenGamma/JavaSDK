@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+import okhttp3.HttpUrl;
 import org.joda.beans.ser.JodaBeanSer;
 
 import com.opengamma.sdk.common.ServiceInvoker;
@@ -30,17 +31,17 @@ import com.opengamma.sdk.margin.PortfolioDataFile;
 public class MarginClientExample {
 
   // credentials must be set to use the example
-  private static final String DEV_ID = "PLEASE-CONTACT-OPENGAMMA";
-  private static final String DEV_SECRET = "123";
+  private static final String DEV_ID = "FTvMEnA650jdeBM70mgvWO7Eh9887Vjt";
+  private static final String DEV_SECRET = "qrza27XOvpDXhBZzzK633V_JuNSUAerGVJFgQIz33F7_-Pt64DUkFFpzLBsR2IZo";
   private static final Credentials CREDENTIALS = Credentials.ofApiKey(DEV_ID, DEV_SECRET);
 
   // the file to upload
-  private static final Path LCH_FILE = Paths.get("src/main/resources/com/opengamma/sdk/example/lch-trades.txt");
+  private static final Path LCH_FILE = Paths.get("/Users/sparky/repos/JavaSDK/examples/src/main/resources/com/opengamma/sdk/example/lch-trades.txt");
 
   // example code - invoke with no arguments
   public static void main(String[] args) throws InterruptedException {
     // create the invoker specifying the URL and credentials
-    try (ServiceInvoker invoker = ServiceInvoker.of(CREDENTIALS)) {
+    try (ServiceInvoker invoker = ServiceInvoker.builder(CREDENTIALS).serviceUrl(HttpUrl.parse("https://qcmtwiseh0.execute-api.eu-west-1.amazonaws.com")).build()) {
       // Creating the margin client
       MarginClient client = MarginClient.of(invoker);
 
