@@ -1,0 +1,19 @@
+pull_request_rules:
+  - name: Auto-Merge
+    conditions:
+      - "label=auto-merge"
+      - "status-success=build"
+      - "status-success=ogbot PR title"
+      - "#approved-reviews-by>=1"
+      - "-conflict"
+      - "title~=^((?!(wip|WIP)).)*$"
+    actions:
+      merge:
+        method: squash
+        rebase_fallback: null
+        strict: smart
+  - name: Delete-Branch
+    conditions:
+      - "merged"
+    actions:
+      delete_head_branch: {}
