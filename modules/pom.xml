@@ -400,7 +400,7 @@
     <logback.version>1.2.3</logback.version>
     <mockito.version>3.1.0</mockito.version>
     <slf4j.version>1.7.28</slf4j.version>
-    <okhttp.version>3.14.2</okhttp.version>
+    <okhttp.version>3.14.5</okhttp.version>
     <okio.version>1.17.4</okio.version>
     <!-- Properties for joda-beans-maven-plugin -->
     <!-- Lock in JDK config (not Guava) and stick with older version -->
