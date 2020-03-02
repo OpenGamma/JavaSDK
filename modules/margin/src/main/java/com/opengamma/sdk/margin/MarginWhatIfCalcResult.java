@@ -167,6 +167,7 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
       MarginSummary combinedSummary,
       MarginSummary deltaSummary,
       List<MarginError> failures) {
+
     return new MarginWhatIfCalcResult(
         status,
         type.toCalculationTypes(),
@@ -407,14 +408,14 @@ public final class MarginWhatIfCalcResult implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("MarginWhatIfCalcResult{");
-    buf.append("status").append('=').append(status).append(',').append(' ');
-    buf.append("calculationTypes").append('=').append(calculationTypes).append(',').append(' ');
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
-    buf.append("reportingCurrency").append('=').append(reportingCurrency).append(',').append(' ');
-    buf.append("portfolioItems").append('=').append(portfolioItems).append(',').append(' ');
-    buf.append("baseSummary").append('=').append(baseSummary).append(',').append(' ');
-    buf.append("combinedSummary").append('=').append(combinedSummary).append(',').append(' ');
-    buf.append("deltaSummary").append('=').append(deltaSummary).append(',').append(' ');
+    buf.append("status").append('=').append(JodaBeanUtils.toString(status)).append(',').append(' ');
+    buf.append("calculationTypes").append('=').append(JodaBeanUtils.toString(calculationTypes)).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
+    buf.append("reportingCurrency").append('=').append(JodaBeanUtils.toString(reportingCurrency)).append(',').append(' ');
+    buf.append("portfolioItems").append('=').append(JodaBeanUtils.toString(portfolioItems)).append(',').append(' ');
+    buf.append("baseSummary").append('=').append(JodaBeanUtils.toString(baseSummary)).append(',').append(' ');
+    buf.append("combinedSummary").append('=').append(JodaBeanUtils.toString(combinedSummary)).append(',').append(' ');
+    buf.append("deltaSummary").append('=').append(JodaBeanUtils.toString(deltaSummary)).append(',').append(' ');
     buf.append("failures").append('=').append(JodaBeanUtils.toString(failures));
     buf.append('}');
     return buf.toString();

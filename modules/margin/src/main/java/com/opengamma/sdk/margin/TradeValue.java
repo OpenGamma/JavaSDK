@@ -145,8 +145,8 @@ public final class TradeValue implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("TradeValue{");
-    buf.append("presentValue").append('=').append(presentValue).append(',').append(' ');
-    buf.append("tradeCurrency").append('=').append(tradeCurrency).append(',').append(' ');
+    buf.append("presentValue").append('=').append(JodaBeanUtils.toString(presentValue)).append(',').append(' ');
+    buf.append("tradeCurrency").append('=').append(JodaBeanUtils.toString(tradeCurrency)).append(',').append(' ');
     buf.append("presentValueTradeCurrency").append('=').append(JodaBeanUtils.toString(presentValueTradeCurrency));
     buf.append('}');
     return buf.toString();

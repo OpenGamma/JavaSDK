@@ -181,9 +181,9 @@ public final class MarginBreakdown implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("MarginBreakdown{");
-    buf.append("totalMargin").append('=').append(totalMargin).append(',').append(' ');
-    buf.append("baseMargin").append('=').append(baseMargin).append(',').append(' ');
-    buf.append("addOns").append('=').append(addOns).append(',').append(' ');
+    buf.append("totalMargin").append('=').append(JodaBeanUtils.toString(totalMargin)).append(',').append(' ');
+    buf.append("baseMargin").append('=').append(JodaBeanUtils.toString(baseMargin)).append(',').append(' ');
+    buf.append("addOns").append('=').append(JodaBeanUtils.toString(addOns)).append(',').append(' ');
     buf.append("netLiquidatingValue").append('=').append(JodaBeanUtils.toString(netLiquidatingValue));
     buf.append('}');
     return buf.toString();

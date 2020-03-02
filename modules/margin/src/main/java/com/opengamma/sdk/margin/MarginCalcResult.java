@@ -421,17 +421,17 @@ public final class MarginCalcResult implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(416);
     buf.append("MarginCalcResult{");
-    buf.append("status").append('=').append(status).append(',').append(' ');
-    buf.append("calculationTypes").append('=').append(calculationTypes).append(',').append(' ');
-    buf.append("mode").append('=').append(mode).append(',').append(' ');
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
-    buf.append("reportingCurrency").append('=').append(reportingCurrency).append(',').append(' ');
-    buf.append("calculationCurrency").append('=').append(calculationCurrency).append(',').append(' ');
-    buf.append("applyClientMultiplier").append('=').append(applyClientMultiplier).append(',').append(' ');
-    buf.append("portfolioItems").append('=').append(portfolioItems).append(',').append(' ');
-    buf.append("margin").append('=').append(margin).append(',').append(' ');
-    buf.append("marginDetail").append('=').append(marginDetail).append(',').append(' ');
-    buf.append("tradeValuations").append('=').append(tradeValuations).append(',').append(' ');
+    buf.append("status").append('=').append(JodaBeanUtils.toString(status)).append(',').append(' ');
+    buf.append("calculationTypes").append('=').append(JodaBeanUtils.toString(calculationTypes)).append(',').append(' ');
+    buf.append("mode").append('=').append(JodaBeanUtils.toString(mode)).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
+    buf.append("reportingCurrency").append('=').append(JodaBeanUtils.toString(reportingCurrency)).append(',').append(' ');
+    buf.append("calculationCurrency").append('=').append(JodaBeanUtils.toString(calculationCurrency)).append(',').append(' ');
+    buf.append("applyClientMultiplier").append('=').append(JodaBeanUtils.toString(applyClientMultiplier)).append(',').append(' ');
+    buf.append("portfolioItems").append('=').append(JodaBeanUtils.toString(portfolioItems)).append(',').append(' ');
+    buf.append("margin").append('=').append(JodaBeanUtils.toString(margin)).append(',').append(' ');
+    buf.append("marginDetail").append('=').append(JodaBeanUtils.toString(marginDetail)).append(',').append(' ');
+    buf.append("tradeValuations").append('=').append(JodaBeanUtils.toString(tradeValuations)).append(',').append(' ');
     buf.append("failures").append('=').append(JodaBeanUtils.toString(failures));
     buf.append('}');
     return buf.toString();

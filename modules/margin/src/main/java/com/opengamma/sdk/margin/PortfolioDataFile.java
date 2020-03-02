@@ -273,7 +273,7 @@ public final class PortfolioDataFile implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("PortfolioDataFile{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
     buf.append("data").append('=').append(JodaBeanUtils.toString(data));
     buf.append('}');
     return buf.toString();

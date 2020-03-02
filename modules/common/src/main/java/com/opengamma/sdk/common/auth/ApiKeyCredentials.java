@@ -116,7 +116,7 @@ final class ApiKeyCredentials implements Credentials, ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ApiKeyCredentials{");
-    buf.append("apiKey").append('=').append(apiKey).append(',').append(' ');
+    buf.append("apiKey").append('=').append(JodaBeanUtils.toString(apiKey)).append(',').append(' ');
     buf.append("secret").append('=').append(JodaBeanUtils.toString(secret));
     buf.append('}');
     return buf.toString();

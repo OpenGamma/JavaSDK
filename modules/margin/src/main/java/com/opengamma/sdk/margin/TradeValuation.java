@@ -165,9 +165,9 @@ public final class TradeValuation implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("TradeValuation{");
-    buf.append("tradeId").append('=').append(tradeId).append(',').append(' ');
-    buf.append("value").append('=').append(value).append(',').append(' ');
-    buf.append("delta").append('=').append(delta).append(',').append(' ');
+    buf.append("tradeId").append('=').append(JodaBeanUtils.toString(tradeId)).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
+    buf.append("delta").append('=').append(JodaBeanUtils.toString(delta)).append(',').append(' ');
     buf.append("gamma").append('=').append(JodaBeanUtils.toString(gamma));
     buf.append('}');
     return buf.toString();

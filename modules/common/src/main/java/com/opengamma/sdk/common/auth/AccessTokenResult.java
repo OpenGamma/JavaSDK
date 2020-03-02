@@ -151,8 +151,8 @@ public final class AccessTokenResult implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("AccessTokenResult{");
-    buf.append("accessToken").append('=').append(accessToken).append(',').append(' ');
-    buf.append("tokenType").append('=').append(tokenType).append(',').append(' ');
+    buf.append("accessToken").append('=').append(JodaBeanUtils.toString(accessToken)).append(',').append(' ');
+    buf.append("tokenType").append('=').append(JodaBeanUtils.toString(tokenType)).append(',').append(' ');
     buf.append("expiresIn").append('=').append(JodaBeanUtils.toString(expiresIn));
     buf.append('}');
     return buf.toString();
