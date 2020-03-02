@@ -167,9 +167,9 @@ public final class LchMarginScenario implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("LchMarginScenario{");
-    buf.append("id").append('=').append(id).append(',').append(' ');
-    buf.append("date").append('=').append(date).append(',').append(' ');
-    buf.append("scaledPortfolioPnl").append('=').append(scaledPortfolioPnl).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
+    buf.append("scaledPortfolioPnl").append('=').append(JodaBeanUtils.toString(scaledPortfolioPnl)).append(',').append(' ');
     buf.append("unscaledPortfolioPnl").append('=').append(JodaBeanUtils.toString(unscaledPortfolioPnl));
     buf.append('}');
     return buf.toString();

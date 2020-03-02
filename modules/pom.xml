@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>2.7.3</version>
+    <version>2.7.4</version>
     <relativePath />
   </parent>
   <groupId>com.opengamma.sdk</groupId>
@@ -391,17 +391,17 @@
   <!-- ==================================================================== -->
   <properties>
     <!-- Versions -->
-    <assertj.version>3.13.2</assertj.version>
+    <assertj.version>3.15.0</assertj.version>
     <jcommander.version>1.78</jcommander.version>
     <joda-convert.version>2.2.1</joda-convert.version>
-    <joda-beans.version>2.7.1</joda-beans.version>
-    <joda.beans.version>2.6.2</joda.beans.version>
-    <junit5.version>5.5.2</junit5.version>
+    <joda-beans.version>2.8.0</joda-beans.version>
+    <joda.beans.version>2.8.0</joda.beans.version>
+    <junit5.version>5.6.0</junit5.version>
     <logback.version>1.2.3</logback.version>
-    <mockito.version>3.1.0</mockito.version>
-    <slf4j.version>1.7.28</slf4j.version>
-    <okhttp.version>3.14.2</okhttp.version>
-    <okio.version>1.17.4</okio.version>
+    <mockito.version>3.3.1</mockito.version>
+    <slf4j.version>1.7.30</slf4j.version>
+    <okhttp.version>3.14.7</okhttp.version>
+    <okio.version>1.17.5</okio.version>
     <!-- Properties for joda-beans-maven-plugin -->
     <!-- Lock in JDK config (not Guava) and stick with older version -->
     <joda-beans-maven-plugin.version>1.1</joda-beans-maven-plugin.version>

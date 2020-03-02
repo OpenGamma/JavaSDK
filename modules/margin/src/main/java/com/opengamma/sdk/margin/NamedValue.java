@@ -122,7 +122,7 @@ public final class NamedValue implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("NamedValue{");
-    buf.append("key").append('=').append(key).append(',').append(' ');
+    buf.append("key").append('=').append(JodaBeanUtils.toString(key)).append(',').append(' ');
     buf.append("value").append('=').append(JodaBeanUtils.toString(value));
     buf.append('}');
     return buf.toString();

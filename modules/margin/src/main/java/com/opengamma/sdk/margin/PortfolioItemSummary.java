@@ -145,8 +145,8 @@ public final class PortfolioItemSummary implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("PortfolioItemSummary{");
-    buf.append("id").append('=').append(id).append(',').append(' ');
-    buf.append("product").append('=').append(product).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
+    buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
     buf.append("description").append('=').append(JodaBeanUtils.toString(description));
     buf.append('}');
     return buf.toString();

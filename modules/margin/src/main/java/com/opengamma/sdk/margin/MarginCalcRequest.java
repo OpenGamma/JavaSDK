@@ -515,14 +515,14 @@ public final class MarginCalcRequest implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("MarginCalcRequest{");
-    buf.append("calculationTypes").append('=').append(calculationTypes).append(',').append(' ');
-    buf.append("mode").append('=').append(mode).append(',').append(' ');
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
-    buf.append("applyClientMultiplier").append('=').append(applyClientMultiplier).append(',').append(' ');
-    buf.append("reportingCurrency").append('=').append(reportingCurrency).append(',').append(' ');
-    buf.append("calculationCurrency").append('=').append(calculationCurrency).append(',').append(' ');
-    buf.append("portfolioData").append('=').append(portfolioData).append(',').append(' ');
-    buf.append("fpmlPartySelectionRegex").append('=').append(fpmlPartySelectionRegex).append(',').append(' ');
+    buf.append("calculationTypes").append('=').append(JodaBeanUtils.toString(calculationTypes)).append(',').append(' ');
+    buf.append("mode").append('=').append(JodaBeanUtils.toString(mode)).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
+    buf.append("applyClientMultiplier").append('=').append(JodaBeanUtils.toString(applyClientMultiplier)).append(',').append(' ');
+    buf.append("reportingCurrency").append('=').append(JodaBeanUtils.toString(reportingCurrency)).append(',').append(' ');
+    buf.append("calculationCurrency").append('=').append(JodaBeanUtils.toString(calculationCurrency)).append(',').append(' ');
+    buf.append("portfolioData").append('=').append(JodaBeanUtils.toString(portfolioData)).append(',').append(' ');
+    buf.append("fpmlPartySelectionRegex").append('=').append(JodaBeanUtils.toString(fpmlPartySelectionRegex)).append(',').append(' ');
     buf.append("portfolioOwnerCode").append('=').append(JodaBeanUtils.toString(portfolioOwnerCode));
     buf.append('}');
     return buf.toString();

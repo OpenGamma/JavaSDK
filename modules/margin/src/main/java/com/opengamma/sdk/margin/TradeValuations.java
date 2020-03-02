@@ -285,11 +285,11 @@ public final class TradeValuations implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("TradeValuations{");
-    buf.append("totalPresentValue").append('=').append(totalPresentValue).append(',').append(' ');
-    buf.append("totalDelta").append('=').append(totalDelta).append(',').append(' ');
-    buf.append("bucketedDelta").append('=').append(bucketedDelta).append(',').append(' ');
-    buf.append("totalGamma").append('=').append(totalGamma).append(',').append(' ');
-    buf.append("bucketedGamma").append('=').append(bucketedGamma).append(',').append(' ');
+    buf.append("totalPresentValue").append('=').append(JodaBeanUtils.toString(totalPresentValue)).append(',').append(' ');
+    buf.append("totalDelta").append('=').append(JodaBeanUtils.toString(totalDelta)).append(',').append(' ');
+    buf.append("bucketedDelta").append('=').append(JodaBeanUtils.toString(bucketedDelta)).append(',').append(' ');
+    buf.append("totalGamma").append('=').append(JodaBeanUtils.toString(totalGamma)).append(',').append(' ');
+    buf.append("bucketedGamma").append('=').append(JodaBeanUtils.toString(bucketedGamma)).append(',').append(' ');
     buf.append("trades").append('=').append(JodaBeanUtils.toString(trades));
     buf.append('}');
     return buf.toString();

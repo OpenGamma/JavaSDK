@@ -255,9 +255,9 @@ public class MarginClientTest {
   @SuppressWarnings("deprecation")
   public void test_calculate_whatif() throws Exception {
     Dispatcher webServerDispatcher = new Dispatcher() {
-      boolean firstRequestSubmitted = false;
-      boolean firstCalcRequested = false;
-      boolean secondCalcRequested = false;
+      private boolean firstRequestSubmitted;
+      private boolean firstCalcRequested;
+      private boolean secondCalcRequested;
 
       @Override
       public MockResponse dispatch(RecordedRequest request) throws InterruptedException {

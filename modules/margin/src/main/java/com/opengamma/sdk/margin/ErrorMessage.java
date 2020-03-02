@@ -170,9 +170,9 @@ public final class ErrorMessage implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ErrorMessage{");
-    buf.append("status").append('=').append(status).append(',').append(' ');
-    buf.append("reason").append('=').append(reason).append(',').append(' ');
-    buf.append("message").append('=').append(message).append(',').append(' ');
+    buf.append("status").append('=').append(JodaBeanUtils.toString(status)).append(',').append(' ');
+    buf.append("reason").append('=').append(JodaBeanUtils.toString(reason)).append(',').append(' ');
+    buf.append("message").append('=').append(JodaBeanUtils.toString(message)).append(',').append(' ');
     buf.append("type").append('=').append(JodaBeanUtils.toString(type));
     buf.append('}');
     return buf.toString();

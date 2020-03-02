@@ -84,6 +84,7 @@ public final class CcpInfo implements ImmutableBean {
       String defaultCurrency,
       List<String> reportingCurrencies,
       List<String> calculationCurrencies) {
+
     return new CcpInfo(
         valuationDates,
         defaultCurrency,
@@ -261,11 +262,11 @@ public final class CcpInfo implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("CcpInfo{");
-    buf.append("valuationDates").append('=').append(valuationDates).append(',').append(' ');
-    buf.append("defaultCurrency").append('=').append(defaultCurrency).append(',').append(' ');
-    buf.append("reportingCurrencies").append('=').append(reportingCurrencies).append(',').append(' ');
-    buf.append("calculationCurrencies").append('=').append(calculationCurrencies).append(',').append(' ');
-    buf.append("calculationTypes").append('=').append(calculationTypes).append(',').append(' ');
+    buf.append("valuationDates").append('=').append(JodaBeanUtils.toString(valuationDates)).append(',').append(' ');
+    buf.append("defaultCurrency").append('=').append(JodaBeanUtils.toString(defaultCurrency)).append(',').append(' ');
+    buf.append("reportingCurrencies").append('=').append(JodaBeanUtils.toString(reportingCurrencies)).append(',').append(' ');
+    buf.append("calculationCurrencies").append('=').append(JodaBeanUtils.toString(calculationCurrencies)).append(',').append(' ');
+    buf.append("calculationTypes").append('=').append(JodaBeanUtils.toString(calculationTypes)).append(',').append(' ');
     buf.append("calculationModes").append('=').append(JodaBeanUtils.toString(calculationModes));
     buf.append('}');
     return buf.toString();

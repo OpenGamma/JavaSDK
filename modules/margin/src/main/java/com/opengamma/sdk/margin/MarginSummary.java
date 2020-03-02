@@ -171,8 +171,8 @@ public final class MarginSummary implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("MarginSummary{");
-    buf.append("margin").append('=').append(margin).append(',').append(' ');
-    buf.append("marginDetails").append('=').append(marginDetails).append(',').append(' ');
+    buf.append("margin").append('=').append(JodaBeanUtils.toString(margin)).append(',').append(' ');
+    buf.append("marginDetails").append('=').append(JodaBeanUtils.toString(marginDetails)).append(',').append(' ');
     buf.append("breakdown").append('=').append(JodaBeanUtils.toString(breakdown));
     buf.append('}');
     return buf.toString();

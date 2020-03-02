@@ -170,9 +170,9 @@ public final class LchMarginIndex implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("LchMarginIndex{");
-    buf.append("indexName").append('=').append(indexName).append(',').append(' ');
-    buf.append("diversifiedBaseMargin").append('=').append(diversifiedBaseMargin).append(',').append(' ');
-    buf.append("undiversifiedBaseMargin").append('=').append(undiversifiedBaseMargin).append(',').append(' ');
+    buf.append("indexName").append('=').append(JodaBeanUtils.toString(indexName)).append(',').append(' ');
+    buf.append("diversifiedBaseMargin").append('=').append(JodaBeanUtils.toString(diversifiedBaseMargin)).append(',').append(' ');
+    buf.append("undiversifiedBaseMargin").append('=').append(JodaBeanUtils.toString(undiversifiedBaseMargin)).append(',').append(' ');
     buf.append("indexScenarioIds").append('=').append(JodaBeanUtils.toString(indexScenarioIds));
     buf.append('}');
     return buf.toString();

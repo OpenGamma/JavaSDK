@@ -167,9 +167,9 @@ public final class MarginError implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("MarginError{");
-    buf.append("reason").append('=').append(reason).append(',').append(' ');
-    buf.append("message").append('=').append(message).append(',').append(' ');
-    buf.append("type").append('=').append(type).append(',').append(' ');
+    buf.append("reason").append('=').append(JodaBeanUtils.toString(reason)).append(',').append(' ');
+    buf.append("message").append('=').append(JodaBeanUtils.toString(message)).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
     buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes));
     buf.append('}');
     return buf.toString();

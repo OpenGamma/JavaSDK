@@ -125,7 +125,7 @@ public final class TradeSensitivity implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("TradeSensitivity{");
-    buf.append("sensitivity").append('=').append(sensitivity).append(',').append(' ');
+    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity)).append(',').append(' ');
     buf.append("curveSensitivity").append('=').append(JodaBeanUtils.toString(curveSensitivity));
     buf.append('}');
     return buf.toString();

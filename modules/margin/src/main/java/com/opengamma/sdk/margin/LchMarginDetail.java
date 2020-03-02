@@ -209,12 +209,13 @@ public final class LchMarginDetail extends MarginDetail implements ImmutableBean
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("LchMarginDetail{");
-    buf.append("totalMargin").append('=').append(totalMargin).append(',').append(' ');
-    buf.append("baseScenarioIds").append('=').append(baseScenarioIds).append(',').append(' ');
-    buf.append("indices").append('=').append(indices).append(',').append(' ');
-    buf.append("scenarios").append('=').append(JodaBeanUtils.toString(scenarios));
+    buf.append("totalMargin").append('=').append(JodaBeanUtils.toString(totalMargin)).append(',').append(' ');
+    buf.append("baseScenarioIds").append('=').append(JodaBeanUtils.toString(baseScenarioIds)).append(',').append(' ');
+    buf.append("indices").append('=').append(JodaBeanUtils.toString(indices)).append(',').append(' ');
+    buf.append("scenarios").append('=').append(JodaBeanUtils.toString(scenarios)).append(',').append(' ');
+    buf.append("ccp").append('=').append(JodaBeanUtils.toString(getCcp()));
     buf.append('}');
     return buf.toString();
   }
@@ -403,12 +404,13 @@ public final class LchMarginDetail extends MarginDetail implements ImmutableBean
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("LchMarginDetail.Builder{");
       buf.append("totalMargin").append('=').append(JodaBeanUtils.toString(totalMargin)).append(',').append(' ');
       buf.append("baseScenarioIds").append('=').append(JodaBeanUtils.toString(baseScenarioIds)).append(',').append(' ');
       buf.append("indices").append('=').append(JodaBeanUtils.toString(indices)).append(',').append(' ');
-      buf.append("scenarios").append('=').append(JodaBeanUtils.toString(scenarios));
+      buf.append("scenarios").append('=').append(JodaBeanUtils.toString(scenarios)).append(',').append(' ');
+      buf.append("ccp").append('=').append(JodaBeanUtils.toString(null));
       buf.append('}');
       return buf.toString();
     }
