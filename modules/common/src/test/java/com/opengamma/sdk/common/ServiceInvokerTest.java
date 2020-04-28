@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import com.opengamma.sdk.common.auth.Credentials;
 
-import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.mockwebserver.MockResponse;
@@ -30,18 +29,24 @@ public class ServiceInvokerTest {
   public void setUp() throws Exception {
     server = new MockWebServer();
     server.start(18080);
+    // first call - auth
     server.enqueue(new MockResponse().setResponseCode(200).setBody("{\n" +
         "  \"access_token\": \"testAccessToken\",\n" +
         "  \"expires_in\": 1,\n" +
         "  \"token_type\": \"Bearer\"\n" +
         "}"));
+    // first call - valid result
+    server.enqueue(new MockResponse().setResponseCode(200).setBody("VALID1"));
+    // second call - token expired
+    server.enqueue(new MockResponse().setResponseCode(401).setBody(""));
+    // second call - auth
     server.enqueue(new MockResponse().setResponseCode(200).setBody("{\n" +
-        "  \"access_token\": \"<Your access token here>\",\n" +
+        "  \"access_token\": \"testAccessToken\",\n" +
         "  \"expires_in\": 1,\n" +
         "  \"token_type\": \"Bearer\"\n" +
         "}"));
-    server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
-    server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
+    // second call - valid result
+    server.enqueue(new MockResponse().setResponseCode(200).setBody("VALID2"));
   }
 
   @AfterEach
@@ -50,20 +55,30 @@ public class ServiceInvokerTest {
   }
 
   @Test
-  public void testNewRequestWithReauthenticationSequence() throws Exception {
-
+  public void testAuthFlow() throws Exception {
     try (ServiceInvoker invoker = ServiceInvoker.builder(Credentials.ofApiKey("test", "test"))
-        .serviceUrl(HttpUrl.parse("http://" + server.getHostName() + ":" + server.getPort()))
+        .serviceUrl(server.url(""))
         .build()) {
 
       Request request = new Request.Builder()
           .url(invoker.getServiceUrl().resolve("test"))
           .get()
           .build();
-      Response response = invoker.getHttpClient().newCall(request).execute();
-      assertThat(response.code()).isEqualTo(200);
-      assertThat(response.message()).isEqualTo("OK");
-      assertThat(response.isSuccessful()).isTrue();
+      // first call
+      try (Response response1 = invoker.getHttpClient().newCall(request).execute()) {
+        assertThat(response1.code()).isEqualTo(200);
+        assertThat(response1.message()).isEqualTo("OK");
+        assertThat(response1.body().string()).isEqualTo("VALID1");
+        assertThat(response1.isSuccessful()).isTrue();
+      }
+      // second call
+      try (Response response2 = invoker.getHttpClient().newCall(request).execute()) {
+        assertThat(response2.code()).isEqualTo(200);
+        assertThat(response2.message()).isEqualTo("OK");
+        assertThat(response2.body().string()).isEqualTo("VALID2");
+        assertThat(response2.isSuccessful()).isTrue();
+      }
     }
   }
+
 }

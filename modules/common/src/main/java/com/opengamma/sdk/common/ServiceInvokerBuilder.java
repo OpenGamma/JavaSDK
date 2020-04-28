@@ -79,7 +79,7 @@ public final class ServiceInvokerBuilder {
   /** The auth client factory. */
   private Function<ServiceInvoker, AuthClient> authClientFactory;
   /** Times to retry */
-  private int retries = 1;
+  private int retries;
 
   //-------------------------------------------------------------------------
   /**
@@ -131,6 +131,9 @@ public final class ServiceInvokerBuilder {
    * Sets the number of retries for HTTP requests that failed due to system/network issues.
    * <p>
    * This allows the client to cope with intermittent network failures, such as timeouts.
+   * <p>
+   * Retries are primarily handled by the underlying OkHttp library.
+   * At this level, retries are off by default, and this is the recommended setting.
    *
    * @param retries  how many times to retry
    * @return this builder, for method chaining
@@ -217,12 +220,20 @@ public final class ServiceInvokerBuilder {
     }
     // setup HttpClient
     TokenInterceptor tokenInterceptor = new TokenInterceptor();
-    RetryInterceptor retryInterceptor = new RetryInterceptor(retries);
-    httpClient = httpClient.newBuilder()
-        .addInterceptor(tokenInterceptor)
-        .addInterceptor(new UserAgentHeaderInterceptor())
-        .addInterceptor(retryInterceptor)
-        .build();
+    UserAgentHeaderInterceptor userAgentInterceptor = new UserAgentHeaderInterceptor();
+    if (retries > 0) {
+      RetryInterceptor retryInterceptor = new RetryInterceptor(retries);
+      httpClient = httpClient.newBuilder()
+          .addInterceptor(tokenInterceptor)
+          .addInterceptor(userAgentInterceptor)
+          .addInterceptor(retryInterceptor)
+          .build();
+    } else {
+      httpClient = httpClient.newBuilder()
+          .addInterceptor(tokenInterceptor)
+          .addInterceptor(userAgentInterceptor)
+          .build();
+    }
     // setup instance, creating a pure immutable ServiceInvoker, then using it
     // care should be taken when altering this code to ensure Java Memory Model semantics are considered
     ServiceInvoker invoker = new ServiceInvoker(serviceUrl, httpClient, executorService);
@@ -287,21 +298,19 @@ public final class ServiceInvokerBuilder {
     @Override
     public Response intercept(Chain chain) throws IOException {
       Request request = chain.request();
-      Response response = null;
       Exception exception = null;
-      int retries = 0;
-      while (response == null && retries < retryCount) {
-        retries++;
+      for (int retries = 0; retries <= retryCount; retries++) {
         try {
-          response = chain.proceed(request);
-        } catch (IOException | UncheckedIOException e) {
-          exception = e;
+          Response response = chain.proceed(request);
+          if (response != null) {
+            return response;
+          }
+        } catch (IOException | UncheckedIOException ex) {
+          exception = ex;
         }
       }
-      if (response == null) {
-        throw new IOException("Failed to perform " + request.method() + " request to given URL after " + retries + " retries: " + request.url().toString(), exception);
-      }
-      return response;
+      throw new IOException("Failed to perform " + request.method() + " request to given URL after " + retryCount +
+          " retries: " + request.url().toString(), exception);
     }
   }
 
@@ -341,6 +350,8 @@ public final class ServiceInvokerBuilder {
         if (response.code() != 401) {
           return response;
         }
+        // response must be closed before calling chain.proceed() again
+        response.close();
       }
 
       // try to get a new token
