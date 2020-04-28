@@ -10,7 +10,7 @@
   </parent>
   <groupId>com.opengamma.sdk</groupId>
   <artifactId>sdk-examples</artifactId>
-  <version>3.6.2-SNAPSHOT</version>
+  <version>3.6.2</version>
   <packaging>jar</packaging>
   <name>SDK-Examples</name>
   <description>OpenGamma SDK - Example code to demonstrate usage</description>
@@ -36,7 +36,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore></ignore>
+                    <ignore />
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -77,4 +77,8 @@
     <maven.install.skip>true</maven.install.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
   </properties>
+
+  <scm>
+    <tag>v3.6.2</tag>
+  </scm>
 </project>
