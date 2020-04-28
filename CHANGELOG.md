@@ -3,6 +3,18 @@ Change Log
 
 Changes to the SDK, listed in the style of [keepachangelog](https://keepachangelog.com/en/1.0.0/).
 
+## Version 3.6.2 - 2020-04-28
+
+### Fixed
+
+* Fix leak of OkHttp Response object
+* Clarify that retries are primarily automatic by OkHttp, not this library
+
+### Task
+
+* Updated dependencies
+
+
 ## Version 3.6.1 - 2019-08-30
 
 ### Fixed
