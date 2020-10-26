@@ -417,7 +417,7 @@
     <assertj.version>3.17.2</assertj.version>
     <jcommander.version>1.78</jcommander.version>
     <joda-convert.version>2.2.1</joda-convert.version>
-    <joda-beans.version>2.8.0</joda-beans.version>
+    <joda-beans.version>2.8.1</joda-beans.version>
     <joda.beans.version>2.8.0</joda.beans.version>
     <junit5.version>5.7.0</junit5.version>
     <logback.version>1.2.3</logback.version>
