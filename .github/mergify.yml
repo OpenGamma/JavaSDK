@@ -3,7 +3,6 @@ pull_request_rules:
     conditions:
       - "label=auto-merge"
       - "status-success=build"
-      - "status-success=ogbot PR title"
       - "#approved-reviews-by>=1"
       - "-conflict"
       - "title~=^((?!(wip|WIP)).)*$"
