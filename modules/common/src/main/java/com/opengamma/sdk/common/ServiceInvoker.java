@@ -34,7 +34,7 @@ public final class ServiceInvoker implements AutoCloseable {
   /**
    * The URL of the service.
    */
-  public static final HttpUrl SERVICE_URL = HttpUrl.parse("https://api.dev.opengamma.com");
+  public static final HttpUrl SERVICE_URL = HttpUrl.parse("https://api.opengamma.com");
   /**
    * JSON media type.
    */
