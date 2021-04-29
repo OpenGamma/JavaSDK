@@ -1,0 +1,55 @@
+version: 2
+registries:
+  maven-repository-opengamma-jfrog-io-opengamma-all:
+    type: maven-repository
+    url: https://opengamma.jfrog.io/opengamma/all
+    username: dependabot
+    password: "${{secrets.MAVEN_REPOSITORY_OPENGAMMA_JFROG_IO_OPENGAMMA_ALL_PASSWORD}}"
+
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "02:30"
+  open-pull-requests-limit: 20
+  reviewers:
+  - jodastephen
+  assignees:
+  - jodastephen
+  ignore:
+  - dependency-name: com.beust:jcommander
+    versions:
+    - "< 1.73.1, >= 1.73.0.a"
+  - dependency-name: com.beust:jcommander
+    versions:
+    - "< 1.74.1, >= 1.74.0.a"
+  - dependency-name: com.beust:jcommander
+    versions:
+    - ">= 1.75.a, < 1.76"
+  - dependency-name: com.beust:jcommander
+    versions:
+    - ">= 1.80.a, < 1.81"
+  - dependency-name: com.beust:jcommander
+    versions:
+    - ">= 1.81.a, < 1.82"
+  - dependency-name: com.opengamma:corporate-parent
+    versions:
+    - "> 2.7.3, < 2.8"
+  - dependency-name: com.squareup.okhttp3:mockwebserver
+    versions:
+    - ">= 4.a, < 5"
+  - dependency-name: com.squareup.okhttp3:okhttp
+    versions:
+    - ">= 4.a, < 5"
+  - dependency-name: com.squareup.okio:okio
+    versions:
+    - "< 2.3, >= 2.2.a"
+  - dependency-name: com.squareup.okio:okio
+    versions:
+    - ">= 2.a, < 3"
+  - dependency-name: org.testng:testng
+    versions:
+    - "< 6.14.4, >= 6.14.3.a"
+  registries:
+  - maven-repository-opengamma-jfrog-io-opengamma-all
