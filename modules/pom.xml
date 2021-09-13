@@ -419,7 +419,7 @@
     <joda-convert.version>2.2.1</joda-convert.version>
     <joda-beans.version>2.8.1</joda-beans.version>
     <joda.beans.version>2.8.0</joda.beans.version>
-    <junit5.version>5.7.2</junit5.version>
+    <junit5.version>5.8.0</junit5.version>
     <logback.version>1.2.3</logback.version>
     <slf4j.version>1.7.30</slf4j.version>
     <okhttp.version>3.14.9</okhttp.version>
