@@ -5,7 +5,7 @@ The release process is as follows:
 
 1. Ensure all required changes have been merged
 
-1. Check out the master branch and ensure there are no local changes
+1. Check out the main branch and ensure there are no local changes
 
 1. Update CHANGELOG.md and version in README.md, committing the changes
 

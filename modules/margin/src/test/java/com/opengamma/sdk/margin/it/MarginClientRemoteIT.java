@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -56,6 +57,7 @@ import okhttp3.HttpUrl;
  * Run as a formal integration test via maven failsafe.
  * Requires two environment variables, hence is run via a maven profile.
  */
+@Disabled("API key not public")
 @SuppressWarnings("deprecation")
 @TestInstance(Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
