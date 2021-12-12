@@ -6,13 +6,15 @@ executors:
 
 #----------------------------------------------------------------------------
 # vital to set the MaxRAM parameter as cgroups settings are not passed to the JVM
-  jdk11:
+  jdk11-small:
     docker:
       - image: cimg/openjdk:11.0
+    resource_class: small
     working_directory: ~/repo
     environment:
       JAVA_TOOL_OPTIONS: -XX:MaxRAM=1536m
-      MAVEN_OPTS: -Xmx512m
+      MAVEN_OPTS: -Xmx736m
+      REPO_NAME: ClientData
 
 
 #############################################################################
@@ -27,9 +29,9 @@ commands:
       - run:
           name: Initializing Maven
           command: |
-            mvn --version
             mkdir -p ./.mvn
-            echo '-e -B -DtrimStackTrace=false --settings .circleci/maven-settings.xml' > ./.mvn/maven.config
+            echo "-e -B -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=yyyy-MM-dd'T'HH:mm:ss.SSS -DtrimStackTrace=false -Dsurefire.useSystemClassLoader=false -Dog.deploy.branch=$CIRCLE_BRANCH -Dog.deploy.tag=$CIRCLE_TAG -Dog.deploy.sha=$CIRCLE_SHA1 --settings .circleci/maven-settings.xml" > ./.mvn/maven.config
+            mvn --version
 
 #----------------------------------------------------------------------------
   maven_install_test:
@@ -57,9 +59,9 @@ commands:
           command: |
             RELEASE_SHA=$(git rev-parse HEAD)
             git checkout main
-            MASTER_SHA=$(git rev-parse HEAD)
-            if [[ "$RELEASE_SHA" != "$MASTER_SHA" ]]; then
-              echo "release tag SHA != main HEAD SHA, $RELEASE_SHA $MASTER_SHA"
+            MAIN_SHA=$(git rev-parse HEAD)
+            if [[ "$RELEASE_SHA" != "$MAIN_SHA" ]]; then
+              echo "release tag SHA != main HEAD SHA, $RELEASE_SHA $MAIN_SHA"
               exit 1
             fi
             git config --local user.email "cibot@opengamma.com"
@@ -127,7 +129,7 @@ commands:
 # jobs to run
 jobs:
   build:
-    executor: jdk11
+    executor: jdk11-small
     steps:
       - perform_build:
           actions:
@@ -135,7 +137,7 @@ jobs:
 
 #----------------------------------------------------------------------------
   release:
-    executor: jdk11
+    executor: jdk11-small
     steps:
       - perform_build:
           actions:
@@ -145,7 +147,7 @@ jobs:
 
 #----------------------------------------------------------------------------
   trigger_release:
-    executor: jdk11
+    executor: jdk11-small
     steps:
       - perform_build:
           actions:
