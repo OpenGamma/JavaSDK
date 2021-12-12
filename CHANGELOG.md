@@ -3,6 +3,13 @@ Change Log
 
 Changes to the SDK, listed in the style of [keepachangelog](https://keepachangelog.com/en/1.0.0/).
 
+## Version 3.6.3 - 2021-12-12
+
+### Fixed
+
+Updated dependencies
+
+
 ## Version 3.6.2 - 2020-04-28
 
 ### Fixed
