@@ -416,11 +416,11 @@
     <!-- Versions -->
     <assertj.version>3.21.0</assertj.version>
     <jcommander.version>1.81</jcommander.version>
-    <joda-convert.version>2.2.1</joda-convert.version>
+    <joda-convert.version>2.2.2</joda-convert.version>
     <joda-beans.version>2.8.1</joda-beans.version>
     <joda.beans.version>2.8.0</joda.beans.version>
     <junit5.version>5.8.2</junit5.version>
-    <logback.version>1.2.7</logback.version>
+    <logback.version>1.2.9</logback.version>
     <slf4j.version>1.7.30</slf4j.version>
     <okhttp.version>3.14.9</okhttp.version>
     <okio.version>2.10.0</okio.version>
