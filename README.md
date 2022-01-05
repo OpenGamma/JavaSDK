@@ -1,6 +1,6 @@
 # OpenGamma Java SDK
 
-[![Build Status](https://travis-ci.org/OpenGamma/JavaSDK.svg?branch=master)](https://travis-ci.org/OpenGamma/JavaSDK) [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![Build Status](https://travis-ci.org/OpenGamma/JavaSDK.svg?branch=main)](https://travis-ci.org/OpenGamma/JavaSDK) [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 The OpenGamma service is a platform for the independent calculation of metrics such as margin, fees and balance sheet,
 to enable firms to optimize execution and clearing of derivatives.
@@ -24,7 +24,7 @@ For example, to access the SDK for the margin service, use:
 <dependency>
   <groupId>com.opengamma.sdk</groupId>
   <artifactId>sdk-margin</artifactId>
-  <version>3.6.2</version>
+  <version>3.6.3</version>
 </dependency>
 ```
 
