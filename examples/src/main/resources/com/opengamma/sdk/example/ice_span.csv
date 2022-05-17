@@ -1,0 +1,2 @@
+Strata Position Type,Id Scheme,Id,CCP,Broker,Fund,Exchange,Contract Code,Contract Code Type,Long Quantity,Short Quantity,Expiry,Expiry Day,Put Call,Exercise Price,Book,Desk,Portfolio Margin Model,Strategy,Sub Strategy
+FUT,OG-ETD,E13_ETD_Trades.csv_35,ICE,BARC,XPMF,IFUS,MME,EXG,65,0,2021-06,,,,X-ASSETS,ANDRE,,N/A,Equity Stat Arb
