@@ -70,8 +70,7 @@
     <logback-classic.version>1.2.7</logback-classic.version>
     <!-- Properties for joda-beans-maven-plugin -->
     <!-- Lock in JDK config (not Guava) and stick with older version -->
-    <joda-beans-maven-plugin.version>1.1</joda-beans-maven-plugin.version>
-    <joda.beans.version>2.8.0</joda.beans.version>
+    <joda.beans.version>2.8.3</joda.beans.version>
     <joda.beans.config>jdk</joda.beans.config>
     <!-- Not installed/deployed -->
     <maven.install.skip>true</maven.install.skip>

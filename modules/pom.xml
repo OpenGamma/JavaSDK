@@ -51,7 +51,7 @@
         <directory>src/main/resources</directory>
       </resource>
       <resource>
-        <directory />
+        <directory>${project.basedir}</directory>
         <includes>
           <include>LICENSE.txt</include>
           <include>NOTICE.txt</include>
@@ -362,7 +362,6 @@
                   <goal>jar-no-fork</goal>
                 </goals>
                 <configuration>
-                  <skipIfEmpty>true</skipIfEmpty>
                   <archive>
                     <manifest>
                       <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -390,7 +389,6 @@
                   <goal>jar</goal>
                 </goals>
                 <configuration>
-                  <skipIfEmpty>true</skipIfEmpty>
                   <archive>
                     <manifest>
                       <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -418,15 +416,14 @@
     <jcommander.version>1.82</jcommander.version>
     <joda-convert.version>2.2.2</joda-convert.version>
     <joda-beans.version>2.8.3</joda-beans.version>
-    <joda.beans.version>2.8.0</joda.beans.version>
+    <joda.beans.version>2.8.3</joda.beans.version>
     <junit5.version>5.9.0</junit5.version>
     <logback.version>1.2.9</logback.version>
     <slf4j.version>1.7.36</slf4j.version>
     <okhttp.version>3.14.9</okhttp.version>
     <okio.version>2.10.0</okio.version>
     <!-- Properties for joda-beans-maven-plugin -->
-    <!-- Lock in JDK config (not Guava) and stick with older version -->
-    <joda-beans-maven-plugin.version>1.1</joda-beans-maven-plugin.version>
+    <!-- Lock in JDK config (not Guava) -->
     <joda.beans.config>jdk</joda.beans.config>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma SDK</windowtitle>
