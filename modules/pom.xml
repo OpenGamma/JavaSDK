@@ -412,7 +412,7 @@
   <!-- ==================================================================== -->
   <properties>
     <!-- Versions -->
-    <assertj.version>3.23.1</assertj.version>
+    <assertj.version>3.24.1</assertj.version>
     <jcommander.version>1.82</jcommander.version>
     <joda-convert.version>2.2.2</joda-convert.version>
     <joda-beans.version>2.8.3</joda-beans.version>
