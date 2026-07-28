@@ -7,6 +7,7 @@ package com.opengamma.sdk.margin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,9 +16,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.joda.beans.Bean;
@@ -34,7 +38,7 @@ public class PortfolioDataFileTest {
   public void test_ofString_small() {
     PortfolioDataFile test = PortfolioDataFile.of("name.txt", "a=b");
     assertThat(test.getName()).isEqualTo("name.txt.gz.base64");
-    assertThat(test.getData()).isEqualTo("H4sIAAAAAAAAAEu0TQIAzzAAfwMAAAA=");
+    assertThat(test.getData()).isEqualTo(Base64.getEncoder().encodeToString(gzip("a=b")));
   }
 
   @Test
@@ -101,12 +105,30 @@ public class PortfolioDataFileTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_ofCombined() {
+  public void test_ofCombined() throws IOException {
     Path path1 = Paths.get("src/test/resources/simple.xml");
     Path path2 = Paths.get("src/test/resources/simple.xls");
     PortfolioDataFile test = PortfolioDataFile.ofCombined(Arrays.asList(path1, path2));
     assertThat(test.getName()).isEqualTo("JavaSDK.zip.base64");
-    assertThat(test.getData()).isEqualTo(Base64.getEncoder().encodeToString(zip(path1, path2)));
+    byte[] actualZipBytes = Base64.getDecoder().decode(test.getData());
+    assertThat(unzipEntries(actualZipBytes)).isEqualTo(unzipEntries(zip(path1, path2)));
+  }
+
+  private static Map<String, String> unzipEntries(byte[] zipBytes) throws IOException {
+    Map<String, String> entries = new LinkedHashMap<>();
+    try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipBytes))) {
+      ZipEntry entry;
+      while ((entry = zis.getNextEntry()) != null) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buf = new byte[4096];
+        int len;
+        while ((len = zis.read(buf)) != -1) {
+          baos.write(buf, 0, len);
+        }
+        entries.put(entry.getName(), Base64.getEncoder().encodeToString(baos.toByteArray()));
+      }
+    }
+    return entries;
   }
 
   private static byte[] gzip(String str) {
