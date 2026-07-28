@@ -1,9 +1,13 @@
+merge_queue:
+  max_parallel_checks: 1
+
 queue_rules:
   - name: default
-    merge_conditions:
+    merge_method: squash
+    batch_size: 1
+    queue_conditions:
       - "label=auto-merge"
       - "check-success=build"
-    merge_method: squash
 
 pull_request_rules:
   - name: Auto-Merge
@@ -18,9 +22,3 @@ pull_request_rules:
       queue:
         name: default
 
-  - name: Delete-Branch
-    description: Delete branch once PR merged
-    conditions:
-      - "merged"
-    actions:
-      delete_head_branch: {}
