@@ -3,6 +3,17 @@ Change Log
 
 Changes to the SDK, listed in the style of [keepachangelog](https://keepachangelog.com/en/1.0.0/).
 
+## Version 3.6.5 - 2026-07-29
+
+### Added
+
+* Support for multiple CCPs in `MarginClientExample`
+
+### Task
+
+* Updated dependencies
+
+
 ## Version 3.6.4 - 2021-12-19
 
 ### Task
