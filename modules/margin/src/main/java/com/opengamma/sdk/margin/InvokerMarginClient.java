@@ -118,7 +118,7 @@ final class InvokerMarginClient implements MarginClient {
   @Override
   public String createCalculation(Ccp ccp, MarginCalcRequest calcRequest) {
     String text = SERIALIZER.jsonWriter().write(calcRequest, false);
-    RequestBody body = RequestBody.create(MEDIA_JSON, text);
+    RequestBody body = RequestBody.create(text, MEDIA_JSON);
     Request request = new Request.Builder()
         .url(invoker.getServiceUrl().resolve("margin/v3/ccps/" + ccp.name().toLowerCase(Locale.ENGLISH) + "/calculations"))
         .post(body)

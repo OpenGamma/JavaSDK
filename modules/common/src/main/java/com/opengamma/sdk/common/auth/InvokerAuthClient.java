@@ -54,7 +54,7 @@ public final class InvokerAuthClient implements AuthClient {
         secret +
         "\"" +
         "}";
-    RequestBody requestBody = RequestBody.create(MEDIA_JSON, json);
+    RequestBody requestBody = RequestBody.create(json, MEDIA_JSON);
     return authenticate("auth/v3/token", "API key: " + apiKey, requestBody, Credentials.ofApiKey(apiKey, secret));
   }
 
