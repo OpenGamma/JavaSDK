@@ -411,6 +411,10 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- corporate-parent 3.0.3 defaults to Java 21; this SDK must stay on Java 8 -->
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.release>8</maven.compiler.release>
     <!-- Versions -->
     <assertj.version>3.25.3</assertj.version>
     <jcommander.version>1.82</jcommander.version>
