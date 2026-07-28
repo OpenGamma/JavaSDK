@@ -46,7 +46,7 @@ Updated dependencies
 
 ## Version 3.5.0 - 2019-04-23
 
-### Added 
+### Added
 
 * Added a mechanism to create a PortfolioDataFile instance from a Strata bean
 
@@ -54,17 +54,19 @@ Updated dependencies
 
 * Updated dependencies
 
-## Version 3.4.0
 
-### Added 
+## Version 3.4.0 - 2019-04-05
 
-* Added a `portfolioOwnerCode` optional field  to the MarginCalcRequest
+### Added
+
+* Added a `portfolioOwnerCode` optional field to the MarginCalcRequest
 
 ### Task
 
 * Updated dependencies
 
-## Version 3.3.0
+
+## Version 3.3.0 - 2019-03-08
 
 ### Added
 
@@ -80,6 +82,7 @@ Updated dependencies
 ### Added
 
 * Support for CDSClear Margin request
+
 
 ## Version 3.1.3 - 2019-02-07
 
@@ -121,7 +124,7 @@ Updated dependencies
 * If an interrupt happens while blocked, the interrupt flag will now be set
 
 
-## Version 3.0.0- 2018-02-08
+## Version 3.0.0 - 2018-02-08
 
 ### Changed
 
