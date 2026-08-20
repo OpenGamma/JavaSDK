@@ -418,7 +418,7 @@
     <joda-beans.version>2.11.1</joda-beans.version>
     <joda.beans.version>2.8.3</joda.beans.version>
     <junit5.version>5.14.4</junit5.version>
-    <logback.version>1.3.16</logback.version>
+    <logback.version>1.6.3</logback.version>
     <slf4j.version>2.0.18</slf4j.version>
     <okhttp.version>4.12.0</okhttp.version>
     <okio.version>3.6.0</okio.version>
